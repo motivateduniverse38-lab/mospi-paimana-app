@@ -7,9 +7,6 @@ import joblib
 import os
 from datetime import datetime
 
-from src.data_prep import get_bihar_complete_geo_hierarchy, load_paimana_data
-from src.explainability import compute_project_shap_drivers
-
 st.set_page_config(
     page_title="MoSPI InfraDrishti-AI | PAIMANA",
     page_icon="🏛️",
@@ -20,40 +17,129 @@ st.set_page_config(
 # Custom Styling
 st.markdown("""
 <style>
-    .main-header { font-size: 24px; font-weight: 700; color: #1E3A8A; margin-bottom: 0px; }
-    .sub-header { font-size: 14px; color: #64748B; margin-bottom: 20px; }
-    .metric-card { background-color: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 15px; }
+    .main-header { font-size: 24px; font-weight: 700; color: #38BDF8; margin-bottom: 0px; }
+    .sub-header { font-size: 13px; color: #94A3B8; margin-bottom: 20px; }
     .stAlert { border-radius: 8px; }
 </style>
 """, unsafe_allow_html=True)
 
-# Load Data & Models
-@st.cache_resource
-def load_assets():
-    time_model_path = os.path.join("models", "time_model.pkl")
-    cost_model_path = os.path.join("models", "cost_model.pkl")
-    time_model = joblib.load(time_model_path) if os.path.exists(time_model_path) else None
-    cost_model = joblib.load(cost_model_path) if os.path.exists(cost_model_path) else None
-    df = load_paimana_data()
-    hierarchy = get_bihar_complete_geo_hierarchy()
-    return time_model, cost_model, df, hierarchy
+# Self-Contained Bihar Hierarchy Definition
+def get_bihar_geo_hierarchy():
+    return {
+        "East Champaran (Motihari)": {
+            "Motihari Sadar Sub-Div": ["Motihari Sadar", "Kotwa", "Piprakothi", "Turkaulia", "Banjariya"],
+            "Raxaul Sub-Div": ["Raxaul", "Adapur", "Ramgarhwa", "Sugauli"],
+            "Areraj Sub-Div": ["Areraj", "Paharpur", "Harsidhi", "Sangrampur"],
+            "Chakia Sub-Div": ["Chakia", "Kalyanpur", "Kesaria", "Madhuban", "Mehsi", "Tetaria"],
+            "Dhaka Sub-Div": ["Dhaka", "Chiraiya", "Ghorasahan", "Banka Ghat", "Patahi"],
+            "Pakridayal Sub-Div": ["Pakridayal", "Phena"]
+        },
+        "Patna": {
+            "Patna Sadar Sub-Div": ["Patna Sadar", "Phulwari Sharif", "Sampatchak"],
+            "Danapur Sub-Div": ["Danapur", "Khagaul", "Maner", "Bihta"],
+            "Barh Sub-Div": ["Barh", "Bakhtiarpur", "Mokama", "Pandarak", "Ghoswari"],
+            "Masaurhi Sub-Div": ["Masaurhi", "Dhanarua", "Punpun"],
+            "Paliganj Sub-Div": ["Paliganj", "Dulhin Bazar", "Bikram"]
+        },
+        "Gaya": {
+            "Gaya Sadar Sub-Div": ["Gaya Sadar", "Bodh Gaya", "Manpur", "Tankuppa", "Barachatti"],
+            "Tekari Sub-Div": ["Tekari", "Konch", "Guraru", "Paraiya"],
+            "Sherghati Sub-Div": ["Sherghati", "Dobhi", "Amas", "Banke Bazar", "Imamganj"]
+        },
+        "Muzaffarpur": {
+            "Muzaffarpur East Sub-Div": ["Mushahari", "Bochahan", "Gaighat", "Aurai", "Katra", "Bandra", "Dholi"],
+            "Muzaffarpur West Sub-Div": ["Kanti", "Motipur", "Baruraj", "Sahebganj", "Paroo", "Saraiya", "Marwan"]
+        }
+    }
 
-time_model, cost_model, paimana_df, geo_hierarchy = load_assets()
+# Safe Data Loader
+@st.cache_data
+def load_data():
+    paths_to_check = [
+        os.path.join("data", "paimana_processed.csv"),
+        "paimana_processed.csv"
+    ]
+    for p in paths_to_check:
+        if os.path.exists(p):
+            try:
+                return pd.read_csv(p)
+            except Exception:
+                pass
+    # Fallback default synthetic records if file missing
+    return pd.DataFrame([
+        {
+            "Project_Name": "NH-727A 4-Laning Package-BR01 (Motihari Bypass)",
+            "District": "East Champaran (Motihari)",
+            "Original_Cost_Cr": 245.5,
+            "Target_Duration_Months": 36,
+            "Elapsed_Months": 24,
+            "Cumulative_Spend_Cr": 178.2,
+            "Physical_Progress_Pct": 46.0,
+            "Delayed_Milestones": 4,
+            "Land_Risk_Score": 7.5,
+            "WPI_Inflation_Index": 109.2
+        },
+        {
+            "Project_Name": "State Highway ROB Rail Over-Bridge Pkg-04",
+            "District": "Patna",
+            "Original_Cost_Cr": 112.0,
+            "Target_Duration_Months": 24,
+            "Elapsed_Months": 18,
+            "Cumulative_Spend_Cr": 92.5,
+            "Physical_Progress_Pct": 52.0,
+            "Delayed_Milestones": 2,
+            "Land_Risk_Score": 4.0,
+            "WPI_Inflation_Index": 105.8
+        }
+    ])
+
+# Safe Models Loader
+@st.cache_resource
+def load_ml_models():
+    time_paths = [os.path.join("models", "time_model.pkl"), "time_model.pkl"]
+    cost_paths = [os.path.join("models", "cost_model.pkl"), "cost_model.pkl"]
+    
+    t_model, c_model = None, None
+    for p in time_paths:
+        if os.path.exists(p):
+            try:
+                t_model = joblib.load(p)
+                break
+            except Exception:
+                pass
+    for p in cost_paths:
+        if os.path.exists(p):
+            try:
+                c_model = joblib.load(p)
+                break
+            except Exception:
+                pass
+    return t_model, c_model
+
+geo_hierarchy = get_bihar_geo_hierarchy()
+paimana_df = load_data()
+time_model, cost_model = load_ml_models()
 
 # Sidebar: Jurisdiction Selector
 st.sidebar.markdown("### 🏛️ Administrative Jurisdiction")
 selected_state = st.sidebar.selectbox("1. State", ["Bihar"])
 
-districts = list(geo_hierarchy.keys()) if geo_hierarchy else ["East Champaran (Motihari)"]
-selected_district = st.sidebar.selectbox("2. District (38 Districts)", districts)
+districts = list(geo_hierarchy.keys())
+selected_district = st.sidebar.selectbox("2. District (Select Jurisdiction)", districts)
 
-subdivisions = list(geo_hierarchy.get(selected_district, {}).keys()) if geo_hierarchy else ["Motihari Sadar Sub-Div"]
-selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Sub-Div)", subdivisions)
+subdivisions = list(geo_hierarchy.get(selected_district, {}).keys())
+selected_subdiv = st.sidebar.selectbox("3. Subdivision", subdivisions)
 
-blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Motihari Sadar"]) if geo_hierarchy else ["Motihari Sadar"]
-selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", blocks)
+blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Default Block"])
+selected_block = st.sidebar.selectbox("4. Block", blocks)
 
-fetch_btn = st.sidebar.button("Fetch Registered Works Record", use_container_width=True)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📈 Model Benchmarks")
+st.sidebar.markdown("""
+- **LightGBM $R^2$ Score:** 0.89
+- **Mean Absolute Error:** 1.1 Months
+- **Inference Latency:** < 80ms (CPU)
+""")
 
 # Top Bar
 st.markdown("<div class='main-header'>MoSPI Infrastructure Monitoring Division | State PMU (Bihar)</div>", unsafe_allow_html=True)
@@ -63,61 +149,49 @@ col_left, col_right = st.columns([1.1, 0.9])
 
 with col_left:
     st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
-    if paimana_df is not None and not paimana_df.empty:
-        # Filter projects based on hierarchy if available
-        filtered_df = paimana_df[paimana_df['District'].astype(str).str.contains(selected_district.split()[0], case=False, na=False)]
-        if filtered_df.empty:
-            filtered_df = paimana_df.head(10)
-        
-        project_list = filtered_df['Project_Name'].tolist() if 'Project_Name' in filtered_df.columns else ["Package-BR-2026-Highway-01"]
-        selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
-        
-        proj_row = filtered_df[filtered_df['Project_Name'] == selected_project].iloc[0] if 'Project_Name' in filtered_df.columns else filtered_df.iloc[0]
-        
-        # Display Registry Metadata
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Sanctioned Cost", f"₹{proj_row.get('Original_Cost_Cr', 185.0):.1f} Cr")
-        m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
-        m3.metric("Physical Progress", f"{proj_row.get('Physical_Progress_Pct', 42.0):.1f}%")
-        m4.metric("Actual Cumulative Spend", f"₹{proj_row.get('Cumulative_Spend_Cr', 110.0):.1f} Cr")
-    else:
-        st.info("Select district and block from sidebar, then click 'Fetch Registered Works Record'.")
-        proj_row = {
-            'Original_Cost_Cr': 185.0, 'Target_Duration_Months': 36, 'Elapsed_Months': 22,
-            'Cumulative_Spend_Cr': 118.0, 'Physical_Progress_Pct': 38.5, 'Delayed_Milestones': 3,
-            'Land_Risk_Score': 6.5, 'WPI_Inflation_Index': 108.4, 'Contractor_Name': "M/S Infra Buildwell Pvt Ltd",
-            'Site_Engineer': "Er. Rajesh Kumar, Executive Engineer"
-        }
+    filtered_df = paimana_df[paimana_df['District'].astype(str).str.contains(selected_district.split()[0], case=False, na=False)]
+    if filtered_df.empty:
+        filtered_df = paimana_df
+    
+    project_list = filtered_df['Project_Name'].tolist() if 'Project_Name' in filtered_df.columns else ["MoSPI-Bihar-Highway-Pkg-01"]
+    selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
+    
+    proj_row = filtered_df[filtered_df['Project_Name'] == selected_project].iloc[0] if 'Project_Name' in filtered_df.columns else filtered_df.iloc[0]
+    
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Sanctioned Cost", f"₹{proj_row.get('Original_Cost_Cr', 185.0):.1f} Cr")
+    m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
+    m3.metric("Physical Progress", f"{proj_row.get('Physical_Progress_Pct', 42.0):.1f}%")
+    m4.metric("Actual Spend", f"₹{proj_row.get('Cumulative_Spend_Cr', 110.0):.1f} Cr")
 
 with col_right:
     st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
     
-    with st.container():
-        c1, c2, c3, c4 = st.columns(4)
-        inp_cost = c1.number_input("Cost (₹ Cr)", value=float(proj_row.get('Original_Cost_Cr', 185.0)))
-        inp_target = c2.number_input("Target (M)", value=int(proj_row.get('Target_Duration_Months', 36)))
-        inp_elapsed = c3.number_input("Elapsed (M)", value=int(proj_row.get('Elapsed_Months', 22)))
-        inp_spend = c4.number_input("Spend (₹ Cr)", value=float(proj_row.get('Cumulative_Spend_Cr', 118.0)))
-        
-        c5, c6, c7, c8 = st.columns(4)
-        inp_phys = c5.number_input("Progress (%)", value=float(proj_row.get('Physical_Progress_Pct', 38.5)))
-        inp_milestones = c6.number_input("Delayed M/S", value=int(proj_row.get('Delayed_Milestones', 3)))
-        inp_land = c7.number_input("Land Risk (1-10)", value=float(proj_row.get('Land_Risk_Score', 6.5)))
-        inp_wpi = c8.number_input("WPI Index", value=float(proj_row.get('WPI_Inflation_Index', 108.4)))
-        
-        run_eval = st.button("🚀 Run AI Evaluation & Statutory Analysis", use_container_width=True)
+    c1, c2, c3, c4 = st.columns(4)
+    inp_cost = c1.number_input("Cost (₹ Cr)", value=float(proj_row.get('Original_Cost_Cr', 185.0)))
+    inp_target = c2.number_input("Target (M)", value=int(proj_row.get('Target_Duration_Months', 36)))
+    inp_elapsed = c3.number_input("Elapsed (M)", value=int(proj_row.get('Elapsed_Months', 22)))
+    inp_spend = c4.number_input("Spend (₹ Cr)", value=float(proj_row.get('Cumulative_Spend_Cr', 118.0)))
+    
+    c5, c6, c7, c8 = st.columns(4)
+    inp_phys = c5.number_input("Progress (%)", value=float(proj_row.get('Physical_Progress_Pct', 38.5)))
+    inp_milestones = c6.number_input("Delayed M/S", value=int(proj_row.get('Delayed_Milestones', 3)))
+    inp_land = c7.number_input("Land Risk (1-10)", value=float(proj_row.get('Land_Risk_Score', 6.5)))
+    inp_wpi = c8.number_input("WPI Index", value=float(proj_row.get('WPI_Inflation_Index', 108.4)))
+    
+    run_eval = st.button("🚀 Run AI Evaluation & Statutory Analysis", use_container_width=True)
 
-# EVM Computations
+# EVM Calculations
 planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_target)) * 100.0)
 schedule_variance_pct = inp_phys - planned_progress_pct
 earned_value_cr = (inp_phys / 100.0) * inp_cost
 cpi = earned_value_cr / max(0.01, inp_spend)
 spi = inp_phys / max(0.01, planned_progress_pct)
 
-# Machine Learning Prediction Logic
-if time_model and cost_model:
-    features = np.array([[inp_cost, inp_target, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
+# Predictive Model Inference
+if time_model is not None and cost_model is not None:
     try:
+        features = np.array([[inp_cost, inp_target, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
         pred_delay_months = float(time_model.predict(features)[0])
         pred_cost_overrun_pct = float(cost_model.predict(features)[0])
     except Exception:
@@ -130,7 +204,6 @@ else:
 predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
 cost_escalation_cr = predicted_final_cost - inp_cost
 
-# Risk Categorization
 cpri_score = min(100.0, max(0.0, (pred_cost_overrun_pct * 0.4) + (pred_delay_months * 2.5) + (inp_land * 3.5)))
 if cpri_score >= 60.0:
     risk_tier = "HIGH RISK (RED ALERT)"
@@ -144,7 +217,7 @@ else:
 
 st.divider()
 
-# Output Dashboard Tabs
+# Output Viewport Tabs
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 Risk Appraisal & EVM Analysis", 
     "🔍 Explainable AI (TreeSHAP Drivers)", 
@@ -159,7 +232,7 @@ with tab1:
     r3.metric("Cost Performance Index (CPI)", f"{cpi:.2f}", delta="Front-Loading Alert" if cpi < 0.85 else "Fiscally Sound", delta_color="normal" if cpi >= 0.85 else "inverse")
     r4.metric("Risk Status", risk_tier)
     
-    # EVM S-Curve Visualization
+    # S-Curve Visual
     time_pts = np.linspace(0, inp_target + max(12, int(pred_delay_months) + 6), 20)
     planned_s = 100 / (1 + np.exp(-0.15 * (time_pts - (inp_target/2))))
     actual_pts = np.linspace(0, inp_elapsed, 10)
@@ -168,7 +241,7 @@ with tab1:
     forecast_s = np.linspace(inp_phys, 100, 10)
     
     fig_scurve = go.Figure()
-    fig_scurve.add_trace(go.Scatter(x=time_pts, y=planned_s, mode='lines', name='Baseline S-Curve (Planned)', line=dict(color='#3B82F6', dash='dash')))
+    fig_scurve.add_trace(go.Scatter(x=time_pts, y=planned_s, mode='lines', name='Baseline S-Curve (Planned)', line=dict(color='#38BDF8', dash='dash')))
     fig_scurve.add_trace(go.Scatter(x=actual_pts, y=actual_s, mode='lines+markers', name='Actual Ground Progress', line=dict(color='#10B981', width=3)))
     fig_scurve.add_trace(go.Scatter(x=forecast_pts, y=forecast_s, mode='lines', name='AI Predicted Trajectory', line=dict(color=risk_color, width=3, dash='dot')))
     fig_scurve.update_layout(title="EVM S-Curve Progress vs. Delay Forecast Horizon", xaxis_title="Timeline (Months)", yaxis_title="Physical Completion (%)", template="plotly_dark", height=380)
@@ -190,8 +263,6 @@ with tab2:
 
 with tab3:
     st.markdown("#### ⚖️ Automated Statutory Directives & Audit Memorandum")
-    
-    # Detailed Government Memo Draft
     memo_text = f"""GOVERNMENT OF INDIA / STATE INFRASTRUCTURE MONITORING CELL
 OFFICE OF THE DISTRICT MAGISTRATE & NODAL APPRAISAL OFFICER
 DISTRICT: {selected_district.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
@@ -225,7 +296,6 @@ ISSUED UNDER THE OFFICIAL SEAL OF THE COMPETENT MONITORING AUTHORITY
 State Infrastructure Monitoring Division (PMU Bihar) / MoSPI Central Monitoring Wing
 """
     st.text_area("Official Memorandum Text Preview", memo_text, height=350)
-    
     st.download_button(
         label="📥 Download Official Legal Memorandum (.txt)",
         data=memo_text,
@@ -258,11 +328,3 @@ with tab4:
             </p>
         </div>
         """, unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📈 Model Benchmarks")
-st.sidebar.markdown("""
-- **LightGBM $R^2$ Score:** 0.89
-- **Mean Absolute Error:** 1.1 Months
-- **Inference Latency:** < 80ms (CPU)
-""")
