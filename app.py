@@ -55,43 +55,7 @@ def get_bihar_geo_hierarchy():
 # Safe Data Loader
 @st.cache_data
 def load_data():
-    paths_to_check = [
-        os.path.join("data", "paimana_processed.csv"),
-        "paimana_processed.csv"
-    ]
-    for p in paths_to_check:
-        if os.path.exists(p):
-            try:
-                df = pd.read_csv(p)
-                col_map = {}
-                for col in df.columns:
-                    c_low = str(col).lower().strip()
-                    if 'district' in c_low:
-                        col_map[col] = 'District'
-                    elif 'name' in c_low or 'project' in c_low:
-                        col_map[col] = 'Project_Name'
-                    elif 'cost' in c_low and 'orig' in c_low:
-                        col_map[col] = 'Original_Cost_Cr'
-                    elif 'target' in c_low or 'duration' in c_low:
-                        col_map[col] = 'Target_Duration_Months'
-                    elif 'progress' in c_low:
-                        col_map[col] = 'Physical_Progress_Pct'
-                    elif 'spend' in c_low:
-                        col_map[col] = 'Cumulative_Spend_Cr'
-                    elif 'elapsed' in c_low:
-                        col_map[col] = 'Elapsed_Months'
-                    elif 'milestone' in c_low:
-                        col_map[col] = 'Delayed_Milestones'
-                    elif 'land' in c_low:
-                        col_map[col] = 'Land_Risk_Score'
-                    elif 'wpi' in c_low or 'infl' in c_low:
-                        col_map[col] = 'WPI_Inflation_Index'
-                df = df.rename(columns=col_map)
-                return df
-            except Exception:
-                pass
-                
-    return pd.DataFrame([
+    sample_records = [
         {
             "Project_Name": "NH-727A 4-Laning Package-BR01 (Motihari Bypass)",
             "District": "East Champaran (Motihari)",
@@ -127,8 +91,48 @@ def load_data():
             "Delayed_Milestones": 3,
             "Land_Risk_Score": 6.0,
             "WPI_Inflation_Index": 107.5
+        },
+        {
+            "Project_Name": "Muzaffarpur Elevated Corridor Pkg-03",
+            "District": "Muzaffarpur",
+            "Original_Cost_Cr": 310.0,
+            "Target_Duration_Months": 42,
+            "Elapsed_Months": 28,
+            "Cumulative_Spend_Cr": 235.0,
+            "Physical_Progress_Pct": 48.0,
+            "Delayed_Milestones": 5,
+            "Land_Risk_Score": 8.0,
+            "WPI_Inflation_Index": 110.5
         }
-    ])
+    ]
+    
+    paths_to_check = [os.path.join("data", "paimana_processed.csv"), "paimana_processed.csv"]
+    for p in paths_to_check:
+        if os.path.exists(p):
+            try:
+                raw_df = pd.read_csv(p)
+                if raw_df is not None and not raw_df.empty:
+                    # Guarantee standard columns
+                    clean_dict = []
+                    for idx, row in raw_df.iterrows():
+                        r_dict = row.to_dict()
+                        clean_dict.append({
+                            "Project_Name": str(r_dict.get('Project_Name', r_dict.get('project_name', f"MoSPI Package BR-2026-{idx+1}"))),
+                            "District": str(r_dict.get('District', r_dict.get('district', 'East Champaran (Motihari)'))),
+                            "Original_Cost_Cr": float(r_dict.get('Original_Cost_Cr', r_dict.get('cost', 185.0))),
+                            "Target_Duration_Months": int(r_dict.get('Target_Duration_Months', r_dict.get('duration', 36))),
+                            "Elapsed_Months": int(r_dict.get('Elapsed_Months', r_dict.get('elapsed', 22))),
+                            "Cumulative_Spend_Cr": float(r_dict.get('Cumulative_Spend_Cr', r_dict.get('spend', 118.0))),
+                            "Physical_Progress_Pct": float(r_dict.get('Physical_Progress_Pct', r_dict.get('progress', 38.5))),
+                            "Delayed_Milestones": int(r_dict.get('Delayed_Milestones', r_dict.get('milestones', 3))),
+                            "Land_Risk_Score": float(r_dict.get('Land_Risk_Score', r_dict.get('land_risk', 6.5))),
+                            "WPI_Inflation_Index": float(r_dict.get('WPI_Inflation_Index', r_dict.get('wpi', 108.4)))
+                        })
+                    return pd.DataFrame(clean_dict)
+            except Exception:
+                pass
+                
+    return pd.DataFrame(sample_records)
 
 # Safe ML Model Loader
 @st.cache_resource
@@ -170,14 +174,7 @@ selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Sub-Div)", subdivisi
 blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Default Block"])
 selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", blocks)
 
-# Fetch / Enter Button
 fetch_btn = st.sidebar.button("Fetch Registered Works Record", use_container_width=True)
-
-if 'fetched' not in st.session_state:
-    st.session_state['fetched'] = True
-
-if fetch_btn:
-    st.session_state['fetched'] = True
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📈 Model Benchmarks")
@@ -196,56 +193,48 @@ col_left, col_right = st.columns([1.1, 0.9])
 with col_left:
     st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
     
-    if st.session_state['fetched']:
-        filtered_df = paimana_df.copy()
-        if 'District' in filtered_df.columns:
-            query_word = selected_district.split()[0].lower()
-            mask = filtered_df['District'].astype(str).str.lower().str.contains(query_word, na=False)
-            sub_df = filtered_df[mask]
-            if not sub_df.empty:
-                filtered_df = sub_df
-                
-        if 'Project_Name' in filtered_df.columns:
-            project_list = [str(x) for x in filtered_df['Project_Name'].tolist()]
-        else:
-            project_list = [f"Infrastructure Package BR-2026-0{i+1}" for i in range(len(filtered_df))]
-            filtered_df['Project_Name'] = project_list
-
-        if not project_list:
-            project_list = ["NH-727A 4-Laning Package-BR01"]
+    # Filter projects safely
+    query_keyword = selected_district.split()[0].lower()
+    matched_rows = []
+    for _, r in paimana_df.iterrows():
+        if query_keyword in str(r["District"]).lower():
+            matched_rows.append(r)
             
-        selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
+    if not matched_rows:
+        matched_rows = [r for _, r in paimana_df.iterrows()]
         
-        match = filtered_df[filtered_df['Project_Name'] == selected_project]
-        proj_row = match.iloc[0] if not match.empty else filtered_df.iloc[0]
-        
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Sanctioned Cost", f"₹{float(proj_row.get('Original_Cost_Cr', 185.0)):.1f} Cr")
-        m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
-        m3.metric("Physical Progress", f"{float(proj_row.get('Physical_Progress_Pct', 42.0)):.1f}%")
-        m4.metric("Actual Spend", f"₹{float(proj_row.get('Cumulative_Spend_Cr', 110.0)):.1f} Cr")
-    else:
-        st.info("Select district and block from sidebar, then click 'Fetch Registered Works Record'.")
-        proj_row = {
-            'Original_Cost_Cr': 185.0, 'Target_Duration_Months': 36, 'Elapsed_Months': 22,
-            'Cumulative_Spend_Cr': 118.0, 'Physical_Progress_Pct': 38.5, 'Delayed_Milestones': 3,
-            'Land_Risk_Score': 6.5, 'WPI_Inflation_Index': 108.4
-        }
+    project_names = [str(r["Project_Name"]) for r in matched_rows]
+    selected_project = st.selectbox("Select Active Infrastructure Package", project_names)
+    
+    # Selected Project Data Dictionary
+    active_record = None
+    for r in matched_rows:
+        if str(r["Project_Name"]) == selected_project:
+            active_record = r
+            break
+    if active_record is None:
+        active_record = matched_rows[0]
+    
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Sanctioned Cost", f"₹{float(active_record['Original_Cost_Cr']):.1f} Cr")
+    m2.metric("Target Timeline", f"{int(active_record['Target_Duration_Months'])} M")
+    m3.metric("Physical Progress", f"{float(active_record['Physical_Progress_Pct']):.1f}%")
+    m4.metric("Actual Spend", f"₹{float(active_record['Cumulative_Spend_Cr']):.1f} Cr")
 
 with col_right:
     st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
     
     c1, c2, c3, c4 = st.columns(4)
-    inp_cost = c1.number_input("Cost (₹ Cr)", value=float(proj_row.get('Original_Cost_Cr', 185.0)))
-    inp_target = c2.number_input("Target (M)", value=int(proj_row.get('Target_Duration_Months', 36)))
-    inp_elapsed = c3.number_input("Elapsed (M)", value=int(proj_row.get('Elapsed_Months', 22)))
-    inp_spend = c4.number_input("Spend (₹ Cr)", value=float(proj_row.get('Cumulative_Spend_Cr', 118.0)))
+    inp_cost = c1.number_input("Cost (₹ Cr)", value=float(active_record['Original_Cost_Cr']))
+    inp_target = c2.number_input("Target (M)", value=int(active_record['Target_Duration_Months']))
+    inp_elapsed = c3.number_input("Elapsed (M)", value=int(active_record['Elapsed_Months']))
+    inp_spend = c4.number_input("Spend (₹ Cr)", value=float(active_record['Cumulative_Spend_Cr']))
     
     c5, c6, c7, c8 = st.columns(4)
-    inp_phys = c5.number_input("Progress (%)", value=float(proj_row.get('Physical_Progress_Pct', 38.5)))
-    inp_milestones = c6.number_input("Delayed M/S", value=int(proj_row.get('Delayed_Milestones', 3)))
-    inp_land = c7.number_input("Land Risk (1-10)", value=float(proj_row.get('Land_Risk_Score', 6.5)))
-    inp_wpi = c8.number_input("WPI Index", value=float(proj_row.get('WPI_Inflation_Index', 108.4)))
+    inp_phys = c5.number_input("Progress (%)", value=float(active_record['Physical_Progress_Pct']))
+    inp_milestones = c6.number_input("Delayed M/S", value=int(active_record['Delayed_Milestones']))
+    inp_land = c7.number_input("Land Risk (1-10)", value=float(active_record['Land_Risk_Score']))
+    inp_wpi = c8.number_input("WPI Index", value=float(active_record['WPI_Inflation_Index']))
     
     run_eval = st.button("🚀 Run AI Evaluation (Single Viewport)", use_container_width=True)
 
