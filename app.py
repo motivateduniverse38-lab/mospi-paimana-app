@@ -52,7 +52,7 @@ def get_bihar_geo_hierarchy():
         }
     }
 
-# Safe Data Loader
+# Safe Data Loader with Case-Insensitive Column Normalization
 @st.cache_data
 def load_data():
     paths_to_check = [
@@ -62,10 +62,37 @@ def load_data():
     for p in paths_to_check:
         if os.path.exists(p):
             try:
-                return pd.read_csv(p)
+                df = pd.read_csv(p)
+                # Normalize column names to standard format
+                col_map = {}
+                for col in df.columns:
+                    col_lower = col.lower().strip()
+                    if 'district' in col_lower:
+                        col_map[col] = 'District'
+                    elif 'name' in col_lower or 'project' in col_lower:
+                        col_map[col] = 'Project_Name'
+                    elif 'cost' in col_lower and 'orig' in col_lower:
+                        col_map[col] = 'Original_Cost_Cr'
+                    elif 'target' in col_lower or 'duration' in col_lower:
+                        col_map[col] = 'Target_Duration_Months'
+                    elif 'progress' in col_lower:
+                        col_map[col] = 'Physical_Progress_Pct'
+                    elif 'spend' in col_lower:
+                        col_map[col] = 'Cumulative_Spend_Cr'
+                    elif 'elapsed' in col_lower:
+                        col_map[col] = 'Elapsed_Months'
+                    elif 'milestone' in col_lower:
+                        col_map[col] = 'Delayed_Milestones'
+                    elif 'land' in col_lower:
+                        col_map[col] = 'Land_Risk_Score'
+                    elif 'wpi' in col_lower or 'infl' in col_lower:
+                        col_map[col] = 'WPI_Inflation_Index'
+                df = df.rename(columns=col_map)
+                return df
             except Exception:
                 pass
-    # Fallback default synthetic records if file missing
+                
+    # Fallback Data
     return pd.DataFrame([
         {
             "Project_Name": "NH-727A 4-Laning Package-BR01 (Motihari Bypass)",
@@ -90,10 +117,22 @@ def load_data():
             "Delayed_Milestones": 2,
             "Land_Risk_Score": 4.0,
             "WPI_Inflation_Index": 105.8
+        },
+        {
+            "Project_Name": "Gaya Mega Water Treatment Plant Pkg-02",
+            "District": "Gaya",
+            "Original_Cost_Cr": 195.0,
+            "Target_Duration_Months": 30,
+            "Elapsed_Months": 20,
+            "Cumulative_Spend_Cr": 130.0,
+            "Physical_Progress_Pct": 40.0,
+            "Delayed_Milestones": 3,
+            "Land_Risk_Score": 6.0,
+            "WPI_Inflation_Index": 107.5
         }
     ])
 
-# Safe Models Loader
+# Safe Model Loader
 @st.cache_resource
 def load_ml_models():
     time_paths = [os.path.join("models", "time_model.pkl"), "time_model.pkl"]
@@ -149,20 +188,33 @@ col_left, col_right = st.columns([1.1, 0.9])
 
 with col_left:
     st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
-    filtered_df = paimana_df[paimana_df['District'].astype(str).str.contains(selected_district.split()[0], case=False, na=False)]
-    if filtered_df.empty:
-        filtered_df = paimana_df
     
-    project_list = filtered_df['Project_Name'].tolist() if 'Project_Name' in filtered_df.columns else ["MoSPI-Bihar-Highway-Pkg-01"]
+    # Safe Filtering (Never crashes even if 'District' column is missing)
+    if 'District' in paimana_df.columns:
+        query_word = selected_district.split()[0].lower()
+        matched_mask = paimana_df['District'].astype(str).str.lower().str.contains(query_word, na=False)
+        filtered_df = paimana_df[matched_mask]
+        if filtered_df.empty:
+            filtered_df = paimana_df
+    else:
+        filtered_df = paimana_df
+
+    if 'Project_Name' in filtered_df.columns:
+        project_list = filtered_df['Project_Name'].tolist()
+    else:
+        project_list = [f"Infrastructure Package BR-2026-0{i+1}" for i in range(len(filtered_df))]
+        filtered_df['Project_Name'] = project_list
+        
     selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
     
-    proj_row = filtered_df[filtered_df['Project_Name'] == selected_project].iloc[0] if 'Project_Name' in filtered_df.columns else filtered_df.iloc[0]
+    matching_rows = filtered_df[filtered_df['Project_Name'] == selected_project]
+    proj_row = matching_rows.iloc[0] if not matching_rows.empty else filtered_df.iloc[0]
     
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Sanctioned Cost", f"₹{proj_row.get('Original_Cost_Cr', 185.0):.1f} Cr")
+    m1.metric("Sanctioned Cost", f"₹{float(proj_row.get('Original_Cost_Cr', 185.0)):.1f} Cr")
     m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
-    m3.metric("Physical Progress", f"{proj_row.get('Physical_Progress_Pct', 42.0):.1f}%")
-    m4.metric("Actual Spend", f"₹{proj_row.get('Cumulative_Spend_Cr', 110.0):.1f} Cr")
+    m3.metric("Physical Progress", f"{float(proj_row.get('Physical_Progress_Pct', 42.0)):.1f}%")
+    m4.metric("Actual Spend", f"₹{float(proj_row.get('Cumulative_Spend_Cr', 110.0)):.1f} Cr")
 
 with col_right:
     st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
@@ -188,7 +240,7 @@ earned_value_cr = (inp_phys / 100.0) * inp_cost
 cpi = earned_value_cr / max(0.01, inp_spend)
 spi = inp_phys / max(0.01, planned_progress_pct)
 
-# Predictive Model Inference
+# Machine Learning Prediction Logic
 if time_model is not None and cost_model is not None:
     try:
         features = np.array([[inp_cost, inp_target, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
@@ -217,7 +269,7 @@ else:
 
 st.divider()
 
-# Output Viewport Tabs
+# Output Dashboard Tabs
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 Risk Appraisal & EVM Analysis", 
     "🔍 Explainable AI (TreeSHAP Drivers)", 
