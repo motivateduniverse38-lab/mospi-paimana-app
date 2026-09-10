@@ -23,7 +23,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Self-Contained Bihar Hierarchy Definition
+# Bihar Administrative Structure
 def get_bihar_geo_hierarchy():
     return {
         "East Champaran (Motihari)": {
@@ -52,7 +52,7 @@ def get_bihar_geo_hierarchy():
         }
     }
 
-# Safe Data Loader with Case-Insensitive Column Normalization
+# Safe Data Loader
 @st.cache_data
 def load_data():
     paths_to_check = [
@@ -63,36 +63,34 @@ def load_data():
         if os.path.exists(p):
             try:
                 df = pd.read_csv(p)
-                # Normalize column names to standard format
                 col_map = {}
                 for col in df.columns:
-                    col_lower = col.lower().strip()
-                    if 'district' in col_lower:
+                    c_low = str(col).lower().strip()
+                    if 'district' in c_low:
                         col_map[col] = 'District'
-                    elif 'name' in col_lower or 'project' in col_lower:
+                    elif 'name' in c_low or 'project' in c_low:
                         col_map[col] = 'Project_Name'
-                    elif 'cost' in col_lower and 'orig' in col_lower:
+                    elif 'cost' in c_low and 'orig' in c_low:
                         col_map[col] = 'Original_Cost_Cr'
-                    elif 'target' in col_lower or 'duration' in col_lower:
+                    elif 'target' in c_low or 'duration' in c_low:
                         col_map[col] = 'Target_Duration_Months'
-                    elif 'progress' in col_lower:
+                    elif 'progress' in c_low:
                         col_map[col] = 'Physical_Progress_Pct'
-                    elif 'spend' in col_lower:
+                    elif 'spend' in c_low:
                         col_map[col] = 'Cumulative_Spend_Cr'
-                    elif 'elapsed' in col_lower:
+                    elif 'elapsed' in c_low:
                         col_map[col] = 'Elapsed_Months'
-                    elif 'milestone' in col_lower:
+                    elif 'milestone' in c_low:
                         col_map[col] = 'Delayed_Milestones'
-                    elif 'land' in col_lower:
+                    elif 'land' in c_low:
                         col_map[col] = 'Land_Risk_Score'
-                    elif 'wpi' in col_lower or 'infl' in col_lower:
+                    elif 'wpi' in c_low or 'infl' in c_low:
                         col_map[col] = 'WPI_Inflation_Index'
                 df = df.rename(columns=col_map)
                 return df
             except Exception:
                 pass
                 
-    # Fallback Data
     return pd.DataFrame([
         {
             "Project_Name": "NH-727A 4-Laning Package-BR01 (Motihari Bypass)",
@@ -132,13 +130,13 @@ def load_data():
         }
     ])
 
-# Safe Model Loader
+# Safe ML Model Loader
 @st.cache_resource
 def load_ml_models():
     time_paths = [os.path.join("models", "time_model.pkl"), "time_model.pkl"]
     cost_paths = [os.path.join("models", "cost_model.pkl"), "cost_model.pkl"]
-    
     t_model, c_model = None, None
+    
     for p in time_paths:
         if os.path.exists(p):
             try:
@@ -164,13 +162,22 @@ st.sidebar.markdown("### 🏛️ Administrative Jurisdiction")
 selected_state = st.sidebar.selectbox("1. State", ["Bihar"])
 
 districts = list(geo_hierarchy.keys())
-selected_district = st.sidebar.selectbox("2. District (Select Jurisdiction)", districts)
+selected_district = st.sidebar.selectbox("2. District (38 Districts)", districts)
 
 subdivisions = list(geo_hierarchy.get(selected_district, {}).keys())
-selected_subdiv = st.sidebar.selectbox("3. Subdivision", subdivisions)
+selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Sub-Div)", subdivisions)
 
 blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Default Block"])
-selected_block = st.sidebar.selectbox("4. Block", blocks)
+selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", blocks)
+
+# Fetch / Enter Button
+fetch_btn = st.sidebar.button("Fetch Registered Works Record", use_container_width=True)
+
+if 'fetched' not in st.session_state:
+    st.session_state['fetched'] = True
+
+if fetch_btn:
+    st.session_state['fetched'] = True
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📈 Model Benchmarks")
@@ -180,7 +187,7 @@ st.sidebar.markdown("""
 - **Inference Latency:** < 80ms (CPU)
 """)
 
-# Top Bar
+# Main Content
 st.markdown("<div class='main-header'>MoSPI Infrastructure Monitoring Division | State PMU (Bihar)</div>", unsafe_allow_html=True)
 st.markdown(f"<div class='sub-header'>System Live Timestamp: {datetime.now().strftime('%d-%b-%Y | %H:%M:%S IST')} | Common Upload Form (CUF) Compliance Engine</div>", unsafe_allow_html=True)
 
@@ -189,32 +196,41 @@ col_left, col_right = st.columns([1.1, 0.9])
 with col_left:
     st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
     
-    # Safe Filtering (Never crashes even if 'District' column is missing)
-    if 'District' in paimana_df.columns:
-        query_word = selected_district.split()[0].lower()
-        matched_mask = paimana_df['District'].astype(str).str.lower().str.contains(query_word, na=False)
-        filtered_df = paimana_df[matched_mask]
-        if filtered_df.empty:
-            filtered_df = paimana_df
-    else:
-        filtered_df = paimana_df
+    if st.session_state['fetched']:
+        filtered_df = paimana_df.copy()
+        if 'District' in filtered_df.columns:
+            query_word = selected_district.split()[0].lower()
+            mask = filtered_df['District'].astype(str).str.lower().str.contains(query_word, na=False)
+            sub_df = filtered_df[mask]
+            if not sub_df.empty:
+                filtered_df = sub_df
+                
+        if 'Project_Name' in filtered_df.columns:
+            project_list = [str(x) for x in filtered_df['Project_Name'].tolist()]
+        else:
+            project_list = [f"Infrastructure Package BR-2026-0{i+1}" for i in range(len(filtered_df))]
+            filtered_df['Project_Name'] = project_list
 
-    if 'Project_Name' in filtered_df.columns:
-        project_list = filtered_df['Project_Name'].tolist()
-    else:
-        project_list = [f"Infrastructure Package BR-2026-0{i+1}" for i in range(len(filtered_df))]
-        filtered_df['Project_Name'] = project_list
+        if not project_list:
+            project_list = ["NH-727A 4-Laning Package-BR01"]
+            
+        selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
         
-    selected_project = st.selectbox("Select Active Infrastructure Package", project_list)
-    
-    matching_rows = filtered_df[filtered_df['Project_Name'] == selected_project]
-    proj_row = matching_rows.iloc[0] if not matching_rows.empty else filtered_df.iloc[0]
-    
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Sanctioned Cost", f"₹{float(proj_row.get('Original_Cost_Cr', 185.0)):.1f} Cr")
-    m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
-    m3.metric("Physical Progress", f"{float(proj_row.get('Physical_Progress_Pct', 42.0)):.1f}%")
-    m4.metric("Actual Spend", f"₹{float(proj_row.get('Cumulative_Spend_Cr', 110.0)):.1f} Cr")
+        match = filtered_df[filtered_df['Project_Name'] == selected_project]
+        proj_row = match.iloc[0] if not match.empty else filtered_df.iloc[0]
+        
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Sanctioned Cost", f"₹{float(proj_row.get('Original_Cost_Cr', 185.0)):.1f} Cr")
+        m2.metric("Target Timeline", f"{int(proj_row.get('Target_Duration_Months', 36))} M")
+        m3.metric("Physical Progress", f"{float(proj_row.get('Physical_Progress_Pct', 42.0)):.1f}%")
+        m4.metric("Actual Spend", f"₹{float(proj_row.get('Cumulative_Spend_Cr', 110.0)):.1f} Cr")
+    else:
+        st.info("Select district and block from sidebar, then click 'Fetch Registered Works Record'.")
+        proj_row = {
+            'Original_Cost_Cr': 185.0, 'Target_Duration_Months': 36, 'Elapsed_Months': 22,
+            'Cumulative_Spend_Cr': 118.0, 'Physical_Progress_Pct': 38.5, 'Delayed_Milestones': 3,
+            'Land_Risk_Score': 6.5, 'WPI_Inflation_Index': 108.4
+        }
 
 with col_right:
     st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
@@ -231,7 +247,7 @@ with col_right:
     inp_land = c7.number_input("Land Risk (1-10)", value=float(proj_row.get('Land_Risk_Score', 6.5)))
     inp_wpi = c8.number_input("WPI Index", value=float(proj_row.get('WPI_Inflation_Index', 108.4)))
     
-    run_eval = st.button("🚀 Run AI Evaluation & Statutory Analysis", use_container_width=True)
+    run_eval = st.button("🚀 Run AI Evaluation (Single Viewport)", use_container_width=True)
 
 # EVM Calculations
 planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_target)) * 100.0)
