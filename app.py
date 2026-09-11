@@ -80,7 +80,7 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Aesthetic High-Contrast CSS & Slider Visibility Fix
+# Custom Aesthetic High-Contrast CSS & Permanent Slider Visibility Fix
 st.markdown("""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
@@ -173,15 +173,27 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* 2. Slider Number Visibility Fix */
-    .stSlider > div > div > div > div { background-color: #EF4444; }
+    /* High-Contrast Slider Number Visibility Fix */
+    .stSlider [data-baseweb="slider"] {
+        color: #FFFFFF !important;
+    }
     div[data-testid="stThumbValue"] {
         color: #FFFFFF !important;
         font-weight: 800 !important;
-        font-size: 14px !important;
-        background-color: #0369A1 !important;
-        padding: 2px 6px !important;
-        border-radius: 4px !important;
+        font-size: 13px !important;
+        background-color: #0F172A !important;
+        border: 1.5px solid #38BDF8 !important;
+        padding: 3px 8px !important;
+        border-radius: 6px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    }
+    div[role="slider"] {
+        background-color: #EF4444 !important;
+        border: 2px solid #FFFFFF !important;
+    }
+    div[data-testid="stSlider"] div[data-testid="stMarkdownContainer"] p {
+        color: #F8FAFC !important;
+        font-weight: 700 !important;
     }
     div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {
         color: #94A3B8 !important;
@@ -531,10 +543,9 @@ else:
     block_pool = ["Select Block"] + all_blocks
 selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_pool, index=0)
 
-# 4. Fetch button directly below block
+# Fetch button directly below block
 fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
 
-# Strict Check: Fetch only on full selection + button click
 if fetch_btn:
     if (
         selected_state != "Select State" and 
@@ -550,7 +561,7 @@ if fetch_btn:
 
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-# 3. Demo Preset at the bottom with professional note
+# Demo Preset at the bottom with professional note
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
 st.sidebar.markdown("""
 <div class="sidebar-note">
@@ -585,7 +596,6 @@ col_sec1, col_sec2 = st.columns([1.05, 0.95], gap="medium")
 with col_sec1:
     st.markdown("<div class='section-title'>📁 SECTION 1: DETAILS ABOUT ONGOING PROJECTS</div>", unsafe_allow_html=True)
     
-    # 4. Show projects only when user fetched complete location or clicked demo
     if st.session_state.get('projects_fetched', False):
         active_dist = st.session_state.get('active_district', selected_district)
         district_kw = active_dist.split()[0].lower()
