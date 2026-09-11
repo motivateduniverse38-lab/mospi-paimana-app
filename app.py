@@ -51,17 +51,17 @@ if "splash_done" not in st.session_state:
                 animation: fadeIn 1s ease-in-out;
             }}
             .splash-logo {{
-                font-size: 64px;
+                font-size: 58px;
                 font-weight: 900;
-                letter-spacing: 4px;
+                letter-spacing: 3px;
                 color: {active_accent};
                 text-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
                 margin-bottom: 8px;
             }}
             .splash-sub {{
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 700;
-                letter-spacing: 5px;
+                letter-spacing: 4px;
                 color: #94A3B8;
                 text-transform: uppercase;
                 margin-bottom: 25px;
@@ -100,9 +100,10 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Aesthetic Theme Styling
+# Custom High-Visibility & Cross-Platform Typography CSS
 st.markdown(f"""
 <style>
+    /* Complete Cloud Watermark & Code Access Suppression */
     #MainMenu {{visibility: hidden !important; display: none !important;}}
     header {{visibility: hidden !important; display: none !important;}}
     footer {{visibility: hidden !important; display: none !important;}}
@@ -120,11 +121,53 @@ st.markdown(f"""
     [data-testid="stDecoration"] {{display: none !important; visibility: hidden !important;}}
     section[data-testid="stSidebar"] {{display: none !important;}}
 
-    .stApp {{ background-color: {active_bg}; color: #F8FAFC; }}
+    /* Global Dark Slate & High-Contrast Typography */
+    .stApp {{
+        background-color: {active_bg} !important;
+        color: #F8FAFC !important;
+    }}
     
+    /* Input Labels: Make Pure White & Bold */
+    label, [data-testid="stWidgetLabel"] p {{
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        letter-spacing: 0.3px !important;
+    }}
+
+    /* Text Inputs, Number Boxes & Selectboxes */
+    div[data-baseweb="input"] input, div[data-baseweb="select"] {{
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        background-color: #111827 !important;
+    }}
+    div[data-baseweb="input"] {{
+        border: 1.5px solid #334155 !important;
+        border-radius: 6px !important;
+    }}
+
+    /* High Visibility Solid Contrast Buttons */
+    .stButton button {{
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 13px !important;
+        border: 1.5px solid {active_accent} !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+        padding: 8px 14px !important;
+        transition: all 0.2s ease-in-out !important;
+    }}
+    .stButton button:hover {{
+        background-color: {active_accent} !important;
+        color: #0F172A !important;
+        border-color: #FFFFFF !important;
+    }}
+
+    /* Brand Header */
     .brand-title {{
         text-align: center;
-        font-size: 36px;
+        font-size: 34px;
         font-weight: 900;
         letter-spacing: 2px;
         color: {active_accent};
@@ -134,14 +177,15 @@ st.markdown(f"""
     }}
     .brand-subtitle {{
         text-align: center;
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 700;
-        letter-spacing: 3px;
+        letter-spacing: 2.5px;
         color: #94A3B8;
         text-transform: uppercase;
         margin-bottom: 20px;
     }}
 
+    /* Section Headings */
     .section-title {{
         font-size: 14px;
         font-weight: 800;
@@ -153,6 +197,7 @@ st.markdown(f"""
         padding-bottom: 5px;
     }}
 
+    /* Project Cards */
     .project-card-white {{
         background-color: #FFFFFF;
         color: #0F172A;
@@ -179,9 +224,9 @@ st.markdown(f"""
         margin-bottom: 8px;
     }}
     .metric-dot-row {{
-        color: #F1F5F9;
+        color: #F8FAFC;
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 6px;
     }}
     .metric-dot-green {{
@@ -189,28 +234,25 @@ st.markdown(f"""
         font-weight: 700;
     }}
 
+    /* Sliders styling */
     .stSlider [data-baseweb="slider"] {{ color: #FFFFFF !important; }}
     div[data-testid="stThumbValue"] {{
         color: #FFFFFF !important;
         font-weight: 800 !important;
-        font-size: 12px !important;
+        font-size: 13px !important;
         background-color: #0F172A !important;
         border: 1.5px solid {active_accent} !important;
-        padding: 2px 6px !important;
-        border-radius: 5px !important;
+        padding: 2px 8px !important;
+        border-radius: 6px !important;
     }}
     div[role="slider"] {{
         background-color: #EF4444 !important;
         border: 2px solid #FFFFFF !important;
     }}
-    div[data-testid="stSlider"] div[data-testid="stMarkdownContainer"] p {{
-        color: #F8FAFC !important;
-        font-weight: 700 !important;
-    }}
     div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {{
         color: #94A3B8 !important;
         font-weight: 700 !important;
-        font-size: 11px !important;
+        font-size: 12px !important;
     }}
 
     .sidebar-note {{
@@ -219,9 +261,9 @@ st.markdown(f"""
         border-left: 3px solid {active_accent};
         padding: 8px 10px;
         border-radius: 6px;
-        font-size: 11px;
-        color: #94A3B8;
-        margin-top: 6px;
+        font-size: 11.5px;
+        color: #CBD5E1;
+        margin-top: 8px;
         line-height: 1.4;
     }}
 </style>
@@ -376,7 +418,7 @@ if 'ai_evaluated' not in st.session_state:
 if 'projects_fetched' not in st.session_state:
     st.session_state['projects_fetched'] = False
 
-# Top Header Layout with Styled Three-Dot Settings Popover
+# Top Header Layout with Styled Settings Popover
 header_col1, header_col2, header_col3 = st.columns([1, 8, 1.2])
 
 with header_col2:
@@ -394,7 +436,7 @@ with header_col3:
             st.rerun()
 
 # Responsive Main 3-Column Interface (Always Visible on Mobile & Desktop)
-col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="small")
+col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 
 # COLUMN 1: Direct Administrative Jurisdiction
 with col_geo:
