@@ -189,9 +189,11 @@ geo_hierarchy = get_bihar_geo_hierarchy()
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# State Management for User-driven inputs
+# State Management for User-driven inputs & Evaluation
 if 'selected_record' not in st.session_state:
     st.session_state['selected_record'] = None
+if 'ai_evaluated' not in st.session_state:
+    st.session_state['ai_evaluated'] = False
 
 # Sidebar Setup with explicit placeholders
 st.sidebar.markdown("### 📍 Bihar Administrative Hierarchy")
@@ -226,6 +228,7 @@ if demo_btn:
     st.session_state['sl_rev'] = int(preset_rec['Revisions_Count'])
     st.session_state['sl_land'] = float(preset_rec['Land_Risk_Score'])
     st.session_state['sl_wpi'] = float(preset_rec['WPI_Inflation_Index'])
+    st.session_state['ai_evaluated'] = True
 
 fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
 
@@ -284,9 +287,10 @@ with col_sec1:
             st.session_state['sl_rev'] = int(row_dict.get('Revisions_Count', 0))
             st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
             st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
+            st.session_state['ai_evaluated'] = False
             st.rerun()
     else:
-        st.info("👈 Please select a state, district and project from the dropdown above to load data.")
+        st.info("👈 Please select state, district and project to inspect.")
 
 # SECTION 2: AI Inputs & Sliders
 rec = st.session_state.get('selected_record') or {}
@@ -306,15 +310,20 @@ with col_sec2:
         inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 100.0))), key="sl_wpi")
 
     run_ai = st.button("⚡ Run AI Prediction & Risk Analysis (Enter ↵)", use_container_width=True)
+    if run_ai:
+        if inp_cost > 0 and inp_duration > 0:
+            st.session_state['ai_evaluated'] = True
+        else:
+            st.warning("Please load a project or provide non-zero cost and duration before evaluating.")
 
-# EVM & AI Calculations
-planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0) if inp_duration > 0 else 0.0
-schedule_variance_pct = inp_phys - planned_progress_pct
-earned_value_cr = (inp_phys / 100.0) * inp_cost
-cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
-spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
+# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK
+if st.session_state['ai_evaluated'] and inp_cost > 0:
+    planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
+    schedule_variance_pct = inp_phys - planned_progress_pct
+    earned_value_cr = (inp_phys / 100.0) * inp_cost
+    cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
+    spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
 
-if inp_cost > 0:
     if time_model is not None and cost_model is not None:
         try:
             features = np.array([[inp_cost, inp_duration, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
@@ -326,121 +335,107 @@ if inp_cost > 0:
     else:
         pred_delay_months = max(1.0, (planned_progress_pct - inp_phys) * 0.45 + (inp_land * 0.9))
         pred_cost_overrun_pct = max(4.0, (1.0 - cpi) * 38.0 + ((inp_wpi - 100.0) * 0.5))
-else:
-    pred_delay_months = 0.0
-    pred_cost_overrun_pct = 0.0
 
-predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
-cost_escalation_cr = predicted_final_cost - inp_cost
+    predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
+    cost_escalation_cr = predicted_final_cost - inp_cost
 
-cpri_score = min(100.0, max(0.0, (pred_cost_overrun_pct * 0.35) + (pred_delay_months * 2.2) + (inp_land * 3.0)))
-if cpri_score >= 60.0:
-    alert_badge = "🔴 Red Alert"
-    alert_bg = "#EF4444"
-elif cpri_score >= 30.0:
-    alert_badge = "🟡 Amber Alert"
-    alert_bg = "#F59E0B"
-else:
-    alert_badge = "🟢 Green On-Track"
-    alert_bg = "#10B981"
+    cpri_score = min(100.0, max(0.0, (pred_cost_overrun_pct * 0.35) + (pred_delay_months * 2.2) + (inp_land * 3.0)))
+    if cpri_score >= 60.0:
+        alert_badge = "🔴 Red Alert"
+        alert_bg = "#EF4444"
+    elif cpri_score >= 30.0:
+        alert_badge = "🟡 Amber Alert"
+        alert_bg = "#F59E0B"
+    else:
+        alert_badge = "🟢 Green On-Track"
+        alert_bg = "#10B981"
 
-st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-# Risk Output Cards as in Screenshot 2
-rc1, rc2, rc3 = st.columns([1, 1, 1.2])
-with rc1:
-    st.markdown(f"""
-    <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
-        <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Cost Overrun</span>
-        <div style="font-size: 28px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_cost_overrun_pct:.1f}%</div>
-        <span style="color: #EF4444; font-size: 13px; font-weight: 600;">↑ +₹{cost_escalation_cr:.1f} Cr</span>
-    </div>
-    """, unsafe_allow_html=True)
-with rc2:
-    st.markdown(f"""
-    <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
-        <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Schedule Delay</span>
-        <div style="font-size: 28px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_delay_months:.1f} Mo...</div>
-        <span style="color: #EF4444; font-size: 13px; font-weight: 600;">↑ {pred_delay_months:.1f} M Delay</span>
-    </div>
-    """, unsafe_allow_html=True)
-with rc3:
-    st.markdown(f"""
-    <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px; text-align: center;">
-        <div style="background-color: {alert_bg}22; border: 1px solid {alert_bg}; padding: 12px; border-radius: 6px; margin-top: 4px;">
-            <span style="color: {alert_bg}; font-weight: 800; font-size: 18px;">{alert_badge}</span><br>
-            <span style="color: #E2E8F0; font-size: 13px; font-weight: 600;">({int(cpri_score)}/100)</span>
+    # Risk Output Cards as in Screenshot 2
+    rc1, rc2, rc3 = st.columns([1, 1, 1.2])
+    with rc1:
+        st.markdown(f"""
+        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
+            <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Cost Overrun</span>
+            <div style="font-size: 28px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_cost_overrun_pct:.1f}%</div>
+            <span style="color: #EF4444; font-size: 13px; font-weight: 600;">↑ +₹{cost_escalation_cr:.1f} Cr</span>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    with rc2:
+        st.markdown(f"""
+        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
+            <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Schedule Delay</span>
+            <div style="font-size: 28px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_delay_months:.1f} Mo...</div>
+            <span style="color: #EF4444; font-size: 13px; font-weight: 600;">↑ {pred_delay_months:.1f} M Delay</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with rc3:
+        st.markdown(f"""
+        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px; text-align: center;">
+            <div style="background-color: {alert_bg}22; border: 1px solid {alert_bg}; padding: 12px; border-radius: 6px; margin-top: 4px;">
+                <span style="color: {alert_bg}; font-weight: 800; font-size: 18px;">{alert_badge}</span><br>
+                <span style="color: #E2E8F0; font-size: 13px; font-weight: 600;">({int(cpri_score)}/100)</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-# 4 Analytical Tabs
-t_scurve, t_shap, t_notice, t_whatif = st.tabs([
-    "📊 S-Curve EVM", 
-    "🔍 SHAP Root-Cause", 
-    "📜 Directive Notice", 
-    "🧪 'What-If' Decision Simulator"
-])
+    # 4 Analytical Tabs
+    t_scurve, t_shap, t_notice, t_whatif = st.tabs([
+        "📊 S-Curve EVM", 
+        "🔍 SHAP Root-Cause", 
+        "📜 Directive Notice", 
+        "🧪 'What-If' Decision Simulator"
+    ])
 
-with t_scurve:
-    safe_dur = max(1, inp_duration)
-    safe_elap = max(1, inp_elapsed)
-    
-    time_pts = np.linspace(0, safe_dur + max(12, int(pred_delay_months) + 6), 30)
-    planned_s = 100 / (1 + np.exp(-0.15 * (time_pts - (safe_dur / 2))))
-    
-    actual_time_pts = np.linspace(0, safe_elap, 15)
-    actual_s_pts = np.linspace(0, inp_phys, 15)
-    
-    forecast_time_pts = np.linspace(safe_elap, safe_dur + pred_delay_months, 15)
-    forecast_s_pts = np.linspace(inp_phys, 100, 15)
-    
-    fig_s = go.Figure()
-    fig_s.add_trace(go.Scatter(
-        x=time_pts, y=planned_s,
-        mode='lines',
-        name='Baseline Planned S-Curve',
-        line=dict(color='#3B82F6', width=2, dash='dash')
-    ))
-    fig_s.add_trace(go.Scatter(
-        x=actual_time_pts, y=actual_s_pts,
-        mode='lines+markers',
-        name='Actual Ground Progress',
-        line=dict(color='#10B981', width=3)
-    ))
-    fig_s.add_trace(go.Scatter(
-        x=forecast_time_pts, y=forecast_s_pts,
-        mode='lines',
-        name='AI Predicted Slippage Trajectory',
-        line=dict(color='#EF4444', width=3, dash='dot')
-    ))
-    fig_s.update_layout(
-        template="plotly_dark",
-        height=350,
-        xaxis_title="Timeline (Months)",
-        yaxis_title="Physical Completion (%)",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(l=20, r=20, t=30, b=20)
-    )
-    st.plotly_chart(fig_s, use_container_width=True)
+    with t_scurve:
+        # Square-Look Block Progress Visual as in Screenshot 1
+        fig_s = go.Figure()
+        
+        fig_s.add_trace(go.Bar(
+            name='Planned Target (%)',
+            x=['Schedule Horizon'],
+            y=[planned_progress_pct],
+            marker=dict(color='#3B82F6', line=dict(color='#60A5FA', width=1.5)),
+            width=0.35
+        ))
+        fig_s.add_trace(go.Bar(
+            name='Actual Ground Progress (%)',
+            x=['Schedule Horizon'],
+            y=[inp_phys],
+            marker=dict(color='#10B981', line=dict(color='#34D399', width=1.5)),
+            width=0.35
+        ))
+        
+        fig_s.update_layout(
+            barmode='group',
+            template="plotly_dark",
+            height=340,
+            title="EVM Square Block Progress Benchmark (Planned vs On-Site Physical)",
+            yaxis_title="Physical Completion (%)",
+            yaxis=dict(range=[0, 100]),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            margin=dict(l=20, r=20, t=35, b=20)
+        )
+        st.plotly_chart(fig_s, use_container_width=True)
 
-with t_shap:
-    shap_factors = {
-        'Local Land Risk (RoW)': float(inp_land * 4.2),
-        'Front-Loading Cash Drift': float(max(0.0, (1.0 - cpi) * 35.0)),
-        'Delayed Milestones Carryover': float(inp_milestones * 6.5),
-        'WPI Material Inflation': float(max(0.0, (inp_wpi - 100.0) * 1.8)),
-        'Schedule Variance Lag (SV%)': float(abs(schedule_variance_pct) * 0.75)
-    }
-    shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Parameter', 'Weight (%)']).sort_values(by='Weight (%)', ascending=True)
-    fig_bar = px.bar(shap_df, x='Weight (%)', y='Parameter', orientation='h', color='Weight (%)', color_continuous_scale='Reds')
-    fig_bar.update_layout(template="plotly_dark", height=320, margin=dict(l=20, r=20, t=20, b=20))
-    st.plotly_chart(fig_bar, use_container_width=True)
+    with t_shap:
+        shap_factors = {
+            'Local Land Risk (RoW)': float(inp_land * 4.2),
+            'Front-Loading Cash Drift': float(max(0.0, (1.0 - cpi) * 35.0)),
+            'Delayed Milestones Carryover': float(inp_milestones * 6.5),
+            'WPI Material Inflation': float(max(0.0, (inp_wpi - 100.0) * 1.8)),
+            'Schedule Variance Lag (SV%)': float(abs(schedule_variance_pct) * 0.75)
+        }
+        shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Parameter', 'Weight (%)']).sort_values(by='Weight (%)', ascending=True)
+        fig_bar = px.bar(shap_df, x='Weight (%)', y='Parameter', orientation='h', color='Weight (%)', color_continuous_scale='Reds')
+        fig_bar.update_layout(template="plotly_dark", height=320, margin=dict(l=20, r=20, t=20, b=20))
+        st.plotly_chart(fig_bar, use_container_width=True)
 
-with t_notice:
-    memo_text = f"""GOVERNMENT OF BIHAR / STATE INFRASTRUCTURE MONITORING PMU
+    with t_notice:
+        memo_text = f"""GOVERNMENT OF BIHAR / STATE INFRASTRUCTURE MONITORING PMU
 OFFICE OF THE NODAL APPRAISAL CELL
 DISTRICT: {selected_district.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
 
@@ -463,35 +458,35 @@ SUBJECT: STATUTORY DIRECTIVE UNDER CPWD WORKS MANUAL CLAUSE 2 & GFR 2017 (RULE 1
 
 ISSUED UNDER THE SEAL OF STATE MONITORING CELL
 """
-    st.text_area("Directive Notice Preview", memo_text, height=260)
-    st.download_button(
-        label="📥 Download Directive Notice (.txt)",
-        data=memo_text,
-        file_name=f"Directive_Notice_{selected_district.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
-        mime="text/plain",
-        use_container_width=True
-    )
+        st.text_area("Directive Notice Preview", memo_text, height=260)
+        st.download_button(
+            label="📥 Download Directive Notice (.txt)",
+            data=memo_text,
+            file_name=f"Directive_Notice_{selected_district.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
 
-with t_whatif:
-    st.markdown("#### 🧪 Prescriptive 'What-If' Decision Simulator")
-    st.caption("Simulate administrative interventions to project timeline recovery and budget savings.")
-    
-    sim_c1, sim_c2 = st.columns(2)
-    with sim_c1:
-        sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5, key="sim_land")
-        sim_fund_infusion = st.slider("Mobilization Advance Recovery (%)", 0, 30, 10, 5, key="sim_fund")
-    with sim_c2:
-        recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
-        recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
-        recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * max(0.0, inp_cost)
+    with t_whatif:
+        st.markdown("#### 🧪 Prescriptive 'What-If' Decision Simulator")
+        st.caption("Simulate administrative interventions to project timeline recovery and budget savings.")
         
-        st.markdown(f"""
-        <div style="background-color: #111827; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid #1F2937;">
-            <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
-            <p style="margin-top: 8px; font-size: 14px;">
-            • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
-            • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
-            • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        sim_c1, sim_c2 = st.columns(2)
+        with sim_c1:
+            sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5, key="sim_land")
+            sim_fund_infusion = st.slider("Mobilization Advance Recovery (%)", 0, 30, 10, 5, key="sim_fund")
+        with sim_c2:
+            recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
+            recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
+            recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * max(0.0, inp_cost)
+            
+            st.markdown(f"""
+            <div style="background-color: #111827; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid #1F2937;">
+                <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
+                <p style="margin-top: 8px; font-size: 14px;">
+                • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
+                • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
+                • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
