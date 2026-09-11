@@ -16,7 +16,16 @@ st.set_page_config(
 
 # Custom Styling strictly matching Screenshot 2
 st.markdown("""
+st.markdown("""
 <style>
+    /* Top-Right GitHub, Share, Menu & Header ko poori tarah hide karne ke liye */
+    #MainMenu {visibility: hidden; display: none;}
+    header {visibility: hidden; display: none;}
+    footer {visibility: hidden; display: none;}
+    .stAppDeployButton {display: none;}
+    .viewerBadge_container__1QSob {display: none;}
+    button[title="View source on GitHub"] {display: none !important;}
+    
     .stApp { background-color: #0E1117; color: #FFFFFF; }
     .project-card-white {
         background-color: #FFFFFF;
