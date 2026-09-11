@@ -215,7 +215,17 @@ if selected_state != "Select State":
 
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
 if demo_btn:
-    st.session_state['selected_record'] = paimana_df.iloc[1].to_dict()
+    preset_rec = paimana_df.iloc[1].to_dict()
+    st.session_state['selected_record'] = preset_rec
+    st.session_state['inp_cost'] = float(preset_rec['Original_Cost_Cr'])
+    st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
+    st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
+    st.session_state['inp_sp'] = float(preset_rec['Cumulative_Spend_Cr'])
+    st.session_state['sl_phys'] = float(preset_rec['Physical_Progress_Pct'])
+    st.session_state['sl_ms'] = int(preset_rec['Delayed_Milestones'])
+    st.session_state['sl_rev'] = int(preset_rec['Revisions_Count'])
+    st.session_state['sl_land'] = float(preset_rec['Land_Risk_Score'])
+    st.session_state['sl_wpi'] = float(preset_rec['WPI_Inflation_Index'])
 
 fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
 
@@ -231,7 +241,6 @@ with col_sec1:
         matched_projects = [r for _, r in paimana_df.iterrows()]
         
     project_options = ["Select Project"] + [str(r["Project_Name"]) for r in matched_projects]
-    
     selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
     
     if selected_inspect != "Select Project":
@@ -264,26 +273,37 @@ with col_sec1:
 
         load_sec2_btn = st.button("📥 Load This Project Data into Section 2", use_container_width=True)
         if load_sec2_btn:
-            st.session_state['selected_record'] = active_row.to_dict()
+            row_dict = active_row.to_dict()
+            st.session_state['selected_record'] = row_dict
+            st.session_state['inp_cost'] = float(row_dict['Original_Cost_Cr'])
+            st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
+            st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
+            st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
+            st.session_state['sl_phys'] = float(row_dict['Physical_Progress_Pct'])
+            st.session_state['sl_ms'] = int(row_dict['Delayed_Milestones'])
+            st.session_state['sl_rev'] = int(row_dict.get('Revisions_Count', 0))
+            st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
+            st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
+            st.rerun()
     else:
         st.info("👈 Please select a state, district and project from the dropdown above to load data.")
 
 # SECTION 2: AI Inputs & Sliders
-rec = st.session_state['selected_record'] if st.session_state['selected_record'] is not None else {}
+rec = st.session_state.get('selected_record') or {}
 
 with col_sec2:
     s2_col1, s2_col2 = st.columns(2)
     with s2_col1:
-        inp_cost = st.number_input("Cost (₹ Cr)", value=float(rec.get('Original_Cost_Cr', 0.0)), key="inp_cost")
-        inp_duration = st.number_input("Original Duration (Months)", value=int(rec.get('Original_Duration', 0)), key="inp_dur")
-        inp_elapsed = st.number_input("Elapsed Time (Months)", value=int(rec.get('Elapsed_Months', 0)), key="inp_elap")
-        inp_spend = st.number_input("Cumulative Spend (₹ Cr)", value=float(rec.get('Cumulative_Spend_Cr', 0.0)), key="inp_sp")
+        inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 0.0))), key="inp_cost")
+        inp_duration = st.number_input("Original Duration (Months)", value=int(st.session_state.get('inp_dur', rec.get('Original_Duration', 0))), key="inp_dur")
+        inp_elapsed = st.number_input("Elapsed Time (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 0))), key="inp_elap")
+        inp_spend = st.number_input("Cumulative Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 0.0))), key="inp_sp")
     with s2_col2:
-        inp_phys = st.slider("Physical Progress (%)", 0.0, 100.0, float(rec.get('Physical_Progress_Pct', 0.0)), key="sl_phys")
-        inp_milestones = st.slider("Delayed Milestones", 0, 10, int(rec.get('Delayed_Milestones', 0)), key="sl_ms")
-        inp_revisions = st.slider("Revisions Count", 0, 5, int(rec.get('Revisions_Count', 0)), key="sl_rev")
-        inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(rec.get('Land_Risk_Score', 5.0)), key="sl_land")
-        inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(rec.get('WPI_Inflation_Index', 100.0)), key="sl_wpi")
+        inp_phys = st.slider("Physical Progress (%)", 0.0, 100.0, float(st.session_state.get('sl_phys', rec.get('Physical_Progress_Pct', 0.0))), key="sl_phys")
+        inp_milestones = st.slider("Delayed Milestones", 0, 10, int(st.session_state.get('sl_ms', rec.get('Delayed_Milestones', 0))), key="sl_ms")
+        inp_revisions = st.slider("Revisions Count", 0, 5, int(st.session_state.get('sl_rev', rec.get('Revisions_Count', 0))), key="sl_rev")
+        inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(st.session_state.get('sl_land', rec.get('Land_Risk_Score', 5.0))), key="sl_land")
+        inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 100.0))), key="sl_wpi")
 
     run_ai = st.button("⚡ Run AI Prediction & Risk Analysis (Enter ↵)", use_container_width=True)
 
@@ -356,23 +376,54 @@ with rc3:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Tabs exactly as Screenshot 2
-t_scurve, t_shap, t_notice = st.tabs(["📊 S-Curve EVM", "🔍 SHAP Root-Cause", "📜 Directive Notice"])
+# 4 Analytical Tabs
+t_scurve, t_shap, t_notice, t_whatif = st.tabs([
+    "📊 S-Curve EVM", 
+    "🔍 SHAP Root-Cause", 
+    "📜 Directive Notice", 
+    "🧪 'What-If' Decision Simulator"
+])
 
 with t_scurve:
     safe_dur = max(1, inp_duration)
-    time_pts = np.linspace(0, safe_dur + max(12, int(pred_delay_months) + 6), 20)
-    planned_s = 100 / (1 + np.exp(-0.15 * (time_pts - (safe_dur/2))))
-    actual_pts = np.linspace(0, max(1, inp_elapsed), 10)
-    actual_s = np.linspace(0, inp_phys, 10)
-    forecast_pts = np.linspace(max(1, inp_elapsed), safe_dur + pred_delay_months, 10)
-    forecast_s = np.linspace(inp_phys, 100, 10)
+    safe_elap = max(1, inp_elapsed)
+    
+    time_pts = np.linspace(0, safe_dur + max(12, int(pred_delay_months) + 6), 30)
+    planned_s = 100 / (1 + np.exp(-0.15 * (time_pts - (safe_dur / 2))))
+    
+    actual_time_pts = np.linspace(0, safe_elap, 15)
+    actual_s_pts = np.linspace(0, inp_phys, 15)
+    
+    forecast_time_pts = np.linspace(safe_elap, safe_dur + pred_delay_months, 15)
+    forecast_s_pts = np.linspace(inp_phys, 100, 15)
     
     fig_s = go.Figure()
-    fig_s.add_trace(go.Scatter(x=time_pts, y=planned_s, mode='lines', name='Planned S-Curve', line=dict(color='#3B82F6', dash='dash')))
-    fig_s.add_trace(go.Scatter(x=actual_pts, y=actual_s, mode='lines+markers', name='Actual Ground Progress', line=dict(color='#10B981', width=3)))
-    fig_s.add_trace(go.Scatter(x=forecast_pts, y=forecast_s, mode='lines', name='Forecast Trajectory', line=dict(color='#EF4444', width=3, dash='dot')))
-    fig_s.update_layout(template="plotly_dark", height=340, xaxis_title="Months", yaxis_title="Progress (%)", margin=dict(l=20, r=20, t=30, b=20))
+    fig_s.add_trace(go.Scatter(
+        x=time_pts, y=planned_s,
+        mode='lines',
+        name='Baseline Planned S-Curve',
+        line=dict(color='#3B82F6', width=2, dash='dash')
+    ))
+    fig_s.add_trace(go.Scatter(
+        x=actual_time_pts, y=actual_s_pts,
+        mode='lines+markers',
+        name='Actual Ground Progress',
+        line=dict(color='#10B981', width=3)
+    ))
+    fig_s.add_trace(go.Scatter(
+        x=forecast_time_pts, y=forecast_s_pts,
+        mode='lines',
+        name='AI Predicted Slippage Trajectory',
+        line=dict(color='#EF4444', width=3, dash='dot')
+    ))
+    fig_s.update_layout(
+        template="plotly_dark",
+        height=350,
+        xaxis_title="Timeline (Months)",
+        yaxis_title="Physical Completion (%)",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=20, r=20, t=30, b=20)
+    )
     st.plotly_chart(fig_s, use_container_width=True)
 
 with t_shap:
@@ -421,57 +472,26 @@ ISSUED UNDER THE SEAL OF STATE MONITORING CELL
         use_container_width=True
     )
 
-# 2. Bottom-Right AI Assistant Chatbot for Technical Terms
-st.markdown("---")
-with st.popover("💬 AI Technical Assistant & Hindi Glossary (Click to Ask)", use_container_width=True):
-    st.markdown("### 🏛️ InfraDrishti Technical Terms AI Guide (Hindi + Definitions)")
+with t_whatif:
+    st.markdown("#### 🧪 Prescriptive 'What-If' Decision Simulator")
+    st.caption("Simulate administrative interventions to project timeline recovery and budget savings.")
     
-    terms_dict = {
-        "Schedule Variance (SV%)": {
-            "hindi": "समय अंतराल प्रतिशत (काम कितना पीछे चल रहा है)",
-            "def": "Actual Physical Progress aur Planned Progress ke beech ka farq.",
-            "example": "Plan tha 50% road banne ka, par bani sirf 35%, toh SV = -15% (Project late chal raha hai)."
-        },
-        "Cost Performance Index (CPI)": {
-            "hindi": "लागत प्रदर्शन सूचकांक (पैसे का सही उपयोग)",
-            "def": "Earned Value (Kamm kitna hua) / Actual Spend (Paisa kitna nikala gaya).",
-            "example": "Agar CPI = 0.70 hai, iska matlab thekedar ne 100 rupaye nikal liye par kaam sirf 70 rupaye ka kiya (Cost Overrun / Front-Loading)."
-        },
-        "TreeSHAP (Explainable AI)": {
-            "hindi": "पारदर्शी कारण विश्लेषण (AI का कारण बताने वाला टूल)",
-            "def": "Yeh mathematically isolate karta hai ki delay ya extra budget ka mukhya karan kya tha.",
-            "example": "TreeSHAP batata hai ki 5 mahine ke delay mein 3 mahine Land Acquisition aur 2 mahine Material Mehnga hone (WPI) ki wajah se hua."
-        },
-        "Contractor Front-Loading": {
-            "hindi": "ठेकेदार द्वारा काम से पहले ज्यादा पैसा निकालना",
-            "def": "Jab thekedar zameen par physical kaam kiye bina jaldi-jaldi payment nikal leta hai.",
-            "example": "Bridge ka pillar abhi 20% bana hai par billing 60% paiso ki claim kar li."
-        },
-        "CPWD Works Manual Clause 2": {
-            "hindi": "विलंब के लिए जुर्माना नियम (Liquidated Damages)",
-            "def": "Sarkari niyam jiske tehat agar thekedar bina thos karan ke project delay kare, toh uspar penalty lagti hai.",
-            "example": "Har mahine delay par total contract ka 1% fine lagana (maximum 10% tak)."
-        },
-        "GFR 2017 Rule 130": {
-            "hindi": "सरकारी वित्तीय नियम (General Financial Rules)",
-            "def": "Sarkari funds ki monitoring ke niyam jisme physical audit aur warning memo issue kiya jata hai.",
-            "example": "Site engineer ko explanation notice bhejna jab fund expenditure limit cross kare."
-        },
-        "WPI Material Inflation Index": {
-            "hindi": "थोक मूल्य मुद्रास्फीति (सीमेंट, सरिया के दाम बढ़ना)",
-            "def": "Bazaar mein construction raw materials ke rate badhne ka index.",
-            "example": "WPI 100 se badhkar 116 ho gaya yaani cement aur steel 16% mehnga ho chuka hai."
-        }
-    }
-    
-    selected_term = st.selectbox("Kisi bhi Technical Term ko chun kar uska Hindi arth dekhein:", list(terms_dict.keys()))
-    term_info = terms_dict[selected_term]
-    
-    st.markdown(f"""
-    <div style="background-color: #1E293B; border-left: 4px solid #38BDF8; padding: 14px; border-radius: 6px; margin-top: 10px;">
-        <h4 style="color: #38BDF8; margin: 0 0 6px 0;">{selected_term}</h4>
-        <p style="margin: 4px 0;"><b>🇮🇳 हिंदी अर्थ:</b> <span style="color: #FCD34D;">{term_info['hindi']}</span></p>
-        <p style="margin: 4px 0;"><b>📖 परिभाषा (Definition):</b> {term_info['def']}</p>
-        <p style="margin: 4px 0;"><b>💡 Real-Life Example:</b> <span style="color: #34D399;">{term_info['example']}</span></p>
-    </div>
-    """, unsafe_allow_html=True)
+    sim_c1, sim_c2 = st.columns(2)
+    with sim_c1:
+        sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5, key="sim_land")
+        sim_fund_infusion = st.slider("Mobilization Advance Recovery (%)", 0, 30, 10, 5, key="sim_fund")
+    with sim_c2:
+        recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
+        recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
+        recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * max(0.0, inp_cost)
+        
+        st.markdown(f"""
+        <div style="background-color: #111827; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid #1F2937;">
+            <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
+            <p style="margin-top: 8px; font-size: 14px;">
+            • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
+            • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
+            • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
