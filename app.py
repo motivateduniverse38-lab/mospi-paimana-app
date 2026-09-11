@@ -8,13 +8,13 @@ import os
 from datetime import datetime
 
 st.set_page_config(
-    page_title="Bihar PAIMANA AI - 2026 Infrastructure",
-    page_icon="🏗️",
+    page_title="PAIMANA AI - Analysis & Predict AI",
+    page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Stealth Theme & Mobile-Responsive Sidebar CSS
+# Custom Aesthetic High-Contrast CSS
 st.markdown("""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
@@ -34,22 +34,38 @@ st.markdown("""
     [data-testid="stStatusWidget"] {display: none !important; visibility: hidden !important;}
     [data-testid="stDecoration"] {display: none !important; visibility: hidden !important;}
 
-    /* Mobile Sidebar Accessibility Guarantee */
-    @media (max-width: 768px) {
-        section[data-testid="stSidebar"] {
-            display: block !important;
-            visibility: visible !important;
-        }
-    }
+    /* Aesthetic Theme & High Contrast Font Styling */
+    .stApp { background-color: #0B0F19; color: #F8FAFC; }
     
-    .stApp { background-color: #0E1117; color: #FFFFFF; }
+    /* Top Center Brand Header */
+    .brand-title {
+        text-align: center;
+        font-size: 38px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        color: #38BDF8;
+        text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        margin-top: -10px;
+        margin-bottom: 0px;
+    }
+    .brand-subtitle {
+        text-align: center;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: #94A3B8;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+    }
+
+    /* Cards & Container Visibility */
     .project-card-white {
         background-color: #FFFFFF;
-        color: #1E293B;
-        border-radius: 8px;
+        color: #0F172A;
+        border-radius: 10px;
         padding: 16px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.4);
     }
     .project-code-badge {
         background-color: #064E3B;
@@ -64,20 +80,30 @@ st.markdown("""
     }
     .contractor-text {
         color: #059669;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 14px;
         margin-bottom: 8px;
     }
     .metric-dot-row {
-        color: #E2E8F0;
-        font-size: 13px;
+        color: #F1F5F9;
+        font-size: 13.5px;
+        font-weight: 500;
         margin-bottom: 6px;
     }
     .metric-dot-green {
-        color: #10B981;
-        font-weight: 600;
+        color: #34D399;
+        font-weight: 700;
     }
     .stSlider > div > div > div > div { background-color: #EF4444; }
+
+    /* Mobile View Sidebar Accessibility */
+    @media (max-width: 768px) {
+        section[data-testid="stSidebar"] {
+            width: 100% !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -121,7 +147,7 @@ def get_bihar_geo_hierarchy():
             "Dumraon Sub-Div": ["Dumraon", "Brahmpur", "Chakki", "Kesath", "Nawanagar", "Simri"]
         },
         "Darbhanga": {
-            "Darbhanga Sadar Sub-Div": ["Darbhanga", "Bahadurpur", "Hayaghat", "Hanumannagar", "Jale", "Keoti", "Manigachhi", "Singh数を"],
+            "Darbhanga Sadar Sub-Div": ["Darbhanga", "Bahadurpur", "Hayaghat", "Hanumannagar", "Jale", "Keoti", "Manigachhi", "Singhwara"],
             "Benipur Sub-Div": ["Benipur", "Alinagar", "Baheri", "Biraul"],
             "Biraul Sub-Div": ["Ghanshyampur", "Kiratpur", "Kusheshwar Asthan", "Kusheshwar Asthan East", "Tardih"]
         },
@@ -370,25 +396,32 @@ if 'selected_record' not in st.session_state:
 if 'ai_evaluated' not in st.session_state:
     st.session_state['ai_evaluated'] = False
 
-# Sidebar Setup with explicit placeholders & 38 Districts, 101 Subdivisions, 534 Blocks
+# Sidebar: All 4 Hierarchy Sections Explicitly Visible Together
 st.sidebar.markdown("### 📍 Bihar Administrative Hierarchy")
-selected_state = st.sidebar.selectbox("1. State", ["Select State", "Bihar"], index=0)
 
-selected_district = "Select District"
-selected_subdiv = "Select Subdivision"
-selected_block = "Select Block"
+# 1. State
+state_list = ["Select State", "Bihar"]
+selected_state = st.sidebar.selectbox("1. State", state_list, index=0)
 
-if selected_state != "Select State":
-    district_list = ["Select District"] + sorted(list(geo_hierarchy.keys()))
-    selected_district = st.sidebar.selectbox("2. District (38 Districts)", district_list, index=0)
-    
-    if selected_district != "Select District":
-        subdiv_list = ["Select Subdivision"] + sorted(list(geo_hierarchy[selected_district].keys()))
-        selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Subdivisions)", subdiv_list, index=0)
-        
-        if selected_subdiv != "Select Subdivision":
-            block_list = ["Select Block"] + sorted(geo_hierarchy[selected_district][selected_subdiv])
-            selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_list, index=0)
+# 2. District
+all_districts = ["Select District"] + sorted(list(geo_hierarchy.keys()))
+selected_district = st.sidebar.selectbox("2. District (38 Districts)", all_districts, index=0)
+
+# 3. Subdivision
+if selected_district in geo_hierarchy:
+    subdiv_pool = ["Select Subdivision"] + sorted(list(geo_hierarchy[selected_district].keys()))
+else:
+    all_subdivs = sorted(list({sub for d in geo_hierarchy.values() for sub in d.keys()}))
+    subdiv_pool = ["Select Subdivision"] + all_subdivs
+selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Subdivisions)", subdiv_pool, index=0)
+
+# 4. Block
+if selected_district in geo_hierarchy and selected_subdiv in geo_hierarchy[selected_district]:
+    block_pool = ["Select Block"] + sorted(geo_hierarchy[selected_district][selected_subdiv])
+else:
+    all_blocks = sorted(list({b for d in geo_hierarchy.values() for subs in d.values() for b in subs}))
+    block_pool = ["Select Block"] + all_blocks
+selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_pool, index=0)
 
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
 if demo_btn:
@@ -406,6 +439,10 @@ if demo_btn:
     st.session_state['ai_evaluated'] = True
 
 fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
+
+# 4. Top Center Header & Subtitle
+st.markdown("<div class='brand-title'>🏛️ PAIMANA AI</div>", unsafe_allow_html=True)
+st.markdown("<div class='brand-subtitle'>ANALYSIS AND PREDICT AI</div>", unsafe_allow_html=True)
 
 # Main 2-Column Interface
 col_sec1, col_sec2 = st.columns([1.05, 0.95], gap="medium")
@@ -572,14 +609,14 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
             name='Planned Target (%)',
             x=['Schedule Horizon'],
             y=[planned_progress_pct],
-            marker=dict(color='#3B82F6', line=dict(color='#60A5FA', width=1.5)),
+            marker=dict(color='#38BDF8', line=dict(color='#0284C7', width=1.5)),
             width=0.35
         ))
         fig_s.add_trace(go.Bar(
             name='Actual Ground Progress (%)',
             x=['Schedule Horizon'],
             y=[inp_phys],
-            marker=dict(color='#10B981', line=dict(color='#34D399', width=1.5)),
+            marker=dict(color='#10B981', line=dict(color='#059669', width=1.5)),
             width=0.35
         ))
         
