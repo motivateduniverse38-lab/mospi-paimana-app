@@ -272,13 +272,106 @@ st.markdown(f"""
 # 38 Districts, 101 Subdivisions, 534+ Blocks Master Hierarchy
 def get_bihar_geo_hierarchy():
     return {
-        "East Champaran (Motihari)": {
+        "Araria": {
+            "Araria Sadar Sub-Div": ["Araria", "Joukihat", "Palasi", "Raniganj", "Sikti", "Kursakanta"],
+            "Forbesganj Sub-Div": ["Forbesganj", "Bhargama", "Narpatganj"]
+        },
+        "Aurangabad": {
+            "Aurangabad Sadar Sub-Div": ["Aurangabad", "Barun", "Deo", "Haspura", "Kutumba", "Madanpur", "Navinagar", "Rafiganj"],
+            "Daudnagar Sub-Div": ["Daudnagar", "Goh", "Obra"]
+        },
+        "Banka": {
+            "Banka Sadar Sub-Div": ["Banka", "Amarpur", "Barahat", "Baunsi", "Belhar", "Chanan", "Dhoraiya", "Fullidumar", "Katoriya", "Rajaun", "Sambhuganj"]
+        },
+        "Begusarai": {
+            "Begusarai Sadar Sub-Div": ["Begusarai", "Barauni", "Birpur", "Matihani", "Shamho Akha Kurha"],
+            "Bakhri Sub-Div": ["Bakhri", "Garhpura", "Naokothi", "Parihara"],
+            "Balia Sub-Div": ["Balia", "Dandari", "Sahebpur Kamal"],
+            "Teghra Sub-Div": ["Teghra", "Bachhwara", "Bhagwanpur", "Mansurchak"]
+        },
+        "Bhagalpur": {
+            "Bhagalpur Sadar Sub-Div": ["Jagdishpur", "Nathnagar", "Sabour", "Goradih", "Shahkund"],
+            "Kahalgaon Sub-Div": ["Kahalgaon", "Pirpainti", "Sanokhar"],
+            "Naugachhia Sub-Div": ["Naugachhia", "Bihpur", "Gopalpur", "Ismailpur", "Kharik", "Narayanpur", "Rangra Chowk"],
+            "Sultanganj Sub-Div": ["Sultanganj"]
+        },
+        "Bhojpur": {
+            "Ara Sadar Sub-Div": ["Ara", "Agiaon", "Barhara", "Koilwar", "Sandesh", "Shahpur", "Udwantnagar"],
+            "Jagdishpur Sub-Div": ["Jagdishpur", "Behea", "Garhani"],
+            "Piro Sub-Div": ["Piro", "Charpokhari", "Tarari"]
+        },
+        "Buxar": {
+            "Buxar Sadar Sub-Div": ["Buxar", "Barhampur", "Chausa", "Chaugain", "Itarhi", "Rajpur"],
+            "Dumraon Sub-Div": ["Dumraon", "Brahmpur", "Chakki", "Kesath", "Nawanagar", "Simri"]
+        },
+        "Chapra(Saran)": {
+            "Chhapra Sadar Sub-Div": ["Chhapra", "Garkha", "Jalalpur", "Manjhi", "Nagra", "Panapur", "Revelganj", "Taraiya"],
+            "Marhaura Sub-Div": ["Marhaura", "Amnour", "Baniyapur", "Dighwara", "Ishupur", "Mashrakh"],
+            "Sonepur Sub-Div": ["Sonepur", "Dariyapur", "Parsa", "Maker"]
+        },
+        "Darbhanga": {
+            "Darbhanga Sadar Sub-Div": ["Darbhanga", "Bahadurpur", "Hayaghat", "Hanumannagar", "Jale", "Keoti", "Manigachhi", "Singhwara"],
+            "Benipur Sub-Div": ["Benipur", "Alinagar", "Baheri", "Biraul"],
+            "Biraul Sub-Div": ["Ghanshyampur", "Kiratpur", "Kusheshwar Asthan", "Kusheshwar Asthan East", "Tardih"]
+        },
+        "East Champaran": {
             "Chakia Sub-Div": ["Chakia", "Kalyanpur", "Kesaria", "Madhuban", "Mehsi", "Tetaria"],
             "Motihari Sadar Sub-Div": ["Motihari Sadar", "Kotwa", "Piprakothi", "Turkaulia", "Banjariya"],
             "Raxaul Sub-Div": ["Raxaul", "Adapur", "Ramgarhwa", "Sugauli"],
             "Areraj Sub-Div": ["Areraj", "Paharpur", "Harsidhi", "Sangrampur"],
             "Dhaka Sub-Div": ["Dhaka", "Chiraiya", "Ghorasahan", "Banka Ghat", "Patahi"],
             "Pakridayal Sub-Div": ["Pakridayal", "Phena"]
+        },
+        "Gaya": {
+            "Gaya Sadar Sub-Div": ["Gaya Sadar", "Bodh Gaya", "Manpur", "Tankuppa", "Barachatti", "Belaganj", "Fatehpur", "Mohanpur", "Paraiya", "Wazirganj"],
+            "Tekari Sub-Div": ["Tekari", "Konch", "Guraru"],
+            "Sherghati Sub-Div": ["Sherghati", "Dobhi", "Amas", "Banke Bazar", "Gurua", "Imamganj", "Dumaria"],
+            "Neemchak Bathani Sub-Div": ["Neemchak Bathani", "Atri", "Khizirsarai", "Mohra"]
+        },
+        "Jahanabad": {
+            "Jahanabad Sadar Sub-Div": ["Jahanabad", "Ghoshi", "Hulashganj", "Kako", "Makhdumpur", "Modanganj", "Ratni Faridpur"]
+        },
+        "Jamui": {
+            "Jamui Sadar Sub-Div": ["Jamui", "Barhat", "Chakai", "Gidhaur", "Islamnagar Aliganj", "Jhajha", "Khaira", "Laxmipur", "Sikandra", "Sono"]
+        },
+        "Kaimur (Bhabhua)": {
+            "Bhabhua Sadar Sub-Div": ["Bhabhua", "Bhagwanpur", "Chainpur", "Chand", "Rampur"],
+            "Mohania Sub-Div": ["Mohania", "Adhaura", "Durgawati", "Kudra", "Nuon", "Ramgarh"]
+        },
+        "Katihar": {
+            "Katihar Sadar Sub-Div": ["Katihar", "Dandkhora", "Falka", "Hasanganj", "Korha", "Kora", "Mansahi", "Pranpur", "Sameli"],
+            "Barsoi Sub-Div": ["Barsoi", "Amdabad", "Azamnagar", "Balrampur", "Kadwa"],
+            "Manihari Sub-Div": ["Manihari"]
+        },
+        "Khagaria": {
+            "Khagaria Sadar Sub-Div": ["Khagaria", "Alauli", "Beldaur", "Chautham", "Mansi"],
+            "Gogri Sub-Div": ["Gogri", "Parbatta"]
+        },
+        "Lakhisarai": {
+            "Lakhisarai Sadar Sub-Div": ["Lakhisarai", "Barahiya", "Channan", "Halsi", "Pipariya", "Ramgarh Chowk", "Surajgarha"]
+        },
+        "Madhepura": {
+            "Madhepura Sadar Sub-Div": ["Madhepura", "Gamharia", "Ghelarh", "Kishanganj", "Murliganj", "Shankarpur", "Singheshwar"],
+            "Uda Kishanganj Sub-Div": ["Alamnagar", "Bihariganj", "Chausa", "Gwalpara", "Kumarkhand", "Puraini", "Uda Kishanganj"]
+        },
+        "Madhubani": {
+            "Madhubani Sadar Sub-Div": ["Madhubani", "Bisfi", "Kaluahi", "Khajauli", "Ladnania", "Pandaul", "Rajnagar", "Rahika"],
+            "Benipatti Sub-Div": ["Benipatti", "Basopatti", "Harlakhi", "Madhwapur"],
+            "Jhanjharpur Sub-Div": ["Jhanjharpur", "Andhrathari", "Babubarhi", "Lakhnaur", "Madhepur", "Tamuria"],
+            "Phulparas Sub-Div": ["Phulparas", "Ghoghardiha", "Khutauna", "Laukaha", "Narahiya"]
+        },
+        "Muzaffarpur": {
+            "Muzaffarpur East Sub-Div": ["Mushahari", "Bochahan", "Gaighat", "Aurai", "Katra", "Bandra", "Dholi", "Muraul", "Sakra"],
+            "Muzaffarpur West Sub-Div": ["Kanti", "Motipur", "Baruraj", "Sahebganj", "Paroo", "Saraiya", "Marwan", "Minapur"]
+        },
+        "Nalanda": {
+            "Bihar Sharif Sadar Sub-Div": ["Bihar Sharif", "Asthawan", "Bind", "Giriak", "Harnaut", "Noorsarai", "Rahui", "Rajnagar", "Sarmera"],
+            "Rajgir Sub-Div": ["Rajgir", "Ben", "Chandi", "Islampur", "Karai Parsurai", "Nagar Nausa", "Parwalpur", "Silao", "Tharthari"],
+            "Hilsa Sub-Div": ["Hilsa", "Ekangarsarai"]
+        },
+        "Nawada": {
+            "Nawada Sadar Sub-Div": ["Nawada", "Akbarpur", "Govindpur", "Kashichak", "Kowakole", "Meskaur", "Nardiganj", "Narhat", "Pakribarawan", "Roh", "Sirdala", "Warisaliganj"],
+            "Rajauli Sub-Div": ["Rajauli", "Hisua"]
         },
         "Patna": {
             "Danapur Sub-Div": ["Danapur", "Khagaul", "Maner", "Bihta"],
@@ -288,31 +381,54 @@ def get_bihar_geo_hierarchy():
             "Paliganj Sub-Div": ["Paliganj", "Dulhin Bazar", "Bikram"],
             "Patna City Sub-Div": ["Fatuha", "Daniyawan", "Khusrupur"]
         },
-        "Gaya": {
-            "Gaya Sadar Sub-Div": ["Gaya Sadar", "Bodh Gaya", "Manpur", "Tankuppa", "Barachatti", "Belaganj", "Fatehpur", "Mohanpur", "Paraiya", "Wazirganj"],
-            "Tekari Sub-Div": ["Tekari", "Konch", "Guraru"],
-            "Sherghati Sub-Div": ["Sherghati", "Dobhi", "Amas", "Banke Bazar", "Gurua", "Imamganj", "Dumaria"],
-            "Neemchak Bathani Sub-Div": ["Neemchak Bathani", "Atri", "Khizirsarai", "Mohra"]
+        "Purnia": {
+            "Purnia Sadar Sub-Div": ["Purnia East", "Purnia West", "Dagarua", "Jalalgarh", "Kasba", "Krityanand Nagar", "Srinagar"],
+            "Banmankhi Sub-Div": ["Banmankhi", "Barhara Kothi"],
+            "Dhamdaha Sub-Div": ["Dhamdaha", "Bhawanipur", "Rupauli"],
+            "Baisi Sub-Div": ["Baisi", "Amour", "Baisa"]
         },
-        "Muzaffarpur": {
-            "Muzaffarpur East Sub-Div": ["Mushahari", "Bochahan", "Gaighat", "Aurai", "Katra", "Bandra", "Dholi", "Muraul", "Sakra"],
-            "Muzaffarpur West Sub-Div": ["Kanti", "Motipur", "Baruraj", "Sahebganj", "Paroo", "Saraiya", "Marwan", "Minapur"]
+        "Rohtas": {
+            "Sasaram Sadar Sub-Div": ["Sasaram", "Akorhigola", "Bhagwanpur", "Chenari", "Karaghar", "Nokha", "Rohtas", "Sheosagar", "Tilouthu"],
+            "Bikramganj Sub-Div": ["Bikramganj", "Dawath", "Dinara", "Karakat", "Nasriganj", "Sanjhauli", "Suryapura"],
+            "Dehri Sub-Div": ["Dehri", "Nauhatta", "Rajpur"]
         },
-        "Bhagalpur": {
-            "Bhagalpur Sadar Sub-Div": ["Jagdishpur", "Nathnagar", "Sabour", "Goradih", "Shahkund"],
-            "Kahalgaon Sub-Div": ["Kahalgaon", "Pirpainti", "Sanokhar"],
-            "Naugachhia Sub-Div": ["Naugachhia", "Bihpur", "Gopalpur", "Ismailpur", "Kharik", "Narayanpur", "Rangra Chowk"],
-            "Sultanganj Sub-Div": ["Sultanganj"]
+        "Saharsa": {
+            "Saharsa Sadar Sub-Div": ["Saharsa", "Kahara", "Mahishi", "Nauhatta", "Patarghat", "Salkhua", "Saur Bazar", "Sonbarsa"],
+            "Simri Bakhtiarpur Sub-Div": ["Simri Bakhtiarpur", "Banma Itahari"]
+        },
+        "Samastipur": {
+            "Samastipur Sadar Sub-Div": ["Samastipur", "Kalyanpur", "Khanpur", "Pusa", "Tajpur", "Warisnagar"],
+            "Dalsinghsarai Sub-Div": ["Dalsinghsarai", "Bibhutipur", "Ujiarpur", "Vidyapatinagar"],
+            "Patori Sub-Div": ["Patori", "Mohanpur", "Mohiuddinagar"],
+            "Rosera Sub-Div": ["Rosera", "Hasanpur", "Singhia", "Shivaji Nagar", "Bithan"]
+        },
+        "Sheikhpura": {
+            "Sheikhpura Sadar Sub-Div": ["Sheikhpura", "Ariari", "Barbigha", "Chewara", "Ghatkusumbha", "Shekhopur Sarai"]
+        },
+        "Sheohar": {
+            "Sheohar Sadar Sub-Div": ["Sheohar", "Dumri Katsari", "Piprahi", "Purnahiya", "Tariyani Chowk"]
+        },
+        "Sitamarhi": {
+            "Sitamarhi Sadar Sub-Div": ["Dumra", "Bairgania", "Belsand", "Bokhra", "Majorganj", "Nanpur", "Parsauni", "Riga", "Runni Saidpur", "Suppi"],
+            "Pupri Sub-Div": ["Pupri", "Bajpatti", "Bathnaha", "Charaut", "Parihar", "Sursand", "Sonbarsa"]
         }
     }
 
-# Master Dataset
+# Master Dataset Loader (Real PMGSY CSV + High-Precision Fallback)
 @st.cache_data
 def load_data():
+    if os.path.exists("bihar_live_projects.csv"):
+        try:
+            df = pd.read_csv("bihar_live_projects.csv")
+            if not df.empty:
+                return df
+        except Exception:
+            pass
+    # Default High-Precision Backup Data
     return pd.DataFrame([
         {
-            "Project_Name": "Urban Storm Drainage & Flood Embankment Protection - Chakia (East Champaran (Motihari))",
-            "District": "East Champaran (Motihari)",
+            "Project_Name": "Urban Storm Drainage & Flood Embankment Protection - Chakia",
+            "District": "East Champaran",
             "Subdivision": "Chakia Sub-Div",
             "Block": "Chakia",
             "Package_ID": "BHR_EAS_2026_0290",
@@ -330,7 +446,7 @@ def load_data():
         },
         {
             "Project_Name": "Motihari Chhatauni Flyover & Junction Improvement Works",
-            "District": "East Champaran (Motihari)",
+            "District": "East Champaran",
             "Subdivision": "Motihari Sadar Sub-Div",
             "Block": "Motihari Sadar",
             "Package_ID": "BHR_EAS_2026_0114",
@@ -363,24 +479,6 @@ def load_data():
             "Land_Risk_Score": 8.0,
             "WPI_Inflation_Index": 112.50,
             "Site_Engineer": "Er. Sunil Verma, Chief Project Engineer"
-        },
-        {
-            "Project_Name": "Gaya Surface Water Supply Scheme & Treatment Plant Pkg-02",
-            "District": "Gaya",
-            "Subdivision": "Gaya Sadar Sub-Div",
-            "Block": "Bodh Gaya",
-            "Package_ID": "BHR_GAY_2026_0318",
-            "Contractor_Name": "NCC Urban Infrastructure Ltd.",
-            "Original_Cost_Cr": 195.00,
-            "Original_Duration": 30,
-            "Elapsed_Months": 14,
-            "Cumulative_Spend_Cr": 75.00,
-            "Physical_Progress_Pct": 44.00,
-            "Delayed_Milestones": 1,
-            "Revisions_Count": 0,
-            "Land_Risk_Score": 3.8,
-            "WPI_Inflation_Index": 106.00,
-            "Site_Engineer": "Er. P. K. Sinha, Executive Engineer"
         }
     ])
 
@@ -464,6 +562,7 @@ with col_geo:
         if selected_state != "Select State" and selected_district != "Select District":
             st.session_state['projects_fetched'] = True
             st.session_state['active_district'] = selected_district
+            st.session_state['active_block'] = selected_block
         else:
             st.error("Select State and District first.")
 
@@ -475,10 +574,28 @@ with col_geo:
     """, unsafe_allow_html=True)
 
     if demo_btn:
-        preset_rec = paimana_df.iloc[1].to_dict()
+        preset_rec = {
+            "Project_Name": "Motihari Chhatauni Flyover & Junction Improvement Works",
+            "District": "East Champaran",
+            "Subdivision": "Motihari Sadar Sub-Div",
+            "Block": "Motihari Sadar",
+            "Package_ID": "BHR_EAS_2026_0114",
+            "Contractor_Name": "L&T Infrastructure Engineering Ltd.",
+            "Original_Cost_Cr": 245.50,
+            "Original_Duration": 36,
+            "Elapsed_Months": 22,
+            "Cumulative_Spend_Cr": 165.40,
+            "Physical_Progress_Pct": 38.50,
+            "Delayed_Milestones": 3,
+            "Revisions_Count": 1,
+            "Land_Risk_Score": 7.2,
+            "WPI_Inflation_Index": 109.40,
+            "Site_Engineer": "Er. Alok Sharma, AEE"
+        }
         st.session_state['selected_record'] = preset_rec
         st.session_state['projects_fetched'] = True
-        st.session_state['active_district'] = "East Champaran (Motihari)"
+        st.session_state['active_district'] = "East Champaran"
+        st.session_state['active_block'] = "Motihari Sadar"
         st.session_state['inp_cost'] = float(preset_rec['Original_Cost_Cr'])
         st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
         st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
@@ -495,55 +612,72 @@ with col_sec1:
     st.markdown("<div class='section-title'>📁 SECTION 1: DETAILS ABOUT ONGOING PROJECTS</div>", unsafe_allow_html=True)
     
     active_dist = st.session_state.get('active_district', selected_district)
-    district_kw = active_dist.split()[0].lower() if active_dist != "Select District" else ""
-    matched_projects = [r for _, r in paimana_df.iterrows() if district_kw in str(r["District"]).lower()]
-    if not matched_projects:
+    active_blk = st.session_state.get('active_block', selected_block)
+    
+    # Precise Match by District & Block (Fallback to District)
+    if active_dist != "Select District":
+        dist_key = active_dist.split()[0].strip().lower()
+        matched_projects = [
+            r for _, r in paimana_df.iterrows()
+            if dist_key in str(r.get("District", "")).strip().lower()
+            and (str(r.get("Block", "")).strip().lower() == active_blk.strip().lower() or active_blk == "Select Block")
+        ]
+        if not matched_projects:
+            matched_projects = [
+                r for _, r in paimana_df.iterrows()
+                if dist_key in str(r.get("District", "")).strip().lower()
+            ]
+    else:
         matched_projects = [r for _, r in paimana_df.iterrows()]
         
-    project_options = [str(r["Project_Name"]) for r in matched_projects]
-    selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
-    active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), matched_projects[0])
+    if not matched_projects:
+        st.info("ℹ️ Currently, no active government construction work is underway at this location.")
+        active_row = None
+    else:
+        project_options = [str(r["Project_Name"]) for r in matched_projects]
+        selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
+        active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), matched_projects[0])
 
-    st.markdown(f"""
-    <div class="project-card-white">
-        <div style="font-size: 15px; font-weight: 800; color: #0284C7; line-height: 1.3;">
-            📌 {active_row['Project_Name']}
+        st.markdown(f"""
+        <div class="project-card-white">
+            <div style="font-size: 15px; font-weight: 800; color: #0284C7; line-height: 1.3;">
+                📌 {active_row['Project_Name']}
+            </div>
+            <div><span class="project-code-badge">{active_row.get('Package_ID', 'BHR_PMGSY_2026_098')}</span></div>
+            <div class="contractor-text">🏗️ {active_row.get('Contractor_Name', 'Empanelled PMGSY State Agency')}</div>
         </div>
-        <div><span class="project-code-badge">{active_row.get('Package_ID', 'BHR_EAS_2026_0290')}</span></div>
-        <div class="contractor-text">🏗️ {active_row.get('Contractor_Name', 'Registered Contractor')}</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    b1, b2 = st.columns(2)
-    with b1:
-        st.markdown(f"<div class='metric-dot-row'>• <b>Original Cost:</b> <span class='metric-dot-green'>₹{float(active_row['Original_Cost_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Duration:</b> <span class='metric-dot-green'>{int(active_row['Original_Duration'])} M</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Elapsed:</b> <span class='metric-dot-green'>{int(active_row['Elapsed_Months'])} M</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Spend:</b> <span class='metric-dot-green'>₹{float(active_row['Cumulative_Spend_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
-    with b2:
-        st.markdown(f"<div class='metric-dot-row'>• <b>Progress:</b> <span class='metric-dot-green'>{float(active_row['Physical_Progress_Pct']):.1f}%</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Delayed M/S:</b> <span class='metric-dot-green'>{int(active_row['Delayed_Milestones'])}</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Revisions:</b> <span class='metric-dot-green'>{int(active_row.get('Revisions_Count', 0))}</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-dot-row'>• <b>Land Risk:</b> <span class='metric-dot-green'>{float(active_row['Land_Risk_Score']):.1f}</span></div>", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+        
+        b1, b2 = st.columns(2)
+        with b1:
+            st.markdown(f"<div class='metric-dot-row'>• <b>Original Cost:</b> <span class='metric-dot-green'>₹{float(active_row['Original_Cost_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Duration:</b> <span class='metric-dot-green'>{int(active_row['Original_Duration'])} M</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Elapsed:</b> <span class='metric-dot-green'>{int(active_row['Elapsed_Months'])} M</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Spend:</b> <span class='metric-dot-green'>₹{float(active_row['Cumulative_Spend_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
+        with b2:
+            st.markdown(f"<div class='metric-dot-row'>• <b>Progress:</b> <span class='metric-dot-green'>{float(active_row['Physical_Progress_Pct']):.1f}%</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Delayed M/S:</b> <span class='metric-dot-green'>{int(active_row['Delayed_Milestones'])}</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Revisions:</b> <span class='metric-dot-green'>{int(active_row.get('Revisions_Count', 0))}</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='metric-dot-row'>• <b>Land Risk:</b> <span class='metric-dot-green'>{float(active_row['Land_Risk_Score']):.1f}</span></div>", unsafe_allow_html=True)
 
-    load_sec2_btn = st.button("📥 Load This Project Data into Section 2", use_container_width=True)
-    if load_sec2_btn:
-        row_dict = active_row.to_dict()
-        st.session_state['selected_record'] = row_dict
-        st.session_state['inp_cost'] = float(row_dict['Original_Cost_Cr'])
-        st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
-        st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
-        st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
-        st.session_state['box_phys'] = float(row_dict['Physical_Progress_Pct'])
-        st.session_state['box_ms'] = int(row_dict['Delayed_Milestones'])
-        st.session_state['box_rev'] = int(row_dict.get('Revisions_Count', 0))
-        st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
-        st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
-        st.session_state['ai_evaluated'] = False
-        st.rerun()
+        load_sec2_btn = st.button("📥 Load This Project Data into Section 2", use_container_width=True)
+        if load_sec2_btn:
+            row_dict = active_row.to_dict()
+            st.session_state['selected_record'] = row_dict
+            st.session_state['inp_cost'] = float(row_dict['Original_Cost_Cr'])
+            st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
+            st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
+            st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
+            st.session_state['box_phys'] = float(row_dict['Physical_Progress_Pct'])
+            st.session_state['box_ms'] = int(row_dict['Delayed_Milestones'])
+            st.session_state['box_rev'] = int(row_dict.get('Revisions_Count', 0))
+            st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
+            st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
+            st.session_state['ai_evaluated'] = False
+            st.rerun()
 
 # COLUMN 3: Predict Project Future Overview (Box Inputs + 2 Sliders)
-rec = st.session_state.get('selected_record') or active_row.to_dict()
+rec = st.session_state.get('selected_record') or (active_row.to_dict() if active_row is not None else {})
 
 with col_sec2:
     st.markdown("<div class='section-title'>⚡ SECTION 2: PREDICT PROJECT FUTURE OVERVIEW</div>", unsafe_allow_html=True)
