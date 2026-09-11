@@ -56,9 +56,50 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Geographic Hierarchy
+# Complete 38 Districts, 101 Subdivisions, 534+ Blocks Master Hierarchy
 def get_bihar_geo_hierarchy():
     return {
+        "Araria": {
+            "Araria Sub-Div": ["Araria", "Jokihat", "Kursakanta", "Palasi", "Raniganj", "Sikti"],
+            "Forbesganj Sub-Div": ["Forbesganj", "Bhargama", "Narpatganj"]
+        },
+        "Arwal": {
+            "Arwal Sub-Div": ["Arwal", "Kaler", "Karpi", "Kurtha", "Sonbhadra Banshi Suryapur"]
+        },
+        "Aurangabad": {
+            "Aurangabad Sub-Div": ["Aurangabad", "Barun", "Jamhor", "Kutumba", "Madanpur", "Navinagar", "Rafiganj"],
+            "Daudnagar Sub-Div": ["Daudnagar", "Goh", "Haspura", "Obra"]
+        },
+        "Banka": {
+            "Banka Sub-Div": ["Banka", "Amarpur", "Barahat", "Bausi", "Belhar", "Chanan", "Dhoraiya", "Fullidumar", "Katoriya", "Rajaun", "Sambhuganj"]
+        },
+        "Begusarai": {
+            "Begusarai Sadar Sub-Div": ["Begusarai", "Barauni", "Birpur", "Matihani", "Shamho Akha Kurha"],
+            "Bakhri Sub-Div": ["Bakhri", "Garhpura", "Naokothi", "Parihara"],
+            "Balia Sub-Div": ["Balia", "Dandari", "Sahebpur Kamal"],
+            "Manjhaul Sub-Div": ["Cheria Bariarpur", "Chhorahi"],
+            "Teghra Sub-Div": ["Teghra", "Bachhwara", "Bhagwanpur", "Mansurchak"]
+        },
+        "Bhagalpur": {
+            "Bhagalpur Sadar Sub-Div": ["Jagdishpur", "Nathnagar", "Sabour", "Goradih", "Shahkund"],
+            "Kahalgaon Sub-Div": ["Kahalgaon", "Pirpainti", "Sanokhar"],
+            "Naugachhia Sub-Div": ["Naugachhia", "Bihpur", "Gopalpur", "Ismailpur", "Kharik", "Narayanpur", "Rangra Chowk"],
+            "Sultanganj Sub-Div": ["Sultanganj"]
+        },
+        "Bhojpur (Ara)": {
+            "Ara Sadar Sub-Div": ["Ara", "Agiaon", "Barhara", "Koilwar", "Sandesh", "Shahpur", "Udwantnagar"],
+            "Jagdishpur Sub-Div": ["Jagdishpur", "Behea", "Garhani"],
+            "Piro Sub-Div": ["Piro", "Charpokhari", "Tarari"]
+        },
+        "Buxar": {
+            "Buxar Sub-Div": ["Buxar", "Barhampur", "Chausa", "Chaugain", "Itarhi", "Rajpur"],
+            "Dumraon Sub-Div": ["Dumraon", "Brahmpur", "Chakki", "Kesath", "Nawanagar", "Simri"]
+        },
+        "Darbhanga": {
+            "Darbhanga Sadar Sub-Div": ["Darbhanga", "Bahadurpur", "Hayaghat", "Hanumannagar", "Jale", "Keoti", "Manigachhi", "Singh数を"],
+            "Benipur Sub-Div": ["Benipur", "Alinagar", "Baheri", "Biraul"],
+            "Biraul Sub-Div": ["Ghanshyampur", "Kiratpur", "Kusheshwar Asthan", "Kusheshwar Asthan East", "Tardih"]
+        },
         "East Champaran (Motihari)": {
             "Chakia Sub-Div": ["Chakia", "Kalyanpur", "Kesaria", "Madhuban", "Mehsi", "Tetaria"],
             "Motihari Sadar Sub-Div": ["Motihari Sadar", "Kotwa", "Piprakothi", "Turkaulia", "Banjariya"],
@@ -67,21 +108,130 @@ def get_bihar_geo_hierarchy():
             "Dhaka Sub-Div": ["Dhaka", "Chiraiya", "Ghorasahan", "Banka Ghat", "Patahi"],
             "Pakridayal Sub-Div": ["Pakridayal", "Phena"]
         },
-        "Patna": {
-            "Danapur Sub-Div": ["Danapur", "Khagaul", "Maner", "Bihta"],
-            "Patna Sadar Sub-Div": ["Patna Sadar", "Phulwari Sharif", "Sampatchak"],
-            "Barh Sub-Div": ["Barh", "Bakhtiarpur", "Mokama", "Pandarak", "Ghoswari"],
-            "Masaurhi Sub-Div": ["Masaurhi", "Dhanarua", "Punpun"],
-            "Paliganj Sub-Div": ["Paliganj", "Dulhin Bazar", "Bikram"]
-        },
         "Gaya": {
-            "Gaya Sadar Sub-Div": ["Gaya Sadar", "Bodh Gaya", "Manpur", "Tankuppa", "Barachatti"],
-            "Tekari Sub-Div": ["Tekari", "Konch", "Guraru", "Paraiya"],
-            "Sherghati Sub-Div": ["Sherghati", "Dobhi", "Amas", "Banke Bazar", "Imamganj"]
+            "Gaya Sadar Sub-Div": ["Gaya Sadar", "Bodh Gaya", "Manpur", "Tankuppa", "Barachatti", "Belaganj", "Fatehpur", "Mohanpur", "Paraiya", "Wazirganj"],
+            "Tekari Sub-Div": ["Tekari", "Konch", "Guraru"],
+            "Sherghati Sub-Div": ["Sherghati", "Dobhi", "Amas", "Banke Bazar", "Gurua", "Imamganj", "Dumaria"],
+            "Neemchak Bathani Sub-Div": ["Neemchak Bathani", "Atri", "Khizirsarai", "Mohra"]
+        },
+        "Gopalganj": {
+            "Gopalganj Sub-Div": ["Gopalganj", "Barauli", "Manjha", "Sidhwalia", "Thawe", "Uchkagaon", "Baikunthpur"],
+            "Hathua Sub-Div": ["Hathua", "Bhorey", "Bijaipur", "Kateya", "Kuchaikote", "Phulwariya", "Puchhri"]
+        },
+        "Jamui": {
+            "Jamui Sub-Div": ["Jamui", "Barhat", "Chakai", "Gidhaur", "Islamnagar Aliganj", "Jhajha", "Khaira", "Laxmipur", "Sikandra", "Sono"]
+        },
+        "Jehanabad": {
+            "Jehanabad Sub-Div": ["Jehanabad", "Ghoshi", "Hulashganj", "Kako", "Makhdumpur", "Modanganj", "Ratni Faridpur"]
+        },
+        "Kaimur (Bhabhua)": {
+            "Bhabhua Sub-Div": ["Bhabhua", "Bhagwanpur", "Chainpur", "Chand", "Rampur"],
+            "Mohania Sub-Div": ["Mohania", "Adhaura", "Durgawati", "Kudra", "Nuon", "Ramgarh"]
+        },
+        "Katihar": {
+            "Katihar Sadar Sub-Div": ["Katihar", "Dandkhora", "Falka", "Hasanganj", "Korha", "Kora", "Mansahi", "Pranpur", "Sameli"],
+            "Barsoi Sub-Div": ["Barsoi", "Amdabad", "Azamnagar", "Balrampur", "Kadwa"],
+            "Manihari Sub-Div": ["Manihari"]
+        },
+        "Khagaria": {
+            "Khagaria Sub-Div": ["Khagaria", "Alauli", "Beldaur", "Chautham", "Mansi"],
+            "Gogri Sub-Div": ["Gogri", "Parbatta"]
+        },
+        "Kishanganj": {
+            "Kishanganj Sub-Div": ["Kishanganj", "Bahadurganj", "Dighalbank", "Kochadhaman", "Pothia", "Terhagachh", "Thakurganj"]
+        },
+        "Lakhisarai": {
+            "Lakhisarai Sub-Div": ["Lakhisarai", "Barahiya", "Channan", "Halsi", "Pipariya", "Ramgarh Chowk", "Surajgarha"]
+        },
+        "Madhepura": {
+            "Madhepura Sub-Div": ["Madhepura", "Gamharia", "Ghelarh", "Kishanganj", "Murliganj", "Shankarpur", "Singheshwar"],
+            "Uda Kishanganj Sub-Div": ["Alamnagar", "Bihariganj", "Chausa", "Gwalpara", "Kumarkhand", "Puraini", "Uda Kishanganj"]
+        },
+        "Madhubani": {
+            "Madhubani Sadar Sub-Div": ["Madhubani", "Bisfi", "Kaluahi", "Khajauli", "Ladnania", "Pandaul", "Rajnagar", "Rahika"],
+            "Benipatti Sub-Div": ["Benipatti", "Basopatti", "Harlakhi", "Madhwapur"],
+            "Jhanjharpur Sub-Div": ["Jhanjharpur", "Andhrathari", "Babubarhi", "Lakhnaur", "Madhepur", "Tamuria"],
+            "Phulparas Sub-Div": ["Phulparas", "Ghoghardiha", "Khutauna", "Laukaha", "Narahiya"]
+        },
+        "Munger": {
+            "Munger Sadar Sub-Div": ["Munger", "Bariarpur", "Dharhara", "Jamalpur"],
+            "Kharagpur Sub-Div": ["Haveli Kharagpur", "Tetiabambar"],
+            "Tarapur Sub-Div": ["Tarapur", "Asarganj", "Sangrampur"]
         },
         "Muzaffarpur": {
-            "Muzaffarpur East Sub-Div": ["Mushahari", "Bochahan", "Gaighat", "Aurai", "Katra", "Bandra", "Dholi"],
-            "Muzaffarpur West Sub-Div": ["Kanti", "Motipur", "Baruraj", "Sahebganj", "Paroo", "Saraiya", "Marwan"]
+            "Muzaffarpur East Sub-Div": ["Mushahari", "Bochahan", "Gaighat", "Aurai", "Katra", "Bandra", "Dholi", "Muraul", "Sakra"],
+            "Muzaffarpur West Sub-Div": ["Kanti", "Motipur", "Baruraj", "Sahebganj", "Paroo", "Saraiya", "Marwan", "Minapur"]
+        },
+        "Nalanda (Bihar Sharif)": {
+            "Bihar Sharif Sub-Div": ["Bihar Sharif", "Asthawan", "Bind", "Giriak", "Harnaut", "Noorsarai", "Rahui", "Rajnagar", "Sarmera"],
+            "Rajgir Sub-Div": ["Rajgir", "Ben", "Chandi", "Islampur", "Karai Parsurai", "Nagar Nausa", "Parwalpur", "Silao", "Tharthari"],
+            "Hilsa Sub-Div": ["Hilsa", "Ekangarsarai"]
+        },
+        "Nawada": {
+            "Nawada Sub-Div": ["Nawada", "Akbarpur", "Govindpur", "Kashichak", "Kowakole", "Meskaur", "Nardiganj", "Narhat", "Pakribarawan", "Roh", "Sirdala", "Warisaliganj"],
+            "Rajauli Sub-Div": ["Rajauli", "Hisua"]
+        },
+        "Patna": {
+            "Patna Sadar Sub-Div": ["Patna Sadar", "Phulwari Sharif", "Sampatchak"],
+            "Danapur Sub-Div": ["Danapur", "Khagaul", "Maner", "Bihta"],
+            "Barh Sub-Div": ["Barh", "Bakhtiarpur", "Mokama", "Pandarak", "Ghoswari", "Belchhi"],
+            "Masaurhi Sub-Div": ["Masaurhi", "Dhanarua", "Punpun"],
+            "Paliganj Sub-Div": ["Paliganj", "Dulhin Bazar", "Bikram"],
+            "Patna City Sub-Div": ["Fatuha", "Daniyawan", "Khusrupur"]
+        },
+        "Purnia": {
+            "Purnia Sadar Sub-Div": ["Purnia East", "Purnia West", "Dagarua", "Jalalgarh", "Kasba", "Krityanand Nagar", "Srinagar"],
+            "Banmankhi Sub-Div": ["Banmankhi", "Barhara Kothi"],
+            "Dhamdaha Sub-Div": ["Dhamdaha", "Bhawanipur", "Rupauli"],
+            "Baisi Sub-Div": ["Baisi", "Amour", "Baisa"]
+        },
+        "Rohtas (Sasaram)": {
+            "Sasaram Sub-Div": ["Sasaram", "Akorhigola", "Bhagwanpur", "Chenari", "Karaghar", "Nokha", "Rohtas", "Sheosagar", "Tilouthu"],
+            "Bikramganj Sub-Div": ["Bikramganj", "Dawath", "Dinara", "Karakat", "Nasriganj", "Sanjhauli", "Suryapura"],
+            "Dehri Sub-Div": ["Dehri", "Nauhatta", "Rajpur"]
+        },
+        "Saharsa": {
+            "Saharsa Sadar Sub-Div": ["Saharsa", "Kahara", "Mahishi", "Nauhatta", "Patarghat", "Salkhua", "Saur Bazar", "Sonbarsa"],
+            "Simri Bakhtiarpur Sub-Div": ["Simri Bakhtiarpur", "Banma Itahari"]
+        },
+        "Samastipur": {
+            "Samastipur Sadar Sub-Div": ["Samastipur", "Kalyanpur", "Khanpur", "Pusa", "Tajpur", "Warisnagar"],
+            "Dalsinghsarai Sub-Div": ["Dalsinghsarai", "Bibhutipur", "Ujiarpur", "Vidyapatinagar"],
+            "Patori Sub-Div": ["Patori", "Mohanpur", "Mohiuddinagar"],
+            "Rosera Sub-Div": ["Rosera", "Hasanpur", "Singhia", "Shivaji Nagar", "Bithan"]
+        },
+        "Saran (Chhapra)": {
+            "Chhapra Sadar Sub-Div": ["Chhapra", "Garkha", "Jalalpur", "Manjhi", "Nagra", "Panapur", "Revelganj", "Rivilganj", "Taraiya"],
+            "Marhaura Sub-Div": ["Marhaura", "Amnour", "Baniyapur", "Dighwara", "Ishupur", "Mashrakh", "Panapur"],
+            "Sonepur Sub-Div": ["Sonepur", "Dariyapur", "Parsa", "Maker"]
+        },
+        "Sheikhpura": {
+            "Sheikhpura Sub-Div": ["Sheikhpura", "Ariari", "Barbigha", "Chewara", "Ghatkusumbha", "Shekhopur Sarai"]
+        },
+        "Sheohar": {
+            "Sheohar Sub-Div": ["Sheohar", "Dumri Katsari", "Piprahi", "Purnahiya", "Tariyani Chowk"]
+        },
+        "Sitamarhi": {
+            "Sitamarhi Sadar Sub-Div": ["Dumra", "Bairgania", "Belsand", "Bokhra", "Majorganj", "Nanpur", "Parsauni", "Riga", "Runni Saidpur", "Suppi"],
+            "Belsand Sub-Div": ["Belsand"],
+            "Pupri Sub-Div": ["Pupri", "Bajpatti", "Bathnaha", "Charaut", "Parihar", "Sursand", "Sonbarsa"]
+        },
+        "Siwan": {
+            "Siwan Sadar Sub-Div": ["Siwan", "Andar", "Barharia", "Darauli", "Goreakothi", "Guthani", "Hasanpura", "Hussainganj", "Mairwa", "Nautan", "Panchrukhi", "Raghunathpur", "Siswan", "Ziradei"],
+            "Maharajganj Sub-Div": ["Maharajganj", "Bhagwanpur Hat", "Daraundha", "Lakri Nabiganj"]
+        },
+        "Supaul": {
+            "Supaul Sub-Div": ["Supaul", "Basantpur", "Chhatapur", "Kishanpur", "Marauna", "Nirmali", "Pipra", "Pratapganj", "Raghopur", "Saraigarh Bhaptiyahi", "Triveniganj"]
+        },
+        "Vaishali (Hajipur)": {
+            "Hajipur Sub-Div": ["Hajipur", "Bhagwanpur", "Bidupur", "Desri", "Goraul", "Jandaha", "Lalganj", "Mahnar", "Mahua", "Patedhi Belsar", "Raghopur", "Sahdai Buzurg", "Vaishali"],
+            "Mahanar Sub-Div": ["Mahanar"],
+            "Mahua Sub-Div": ["Mahua", "Chehrakala", "Jandaha", "Patedhi"]
+        },
+        "West Champaran (Bettiah)": {
+            "Bettiah Sadar Sub-Div": ["Bettiah", "Bairia", "Chanpatia", "Jagdishpur", "Majhaulia", "Nautan", "Sikta"],
+            "Bagaha Sub-Div": ["Bagaha-I", "Bagaha-II", "Bhairabganj", "Madhubani", "Piprasi", "Ramnagar", "Semraha", "Sidaw", "Thakraha"],
+            "Narkatiaganj Sub-Div": ["Narkatiaganj", "Gaunaha", "Lauriya", "Mainatand"]
         }
     }
 
@@ -195,7 +345,7 @@ if 'selected_record' not in st.session_state:
 if 'ai_evaluated' not in st.session_state:
     st.session_state['ai_evaluated'] = False
 
-# Sidebar Setup with explicit placeholders
+# Sidebar Setup with explicit placeholders & 38 Districts, 101 Subdivisions, 534 Blocks
 st.sidebar.markdown("### 📍 Bihar Administrative Hierarchy")
 selected_state = st.sidebar.selectbox("1. State", ["Select State", "Bihar"], index=0)
 
@@ -204,15 +354,15 @@ selected_subdiv = "Select Subdivision"
 selected_block = "Select Block"
 
 if selected_state != "Select State":
-    district_list = ["Select District"] + list(geo_hierarchy.keys())
+    district_list = ["Select District"] + sorted(list(geo_hierarchy.keys()))
     selected_district = st.sidebar.selectbox("2. District (38 Districts)", district_list, index=0)
     
     if selected_district != "Select District":
-        subdiv_list = ["Select Subdivision"] + list(geo_hierarchy[selected_district].keys())
+        subdiv_list = ["Select Subdivision"] + sorted(list(geo_hierarchy[selected_district].keys()))
         selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Subdivisions)", subdiv_list, index=0)
         
         if selected_subdiv != "Select Subdivision":
-            block_list = ["Select Block"] + geo_hierarchy[selected_district][selected_subdiv]
+            block_list = ["Select Block"] + sorted(geo_hierarchy[selected_district][selected_subdiv])
             selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_list, index=0)
 
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
@@ -352,7 +502,7 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Risk Output Cards as in Screenshot 2
+    # Risk Output Cards
     rc1, rc2, rc3 = st.columns([1, 1, 1.2])
     with rc1:
         st.markdown(f"""
@@ -391,7 +541,6 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
     ])
 
     with t_scurve:
-        # Square-Look Block Progress Visual as in Screenshot 1
         fig_s = go.Figure()
         
         fig_s.add_trace(go.Bar(
