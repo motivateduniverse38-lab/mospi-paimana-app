@@ -58,6 +58,18 @@ st.markdown("""
         margin-bottom: 24px;
     }
 
+    /* Section Headings */
+    .section-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #38BDF8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #1E293B;
+        padding-bottom: 6px;
+    }
+
     /* Cards & Container Visibility */
     .project-card-white {
         background-color: #FFFFFF;
@@ -396,7 +408,7 @@ if 'selected_record' not in st.session_state:
 if 'ai_evaluated' not in st.session_state:
     st.session_state['ai_evaluated'] = False
 
-# Sidebar: All 4 Hierarchy Sections Explicitly Visible Together
+# Sidebar Setup: Hierarchy with Fetch Button directly below Block and Demo Preset at the bottom
 st.sidebar.markdown("### 📍 Bihar Administrative Hierarchy")
 
 # 1. State
@@ -423,6 +435,12 @@ else:
     block_pool = ["Select Block"] + all_blocks
 selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_pool, index=0)
 
+# Fetch Ongoing Projects placed directly below Block dropdown
+fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
+
+st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+
+# Demo preset placed at the bottom of sidebar
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
 if demo_btn:
     preset_rec = paimana_df.iloc[1].to_dict()
@@ -431,37 +449,40 @@ if demo_btn:
     st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
     st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
     st.session_state['inp_sp'] = float(preset_rec['Cumulative_Spend_Cr'])
-    st.session_state['sl_phys'] = float(preset_rec['Physical_Progress_Pct'])
-    st.session_state['sl_ms'] = int(preset_rec['Delayed_Milestones'])
-    st.session_state['sl_rev'] = int(preset_rec['Revisions_Count'])
+    st.session_state['box_phys'] = float(preset_rec['Physical_Progress_Pct'])
+    st.session_state['box_ms'] = int(preset_rec['Delayed_Milestones'])
+    st.session_state['box_rev'] = int(preset_rec['Revisions_Count'])
     st.session_state['sl_land'] = float(preset_rec['Land_Risk_Score'])
     st.session_state['sl_wpi'] = float(preset_rec['WPI_Inflation_Index'])
     st.session_state['ai_evaluated'] = True
 
-fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
-
-# 4. Top Center Header & Subtitle
+# Top Center Header & Subtitle
 st.markdown("<div class='brand-title'>🏛️ PAIMANA AI</div>", unsafe_allow_html=True)
 st.markdown("<div class='brand-subtitle'>ANALYSIS AND PREDICT AI</div>", unsafe_allow_html=True)
 
 # Main 2-Column Interface
 col_sec1, col_sec2 = st.columns([1.05, 0.95], gap="medium")
 
-# SECTION 1: Construction Work Inspector
+# SECTION 1: Details About Ongoing Projects
 with col_sec1:
+    st.markdown("<div class='section-title'>📁 SECTION 1: DETAILS ABOUT ONGOING PROJECTS</div>", unsafe_allow_html=True)
+    
     if selected_district != "Select District":
         district_kw = selected_district.split()[0].lower()
         matched_projects = [r for _, r in paimana_df.iterrows() if district_kw in str(r["District"]).lower()]
-    else:
-        matched_projects = [r for _, r in paimana_df.iterrows()]
-        
-    project_options = ["Select Project"] + [str(r["Project_Name"]) for r in matched_projects]
-    selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
-    
-    if selected_inspect != "Select Project":
+        if not matched_projects:
+            matched_projects = [r for _, r in paimana_df.iterrows()]
+        project_options = [str(r["Project_Name"]) for r in matched_projects]
+        selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
         active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), None)
     else:
-        active_row = None
+        matched_projects = [r for _, r in paimana_df.iterrows()]
+        project_options = ["Select Project"] + [str(r["Project_Name"]) for r in matched_projects]
+        selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
+        if selected_inspect != "Select Project":
+            active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), None)
+        else:
+            active_row = None
 
     if active_row is not None:
         st.markdown(f"""
@@ -494,9 +515,9 @@ with col_sec1:
             st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
             st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
             st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
-            st.session_state['sl_phys'] = float(row_dict['Physical_Progress_Pct'])
-            st.session_state['sl_ms'] = int(row_dict['Delayed_Milestones'])
-            st.session_state['sl_rev'] = int(row_dict.get('Revisions_Count', 0))
+            st.session_state['box_phys'] = float(row_dict['Physical_Progress_Pct'])
+            st.session_state['box_ms'] = int(row_dict['Delayed_Milestones'])
+            st.session_state['box_rev'] = int(row_dict.get('Revisions_Count', 0))
             st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
             st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
             st.session_state['ai_evaluated'] = False
@@ -504,10 +525,12 @@ with col_sec1:
     else:
         st.info("👈 Please select state, district and project to inspect.")
 
-# SECTION 2: AI Inputs & Sliders
+# SECTION 2: Predict Project Future Overview (Box Inputs + 2 Sliders)
 rec = st.session_state.get('selected_record') or {}
 
 with col_sec2:
+    st.markdown("<div class='section-title'>⚡ SECTION 2: PREDICT PROJECT FUTURE OVERVIEW</div>", unsafe_allow_html=True)
+    
     s2_col1, s2_col2 = st.columns(2)
     with s2_col1:
         inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 0.0))), key="inp_cost")
@@ -515,11 +538,12 @@ with col_sec2:
         inp_elapsed = st.number_input("Elapsed Time (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 0))), key="inp_elap")
         inp_spend = st.number_input("Cumulative Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 0.0))), key="inp_sp")
     with s2_col2:
-        inp_phys = st.slider("Physical Progress (%)", 0.0, 100.0, float(st.session_state.get('sl_phys', rec.get('Physical_Progress_Pct', 0.0))), key="sl_phys")
-        inp_milestones = st.slider("Delayed Milestones", 0, 10, int(st.session_state.get('sl_ms', rec.get('Delayed_Milestones', 0))), key="sl_ms")
-        inp_revisions = st.slider("Revisions Count", 0, 5, int(st.session_state.get('sl_rev', rec.get('Revisions_Count', 0))), key="sl_rev")
-        inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(st.session_state.get('sl_land', rec.get('Land_Risk_Score', 5.0))), key="sl_land")
-        inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 100.0))), key="sl_wpi")
+        inp_phys = st.number_input("Physical Progress (%)", min_value=0.0, max_value=100.0, value=float(st.session_state.get('box_phys', rec.get('Physical_Progress_Pct', 0.0))), key="box_phys")
+        inp_milestones = st.number_input("Delayed Milestones", min_value=0, max_value=20, value=int(st.session_state.get('box_ms', rec.get('Delayed_Milestones', 0))), key="box_ms")
+        inp_revisions = st.number_input("Revisions Count", min_value=0, max_value=10, value=int(st.session_state.get('box_rev', rec.get('Revisions_Count', 0))), key="box_rev")
+        
+    inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(st.session_state.get('sl_land', rec.get('Land_Risk_Score', 5.0))), key="sl_land")
+    inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 100.0))), key="sl_wpi")
 
     run_ai = st.button("⚡ Run AI Prediction & Risk Analysis (Enter ↵)", use_container_width=True)
     if run_ai:
