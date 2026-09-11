@@ -15,13 +15,42 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# User Preference Settings State
+if "app_bg_theme" not in st.session_state:
+    st.session_state["app_bg_theme"] = "Dark Slate (#0B0F19)"
+if "app_accent_color" not in st.session_state:
+    st.session_state["app_accent_color"] = "Cyan Blue (#38BDF8)"
+if "app_font_scale" not in st.session_state:
+    st.session_state["app_font_scale"] = "Standard (100%)"
+
+# Dynamic Styling based on Settings
+bg_map = {
+    "Dark Slate (#0B0F19)": "#0B0F19",
+    "Deep Midnight (#050811)": "#050811",
+    "Pitch Black (#000000)": "#000000"
+}
+accent_map = {
+    "Cyan Blue (#38BDF8)": "#38BDF8",
+    "Emerald Green (#10B981)": "#10B981",
+    "Amber Gold (#F59E0B)": "#F59E0B"
+}
+font_scale_map = {
+    "Standard (100%)": "14px",
+    "Medium (+10%)": "15.5px",
+    "Large (+20%)": "17px"
+}
+
+active_bg = bg_map.get(st.session_state["app_bg_theme"], "#0B0F19")
+active_accent = accent_map.get(st.session_state["app_accent_color"], "#38BDF8")
+active_font_size = font_scale_map.get(st.session_state["app_font_scale"], "14px")
+
 # 1. 4-Second Splash Animation Engine
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
-        st.markdown("""
+        st.markdown(f"""
         <style>
-            .splash-wrapper {
+            .splash-wrapper {{
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -29,45 +58,45 @@ if "splash_done" not in st.session_state:
                 height: 80vh;
                 text-align: center;
                 animation: fadeIn 1s ease-in-out;
-            }
-            .splash-logo {
+            }}
+            .splash-logo {{
                 font-size: 64px;
                 font-weight: 900;
                 letter-spacing: 4px;
-                color: #38BDF8;
+                color: {active_accent};
                 text-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
                 margin-bottom: 8px;
-            }
-            .splash-sub {
+            }}
+            .splash-sub {{
                 font-size: 16px;
                 font-weight: 700;
                 letter-spacing: 5px;
                 color: #94A3B8;
                 text-transform: uppercase;
                 margin-bottom: 25px;
-            }
-            .splash-loader {
+            }}
+            .splash-loader {{
                 width: 220px;
                 height: 4px;
                 background-color: #1E293B;
                 border-radius: 4px;
                 overflow: hidden;
                 position: relative;
-            }
-            .splash-bar {
+            }}
+            .splash-bar {{
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(90deg, #38BDF8, #10B981);
+                background: linear-gradient(90deg, {active_accent}, #10B981);
                 animation: progress 4s ease-in-out forwards;
-            }
-            @keyframes progress {
-                0% { transform: translateX(-100%); }
-                100% { transform: translateX(0%); }
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
+            }}
+            @keyframes progress {{
+                0% {{ transform: translateX(-100%); }}
+                100% {{ transform: translateX(0%); }}
+            }}
+            @keyframes fadeIn {{
+                from {{ opacity: 0; transform: scale(0.95); }}
+                to {{ opacity: 1; transform: scale(1); }}
+            }}
         </style>
         <div class="splash-wrapper">
             <div class="splash-logo">🏛️ PAIMANA AI</div>
@@ -80,41 +109,56 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Aesthetic High-Contrast CSS & Permanent Slider Visibility Fix
-st.markdown("""
+# Custom Aesthetic High-Contrast CSS & Settings Container
+st.markdown(f"""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
-    #MainMenu {visibility: hidden !important; display: none !important;}
-    header {visibility: hidden !important; display: none !important;}
-    footer {visibility: hidden !important; display: none !important;}
-    [data-testid="stHeader"] {display: none !important;}
-    [data-testid="stToolbar"] {display: none !important;}
-    .stAppDeployButton {display: none !important;}
-    button[title="View source on GitHub"] {display: none !important;}
-    a[href*="github.com"] {display: none !important;}
-    [data-testid="manage-app-button"] {display: none !important; visibility: hidden !important;}
-    div[class*="viewerBadge"] {display: none !important; visibility: hidden !important;}
-    div[class*="manage-app"] {display: none !important; visibility: hidden !important;}
-    .viewerBadge_container__1QSob {display: none !important; visibility: hidden !important;}
-    .styles_viewerBadge__CvC9N {display: none !important; visibility: hidden !important;}
-    [data-testid="stStatusWidget"] {display: none !important; visibility: hidden !important;}
-    [data-testid="stDecoration"] {display: none !important; visibility: hidden !important;}
+    #MainMenu {{visibility: hidden !important; display: none !important;}}
+    footer {{visibility: hidden !important; display: none !important;}}
+    .stAppDeployButton {{display: none !important;}}
+    button[title="View source on GitHub"] {{display: none !important;}}
+    a[href*="github.com"] {{display: none !important;}}
+    [data-testid="manage-app-button"] {{display: none !important; visibility: hidden !important;}}
+    div[class*="viewerBadge"] {{display: none !important; visibility: hidden !important;}}
+    div[class*="manage-app"] {{display: none !important; visibility: hidden !important;}}
+    .viewerBadge_container__1QSob {{display: none !important; visibility: hidden !important;}}
+    .styles_viewerBadge__CvC9N {{display: none !important; visibility: hidden !important;}}
+    [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
+    [data-testid="stDecoration"] {{display: none !important; visibility: hidden !important;}}
 
-    /* Aesthetic Theme & High Contrast Font Styling */
-    .stApp { background-color: #0B0F19; color: #F8FAFC; }
+    /* Sidebar Collapse & Reopen Arrow Fix (Mobile & Desktop) */
+    header {{ background: transparent !important; height: auto !important; }}
+    [data-testid="stHeader"] {{ background: transparent !important; height: auto !important; }}
+    [data-testid="stToolbar"] {{ display: none !important; }}
+    [data-testid="stSidebarCollapsedControl"] {{
+        display: block !important;
+        visibility: visible !important;
+        z-index: 99999 !important;
+        color: {active_accent} !important;
+        background-color: #0F172A !important;
+        border: 1px solid {active_accent} !important;
+        border-radius: 6px !important;
+        padding: 4px !important;
+        margin-top: 8px !important;
+        margin-left: 8px !important;
+    }}
+    [data-testid="stSidebarCollapsedControl"] button {{ color: {active_accent} !important; }}
+
+    /* User Custom Theme Application */
+    .stApp {{ background-color: {active_bg}; color: #F8FAFC; font-size: {active_font_size}; }}
     
     /* Top Center Brand Header */
-    .brand-title {
+    .brand-title {{
         text-align: center;
         font-size: 38px;
         font-weight: 900;
         letter-spacing: 2px;
-        color: #38BDF8;
+        color: {active_accent};
         text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
         margin-top: -10px;
         margin-bottom: 0px;
-    }
-    .brand-subtitle {
+    }}
+    .brand-subtitle {{
         text-align: center;
         font-size: 14px;
         font-weight: 700;
@@ -122,30 +166,30 @@ st.markdown("""
         color: #94A3B8;
         text-transform: uppercase;
         margin-bottom: 24px;
-    }
+    }}
 
     /* Section Headings */
-    .section-title {
+    .section-title {{
         font-size: 16px;
         font-weight: 800;
-        color: #38BDF8;
+        color: {active_accent};
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-bottom: 12px;
         border-bottom: 2px solid #1E293B;
         padding-bottom: 6px;
-    }
+    }}
 
     /* Cards & Container Visibility */
-    .project-card-white {
+    .project-card-white {{
         background-color: #FFFFFF;
         color: #0F172A;
         border-radius: 10px;
         padding: 16px;
         margin-bottom: 12px;
         box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    }
-    .project-code-badge {
+    }}
+    .project-code-badge {{
         background-color: #064E3B;
         color: #34D399;
         font-family: monospace;
@@ -155,73 +199,62 @@ st.markdown("""
         border-radius: 4px;
         display: inline-block;
         margin: 6px 0;
-    }
-    .contractor-text {
+    }}
+    .contractor-text {{
         color: #059669;
         font-weight: 800;
         font-size: 14px;
         margin-bottom: 8px;
-    }
-    .metric-dot-row {
+    }}
+    .metric-dot-row {{
         color: #F1F5F9;
         font-size: 13.5px;
         font-weight: 500;
         margin-bottom: 6px;
-    }
-    .metric-dot-green {
+    }}
+    .metric-dot-green {{
         color: #34D399;
         font-weight: 700;
-    }
+    }}
 
     /* High-Contrast Slider Number Visibility Fix */
-    .stSlider [data-baseweb="slider"] {
-        color: #FFFFFF !important;
-    }
-    div[data-testid="stThumbValue"] {
+    .stSlider [data-baseweb="slider"] {{ color: #FFFFFF !important; }}
+    div[data-testid="stThumbValue"] {{
         color: #FFFFFF !important;
         font-weight: 800 !important;
         font-size: 13px !important;
         background-color: #0F172A !important;
-        border: 1.5px solid #38BDF8 !important;
+        border: 1.5px solid {active_accent} !important;
         padding: 3px 8px !important;
         border-radius: 6px !important;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
-    }
-    div[role="slider"] {
+    }}
+    div[role="slider"] {{
         background-color: #EF4444 !important;
         border: 2px solid #FFFFFF !important;
-    }
-    div[data-testid="stSlider"] div[data-testid="stMarkdownContainer"] p {
+    }}
+    div[data-testid="stSlider"] div[data-testid="stMarkdownContainer"] p {{
         color: #F8FAFC !important;
         font-weight: 700 !important;
-    }
-    div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {
+    }}
+    div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {{
         color: #94A3B8 !important;
         font-weight: 700 !important;
         font-size: 12px !important;
-    }
+    }}
 
     /* Sidebar Note Box */
-    .sidebar-note {
+    .sidebar-note {{
         background-color: #0F172A;
         border: 1px solid #1E293B;
-        border-left: 3px solid #38BDF8;
+        border-left: 3px solid {active_accent};
         padding: 8px 10px;
         border-radius: 6px;
         font-size: 11.5px;
         color: #94A3B8;
         margin-top: 6px;
         line-height: 1.4;
-    }
-
-    /* Mobile View Sidebar Accessibility */
-    @media (max-width: 768px) {
-        section[data-testid="stSidebar"] {
-            width: 100% !important;
-            display: block !important;
-            visibility: visible !important;
-        }
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -585,9 +618,43 @@ if demo_btn:
     st.session_state['sl_wpi'] = float(preset_rec['WPI_Inflation_Index'])
     st.session_state['ai_evaluated'] = True
 
-# Top Center Header & Subtitle
-st.markdown("<div class='brand-title'>🏛️ PAIMANA AI</div>", unsafe_allow_html=True)
-st.markdown("<div class='brand-subtitle'>ANALYSIS AND PREDICT AI</div>", unsafe_allow_html=True)
+# Top Header Layout with Top-Right Three-Dot (⋮) Settings Popover
+header_col1, header_col2, header_col3 = st.columns([1, 8, 1])
+
+with header_col2:
+    st.markdown(f"<div class='brand-title'>🏛️ PAIMANA AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='brand-subtitle'>ANALYSIS AND PREDICT AI</div>", unsafe_allow_html=True)
+
+with header_col3:
+    with st.popover("⋮", use_container_width=True):
+        st.markdown("### ⚙️ User Display Settings")
+        st.caption("Personalize theme, contrast, and font scale.")
+        
+        new_theme = st.selectbox(
+            "Background Palette",
+            list(bg_map.keys()),
+            index=list(bg_map.keys()).index(st.session_state["app_bg_theme"])
+        )
+        new_accent = st.selectbox(
+            "Accent Highlight",
+            list(accent_map.keys()),
+            index=list(accent_map.keys()).index(st.session_state["app_accent_color"])
+        )
+        new_font = st.selectbox(
+            "Text Scaling",
+            list(font_scale_map.keys()),
+            index=list(font_scale_map.keys()).index(st.session_state["app_font_scale"])
+        )
+        
+        if (
+            new_theme != st.session_state["app_bg_theme"] or
+            new_accent != st.session_state["app_accent_color"] or
+            new_font != st.session_state["app_font_scale"]
+        ):
+            st.session_state["app_bg_theme"] = new_theme
+            st.session_state["app_accent_color"] = new_accent
+            st.session_state["app_font_scale"] = new_font
+            st.rerun()
 
 # Main 2-Column Interface
 col_sec1, col_sec2 = st.columns([1.05, 0.95], gap="medium")
@@ -755,7 +822,7 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
             name='Planned Target (%)',
             x=['Schedule Horizon'],
             y=[planned_progress_pct],
-            marker=dict(color='#38BDF8', line=dict(color='#0284C7', width=1.5)),
+            marker=dict(color=active_accent, line=dict(color='#0284C7', width=1.5)),
             width=0.35
         ))
         fig_s.add_trace(go.Bar(
@@ -799,7 +866,7 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
         officer = rec.get('Site_Engineer', 'Er. Executive Engineer (Infrastructure Works)')
         current_date_str = datetime.now().strftime('%d-%B-%Y')
 
-        # Formal Government Directive Memo strictly following user's legal template structure
+        # Formal Legal Notice Structure
         memo_text = f"""To,
 The Authorized Managing Director / Project Head,
 {contractor},
