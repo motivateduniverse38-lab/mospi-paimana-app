@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import joblib
 import os
+import time
 from datetime import datetime
 
 st.set_page_config(
@@ -14,7 +15,72 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Aesthetic High-Contrast CSS
+# 1. 4-Second Splash Animation Engine
+if "splash_done" not in st.session_state:
+    splash_placeholder = st.empty()
+    with splash_placeholder.container():
+        st.markdown("""
+        <style>
+            .splash-wrapper {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+                text-align: center;
+                animation: fadeIn 1s ease-in-out;
+            }
+            .splash-logo {
+                font-size: 64px;
+                font-weight: 900;
+                letter-spacing: 4px;
+                color: #38BDF8;
+                text-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
+                margin-bottom: 8px;
+            }
+            .splash-sub {
+                font-size: 16px;
+                font-weight: 700;
+                letter-spacing: 5px;
+                color: #94A3B8;
+                text-transform: uppercase;
+                margin-bottom: 25px;
+            }
+            .splash-loader {
+                width: 220px;
+                height: 4px;
+                background-color: #1E293B;
+                border-radius: 4px;
+                overflow: hidden;
+                position: relative;
+            }
+            .splash-bar {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, #38BDF8, #10B981);
+                animation: progress 4s ease-in-out forwards;
+            }
+            @keyframes progress {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(0%); }
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+        </style>
+        <div class="splash-wrapper">
+            <div class="splash-logo">🏛️ PAIMANA AI</div>
+            <div class="splash-sub">Infrastructure Predictive Risk Engine</div>
+            <div class="splash-loader"><div class="splash-bar"></div></div>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Initializing CPWD/GFR Compliance & Model Workflows...</p>
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(4.0)
+    st.session_state["splash_done"] = True
+    splash_placeholder.empty()
+
+# Custom Aesthetic High-Contrast CSS & Slider Visibility Fix
 st.markdown("""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
@@ -106,7 +172,35 @@ st.markdown("""
         color: #34D399;
         font-weight: 700;
     }
+
+    /* 2. Slider Number Visibility Fix */
     .stSlider > div > div > div > div { background-color: #EF4444; }
+    div[data-testid="stThumbValue"] {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 14px !important;
+        background-color: #0369A1 !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+    }
+    div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {
+        color: #94A3B8 !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+    }
+
+    /* Sidebar Note Box */
+    .sidebar-note {
+        background-color: #0F172A;
+        border: 1px solid #1E293B;
+        border-left: 3px solid #38BDF8;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        color: #94A3B8;
+        margin-top: 6px;
+        line-height: 1.4;
+    }
 
     /* Mobile View Sidebar Accessibility */
     @media (max-width: 768px) {
@@ -407,8 +501,10 @@ if 'selected_record' not in st.session_state:
     st.session_state['selected_record'] = None
 if 'ai_evaluated' not in st.session_state:
     st.session_state['ai_evaluated'] = False
+if 'projects_fetched' not in st.session_state:
+    st.session_state['projects_fetched'] = False
 
-# Sidebar Setup: Hierarchy with Fetch Button directly below Block and Demo Preset at the bottom
+# Sidebar Setup
 st.sidebar.markdown("### 📍 Bihar Administrative Hierarchy")
 
 # 1. State
@@ -435,16 +531,38 @@ else:
     block_pool = ["Select Block"] + all_blocks
 selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", block_pool, index=0)
 
-# Fetch Ongoing Projects placed directly below Block dropdown
+# 4. Fetch button directly below block
 fetch_btn = st.sidebar.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
 
-st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+# Strict Check: Fetch only on full selection + button click
+if fetch_btn:
+    if (
+        selected_state != "Select State" and 
+        selected_district != "Select District" and 
+        selected_subdiv != "Select Subdivision" and 
+        selected_block != "Select Block"
+    ):
+        st.session_state['projects_fetched'] = True
+        st.session_state['active_district'] = selected_district
+    else:
+        st.sidebar.error("⚠️ Please select complete location (State, District, Subdivision & Block) first.")
+        st.session_state['projects_fetched'] = False
 
-# Demo preset placed at the bottom of sidebar
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+# 3. Demo Preset at the bottom with professional note
 demo_btn = st.sidebar.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
+st.sidebar.markdown("""
+<div class="sidebar-note">
+    <b>📌 Note:</b> Click this preset to instantly test end-to-end AI prediction and appraisal workflows without manual jurisdiction input.
+</div>
+""", unsafe_allow_html=True)
+
 if demo_btn:
     preset_rec = paimana_df.iloc[1].to_dict()
     st.session_state['selected_record'] = preset_rec
+    st.session_state['projects_fetched'] = True
+    st.session_state['active_district'] = "East Champaran (Motihari)"
     st.session_state['inp_cost'] = float(preset_rec['Original_Cost_Cr'])
     st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
     st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
@@ -467,24 +585,18 @@ col_sec1, col_sec2 = st.columns([1.05, 0.95], gap="medium")
 with col_sec1:
     st.markdown("<div class='section-title'>📁 SECTION 1: DETAILS ABOUT ONGOING PROJECTS</div>", unsafe_allow_html=True)
     
-    if selected_district != "Select District":
-        district_kw = selected_district.split()[0].lower()
+    # 4. Show projects only when user fetched complete location or clicked demo
+    if st.session_state.get('projects_fetched', False):
+        active_dist = st.session_state.get('active_district', selected_district)
+        district_kw = active_dist.split()[0].lower()
         matched_projects = [r for _, r in paimana_df.iterrows() if district_kw in str(r["District"]).lower()]
         if not matched_projects:
             matched_projects = [r for _, r in paimana_df.iterrows()]
+            
         project_options = [str(r["Project_Name"]) for r in matched_projects]
         selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
-        active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), None)
-    else:
-        matched_projects = [r for _, r in paimana_df.iterrows()]
-        project_options = ["Select Project"] + [str(r["Project_Name"]) for r in matched_projects]
-        selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
-        if selected_inspect != "Select Project":
-            active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), None)
-        else:
-            active_row = None
+        active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), matched_projects[0])
 
-    if active_row is not None:
         st.markdown(f"""
         <div class="project-card-white">
             <div style="font-size: 16px; font-weight: 800; color: #0284C7; line-height: 1.3;">
@@ -523,7 +635,7 @@ with col_sec1:
             st.session_state['ai_evaluated'] = False
             st.rerun()
     else:
-        st.info("👈 Please select state, district and project to inspect.")
+        st.info("👈 Please select complete State, District, Subdivision, and Block from the sidebar and click 'Fetch Ongoing Projects (Enter ↵)' to load packages.")
 
 # SECTION 2: Predict Project Future Overview (Box Inputs + 2 Sliders)
 rec = st.session_state.get('selected_record') or {}
@@ -670,9 +782,10 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
         st.plotly_chart(fig_bar, use_container_width=True)
 
     with t_notice:
+        active_dist_name = st.session_state.get('active_district', selected_district)
         memo_text = f"""GOVERNMENT OF BIHAR / STATE INFRASTRUCTURE MONITORING PMU
 OFFICE OF THE NODAL APPRAISAL CELL
-DISTRICT: {selected_district.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
+DISTRICT: {active_dist_name.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
 
 MEMORANDUM REF NO: MoSPI/BHR/2026/SEC-DIR/{abs(int(schedule_variance_pct*100))}
 DATE: {datetime.now().strftime('%d-%B-%Y')}
@@ -697,7 +810,7 @@ ISSUED UNDER THE SEAL OF STATE MONITORING CELL
         st.download_button(
             label="📥 Download Directive Notice (.txt)",
             data=memo_text,
-            file_name=f"Directive_Notice_{selected_district.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
+            file_name=f"Directive_Notice_{active_dist_name.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
             mime="text/plain",
             use_container_width=True
         )
