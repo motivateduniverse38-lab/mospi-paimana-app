@@ -14,10 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling strictly matching Screenshot 2 with All Cloud Badges & Watermarks Hidden
+# Custom Stealth Theme & Mobile-Responsive Sidebar CSS
 st.markdown("""
 <style>
-    /* Complete Stealth Mode: Hide Top Header, GitHub, Share, MainMenu, Footer */
+    /* Complete Cloud Watermark & Code Access Suppression */
     #MainMenu {visibility: hidden !important; display: none !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
@@ -26,8 +26,6 @@ st.markdown("""
     .stAppDeployButton {display: none !important;}
     button[title="View source on GitHub"] {display: none !important;}
     a[href*="github.com"] {display: none !important;}
-
-    /* Mobile & Desktop Bottom-Right Manage App, Streamlit Badge & Host Indicators */
     [data-testid="manage-app-button"] {display: none !important; visibility: hidden !important;}
     div[class*="viewerBadge"] {display: none !important; visibility: hidden !important;}
     div[class*="manage-app"] {display: none !important; visibility: hidden !important;}
@@ -35,7 +33,14 @@ st.markdown("""
     .styles_viewerBadge__CvC9N {display: none !important; visibility: hidden !important;}
     [data-testid="stStatusWidget"] {display: none !important; visibility: hidden !important;}
     [data-testid="stDecoration"] {display: none !important; visibility: hidden !important;}
-    [data-testid="stConnectionStatus"] {display: none !important; visibility: hidden !important;}
+
+    /* Mobile Sidebar Accessibility Guarantee */
+    @media (max-width: 768px) {
+        section[data-testid="stSidebar"] {
+            display: block !important;
+            visibility: visible !important;
+        }
+    }
     
     .stApp { background-color: #0E1117; color: #FFFFFF; }
     .project-card-white {
