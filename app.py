@@ -109,7 +109,7 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Aesthetic High-Contrast CSS & Settings Container
+# Custom Aesthetic High-Contrast CSS with Permanent Reopen Arrow Fix
 st.markdown(f"""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
@@ -126,23 +126,43 @@ st.markdown(f"""
     [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
     [data-testid="stDecoration"] {{display: none !important; visibility: hidden !important;}}
 
-    /* Sidebar Collapse & Reopen Arrow Fix (Mobile & Desktop) */
-    header {{ background: transparent !important; height: auto !important; }}
-    [data-testid="stHeader"] {{ background: transparent !important; height: auto !important; }}
-    [data-testid="stToolbar"] {{ display: none !important; }}
-    [data-testid="stSidebarCollapsedControl"] {{
+    /* MOBILE & DESKTOP PERMANENT REOPEN ARROW BUTTON FIX */
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+        height: 0px !important;
         display: block !important;
         visibility: visible !important;
-        z-index: 99999 !important;
-        color: {active_accent} !important;
-        background-color: #0F172A !important;
-        border: 1px solid {active_accent} !important;
-        border-radius: 6px !important;
-        padding: 4px !important;
-        margin-top: 8px !important;
-        margin-left: 8px !important;
     }}
-    [data-testid="stSidebarCollapsedControl"] button {{ color: {active_accent} !important; }}
+    [data-testid="stToolbar"] {{
+        display: none !important;
+    }}
+    [data-testid="stSidebarCollapsedControl"] {{
+        display: flex !important;
+        visibility: visible !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 12px !important;
+        z-index: 9999999 !important;
+        background-color: #0F172A !important;
+        border: 2px solid {active_accent} !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.7) !important;
+        padding: 4px !important;
+        width: 42px !important;
+        height: 42px !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }}
+    [data-testid="stSidebarCollapsedControl"] svg {{
+        fill: {active_accent} !important;
+        stroke: {active_accent} !important;
+        width: 24px !important;
+        height: 24px !important;
+    }}
+    [data-testid="stSidebarCollapsedControl"] button {{
+        background: transparent !important;
+        border: none !important;
+    }}
 
     /* User Custom Theme Application */
     .stApp {{ background-color: {active_bg}; color: #F8FAFC; font-size: {active_font_size}; }}
@@ -866,7 +886,6 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
         officer = rec.get('Site_Engineer', 'Er. Executive Engineer (Infrastructure Works)')
         current_date_str = datetime.now().strftime('%d-%B-%Y')
 
-        # Formal Legal Notice Structure
         memo_text = f"""To,
 The Authorized Managing Director / Project Head,
 {contractor},
