@@ -14,17 +14,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling strictly matching Screenshot 2
-st.markdown("""
+# Custom Styling strictly matching Screenshot 2 with GitHub/Header hidden
 st.markdown("""
 <style>
-    /* Top-Right GitHub, Share, Menu & Header ko poori tarah hide karne ke liye */
-    #MainMenu {visibility: hidden; display: none;}
-    header {visibility: hidden; display: none;}
-    footer {visibility: hidden; display: none;}
-    .stAppDeployButton {display: none;}
-    .viewerBadge_container__1QSob {display: none;}
+    /* Top-Right GitHub Icon, Share button, Header, and MainMenu hide rules */
+    #MainMenu {visibility: hidden; display: none !important;}
+    header {visibility: hidden; display: none !important;}
+    footer {visibility: hidden; display: none !important;}
+    .stAppDeployButton {display: none !important;}
+    .viewerBadge_container__1QSob {display: none !important;}
     button[title="View source on GitHub"] {display: none !important;}
+    a[href*="github.com"] {display: none !important;}
+    [data-testid="stHeader"] {display: none !important;}
+    [data-testid="stToolbar"] {display: none !important;}
     
     .stApp { background-color: #0E1117; color: #FFFFFF; }
     .project-card-white {
