@@ -80,7 +80,7 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Aesthetic High-Contrast CSS & Permanent Slider Visibility Fix
+# Custom Aesthetic High-Contrast CSS & Slider Visibility Fix
 st.markdown("""
 <style>
     /* Complete Cloud Watermark & Code Access Suppression */
@@ -793,34 +793,80 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
 
     with t_notice:
         active_dist_name = st.session_state.get('active_district', selected_district)
-        memo_text = f"""GOVERNMENT OF BIHAR / STATE INFRASTRUCTURE MONITORING PMU
-OFFICE OF THE NODAL APPRAISAL CELL
-DISTRICT: {active_dist_name.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
+        proj_title = rec.get('Project_Name', 'Registered Works Package')
+        pkg_code = rec.get('Package_ID', f"BHR_{active_dist_name[:3].upper()}_2026_0981")
+        contractor = rec.get('Contractor_Name', 'M/S Infrastructure Concessionaire Ltd.')
+        officer = rec.get('Site_Engineer', 'Er. Executive Engineer (Roads & Bridges)')
+        
+        memo_ref_no = f"MoSPI/IPMD/BHR/{active_dist_name[:3].upper()}/2026/SEC-DIR/{abs(int(schedule_variance_pct*100)) + 1042}"
+        
+        # Authentic Indian Government / CPWD Directive Memo
+        memo_text = f"""GOVERNMENT OF INDIA / STATE INFRASTRUCTURE MONITORING CELL
+MINISTRY OF STATISTICS & PROGRAMME IMPLEMENTATION (MoSPI)
+STATE PROJECT MANAGEMENT UNIT (PMU), PATNA, BIHAR
+OFFICE OF THE SUPERINTENDING ENGINEER & NODAL APPRAISAL OFFICER
+DISTRICT JURISDICTION: {active_dist_name.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
 
-MEMORANDUM REF NO: MoSPI/BHR/2026/SEC-DIR/{abs(int(schedule_variance_pct*100))}
-DATE: {datetime.now().strftime('%d-%B-%Y')}
+DISPATCH / MEMORANDUM REF NO: {memo_ref_no}
+DATED: {datetime.now().strftime('%d-%B-%Y')} | URGENT / BY REGISTERED POST & EMAIL
 
 TO:
-1. THE EXECUTIVE ENGINEER / NODAL OFFICER: {rec.get('Site_Engineer', 'Executive Engineer')}
-2. EXECUTING CONTRACTOR: {rec.get('Contractor_Name', 'Tata Projects Ltd.')}
+1. THE EXECUTIVE ENGINEER / SITE OFFICER-IN-CHARGE:
+   {officer}
+   Infrastructure Works Division, District: {active_dist_name}
 
-SUBJECT: STATUTORY DIRECTIVE UNDER CPWD WORKS MANUAL CLAUSE 2 & GFR 2017 (RULE 130) FOR UNLAWFUL SCHEDULE SLIPPAGE
+2. THE MANAGING DIRECTOR / AUTHORIZED SIGNATORY:
+   {contractor}
+   Lead Concessionaire / Primary Executing Agency
 
-1. APPRAISAL FINDINGS:
-   - Sanctioned Package Cost: ₹{inp_cost:.2f} Cr | Spend Disbursed: ₹{inp_spend:.2f} Cr.
-   - Certified On-Site Progress: {inp_phys:.2f}% | Schedule Variance: {schedule_variance_pct:.2f}%.
-   - Predicted Slippage: +{pred_delay_months:.1f} Months | Predicted Overrun: +{pred_cost_overrun_pct:.1f}%.
+SUBJECT: STATUTORY SHOW-CAUSE NOTICE & REGULATORY DIRECTIVE UNDER CPWD WORKS MANUAL CLAUSE 2 & 3 READ WITH GENERAL FINANCIAL RULES (GFR 2017) RULE 130 FOR MATERIAL BREACH OF MILESTONES AND ACCELERATING SCHEDULE SLIPPAGE.
 
-2. STATUTORY DIRECTIVE:
-   Under CPWD Works Manual Clause 2 (Compensation for Delay), failure to recover this deficit within 14 calendar days will attract statutory liquidated damages @ 1.0% per month of contract value.
+NAME OF CONTRACT PACKAGE:
+"{proj_title}"
+(STATUTORY PACKAGE REGISTRATION ID: {pkg_code})
 
-ISSUED UNDER THE SEAL OF STATE MONITORING CELL
+SIR / MADAM,
+
+1. STATUTORY AUDIT & AI-APPRAISAL FINDINGS:
+   The composite physical and financial data submitted via the Common Upload Form (CUF) has been subjected to rigorous real-time algorithmic appraisal through the MoSPI InfraDrishti-AI predictive framework. The appraisal establishes that the execution of the subject works package is in serious default of statutory CPM/PERT milestone schedules:
+
+   a. Sanctioned Package Contract Cost  : ₹{inp_cost:.2f} Crores
+   b. Cumulative Public Funds Disbursed: ₹{inp_spend:.2f} Crores
+   c. Approved Baseline Physical Target: {planned_progress_pct:.2f}%
+   d. Certified On-Site Physical Output: {inp_phys:.2f}%
+   e. Schedule Variance (SV%) Lag      : {schedule_variance_pct:.2f}% (Significant negative deviation)
+   f. Cost Performance Index (CPI)     : {cpi:.2f} (Disbursement exceeds earned value)
+   g. AI Machine-Learning Forecast     : Slippage of +{pred_delay_months:.1f} Months | Escalation of +{pred_cost_overrun_pct:.1f}% (+₹{cost_escalation_cr:.2f} Cr)
+
+2. CITATION OF STATUTORY BREACH:
+   WHEREAS, under Clause 2 of the Standard CPWD Works Manual / EPC Contract Agreement (Compensation for Delay), time is the essence of the contract and the executing contractor is obligated to maintain proportionate progress across all quarterly milestones;
+   AND WHEREAS, GFR 2017 Rule 130 mandates strict reconciliation of physical asset creation against financial disbursals to prevent front-loading and fiscal drift of public exchequer resources;
+   IT IS OBSERVED that despite timely release of mobilization funds, you have failed to maintain proportionate progress on ground.
+
+3. FORMAL DIRECTIVE & SHOW-CAUSE DEMAND:
+   YOU ARE HEREBY DIRECTED TO:
+   i. SUBMIT A REVISED TIME-RECOVERY SCHEDULE (Catch-Up PERT/CPM Chart) within 14 (fourteen) calendar days from the issue of this notice, showing clear redeployment of additional machinery, batching plants, and double-shift labor force.
+   ii. SHOW CAUSE in writing within the aforesaid 14-day statutory window as to why Liquidated Damages under CPWD Clause 2 @ 1.0% per month of contract value (subject to a statutory ceiling of 10%) should not be levied and recovered from your forthcoming running bills.
+   iii. RECONCILE all front-loaded advances against certified Measurement Books (MB) as mandated under GFR 2017 Rule 130.
+
+4. DEFAULT CONSEQUENCE:
+   Please note that failure to submit an acceptable recovery plan within 14 days will leave this authority with no option but to invoke Clause 3 of the Works Contract (Determination and Termination of Contract at Contractor's Risk and Cost), along with recommending blacklisting of the agency from future MoSPI/State tenders.
+
+ISSUED UNDER THE SIGN AND OFFICIAL SEAL OF THE COMPETENT MONITORING AUTHORITY
+
+(Er. Arvind Kishore Sinha)
+Superintending Engineer & State Nodal Appraisal Officer
+Infrastructure Project Monitoring Division (IPMD), MoSPI / State PMU Bihar
+Copy Forwarded for Immediate Compliance & Information to:
+1. The District Magistrate & Collector, District {active_dist_name}.
+2. Principal Secretary, Department of Planning & Development, Govt. of Bihar.
+3. Chief Engineer (Monitoring Wing), MoSPI Central Secretariat, New Delhi.
 """
-        st.text_area("Directive Notice Preview", memo_text, height=260)
+        st.text_area("Official Memorandum Text Preview", memo_text, height=340)
         st.download_button(
-            label="📥 Download Directive Notice (.txt)",
+            label="📥 Download Official Legal Directive Notice (.txt)",
             data=memo_text,
-            file_name=f"Directive_Notice_{active_dist_name.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
+            file_name=f"Official_Notice_{active_dist_name.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
             mime="text/plain",
             use_container_width=True
         )
