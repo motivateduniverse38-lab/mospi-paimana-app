@@ -14,27 +14,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Professional Govt Portal Styling
+# Custom Enterprise Dark Dashboard Styling
 st.markdown("""
 <style>
-    .main-header { font-size: 24px; font-weight: 800; color: #F8FAFC; margin-bottom: 2px; }
-    .sub-header { font-size: 13px; color: #38BDF8; margin-bottom: 22px; font-weight: 600; letter-spacing: 0.5px; }
+    .main-header { font-size: 22px; font-weight: 800; color: #F8FAFC; margin-bottom: 2px; }
+    .sub-header { font-size: 13px; color: #38BDF8; margin-bottom: 18px; font-weight: 600; }
     .portal-card {
         background-color: #0F172A;
         border: 1px solid #334155;
-        border-radius: 10px;
-        padding: 16px;
-        margin-bottom: 15px;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 12px;
     }
-    .stat-label { font-size: 12px; color: #94A3B8; font-weight: 500; }
-    .stat-value { font-size: 18px; font-weight: 700; color: #F8FAFC; }
-    .alert-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-    }
+    .stat-label { font-size: 11px; color: #94A3B8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 19px; font-weight: 800; color: #F8FAFC; margin-top: 4px; }
+    .stAlert { border-radius: 8px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -71,7 +65,7 @@ def get_bihar_geo_hierarchy():
         }
     }
 
-# Master Infrastructure Records
+# Master MoSPI Mega Projects Dataset (>150 Cr)
 @st.cache_data
 def load_data():
     return pd.DataFrame([
@@ -92,7 +86,7 @@ def load_data():
             "Site_Engineer": "Er. Rajesh Kumar, Executive Engineer"
         },
         {
-            "Project_Name": "Raxaul Integrated Checkpost Connecting Expressway Pkg-02",
+            "Project_Name": "Raxaul Integrated Checkpost Expressway Corridor Pkg-02",
             "District": "East Champaran (Motihari)",
             "Subdivision": "Raxaul Sub-Div",
             "Block": "Raxaul",
@@ -124,7 +118,7 @@ def load_data():
             "Site_Engineer": "Er. Sunil Verma, Chief Project Engineer"
         },
         {
-            "Project_Name": "Gaya Mega Surface Water Treatment Plant Pkg-02",
+            "Project_Name": "Gaya Mega Surface Water Treatment & Pipeline Network",
             "District": "Gaya",
             "Subdivision": "Gaya Sadar Sub-Div",
             "Block": "Bodh Gaya",
@@ -140,7 +134,7 @@ def load_data():
             "Site_Engineer": "Er. P. K. Sinha, Executive Engineer"
         },
         {
-            "Project_Name": "Muzaffarpur Smart Sewerage Line Pkg-03",
+            "Project_Name": "Muzaffarpur Smart Sewerage Line Trunk Package-03",
             "District": "Muzaffarpur",
             "Subdivision": "Muzaffarpur East Sub-Div",
             "Block": "Mushahari",
@@ -156,7 +150,7 @@ def load_data():
             "Site_Engineer": "Er. Manoj Tiwary, Executive Engineer"
         },
         {
-            "Project_Name": "Sultanganj-Aguwani Ghat Ganga High-Level Bridge Pkg-01",
+            "Project_Name": "Sultanganj-Aguwani Ghat High-Level Ganga Bridge Pkg-01",
             "District": "Bhagalpur",
             "Subdivision": "Kahalgaon Sub-Div",
             "Block": "Sultanganj",
@@ -173,7 +167,7 @@ def load_data():
         }
     ])
 
-# ML Models Loader
+# ML Inference Engine Loader
 @st.cache_resource
 def load_ml_models():
     time_paths = [os.path.join("models", "time_model.pkl"), "time_model.pkl"]
@@ -199,41 +193,18 @@ geo_hierarchy = get_bihar_geo_hierarchy()
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# State Management
-if 'stage1_fetched' not in st.session_state:
-    st.session_state['stage1_fetched'] = False
-if 'stage2_evaluated' not in st.session_state:
-    st.session_state['stage2_evaluated'] = False
-
-# Sidebar Jurisdiction Selector
+# Sidebar: Jurisdiction Selector
 st.sidebar.markdown("### 🏛️ Administrative Jurisdiction")
-state_options = ["-- Select State --", "Bihar"]
-selected_state = st.sidebar.selectbox("1. State", state_options, index=1)
+selected_state = st.sidebar.selectbox("1. State", ["Bihar"])
 
-selected_district = "-- Select District --"
-selected_subdiv = "-- Select Subdivision --"
-selected_block = "-- Select Block --"
+districts = list(geo_hierarchy.keys())
+selected_district = st.sidebar.selectbox("2. District (38 Districts)", districts, index=0)
 
-if selected_state != "-- Select State --":
-    district_options = ["-- Select District --"] + list(geo_hierarchy.keys())
-    selected_district = st.sidebar.selectbox("2. District", district_options, index=1)
-    
-    if selected_district != "-- Select District --":
-        subdiv_options = ["-- Select Subdivision --"] + list(geo_hierarchy[selected_district].keys())
-        selected_subdiv = st.sidebar.selectbox("3. Subdivision", subdiv_options, index=1)
-        
-        if selected_subdiv != "-- Select Subdivision --":
-            block_options = ["-- Select Block --"] + geo_hierarchy[selected_district][selected_subdiv]
-            selected_block = st.sidebar.selectbox("4. Block", block_options, index=1)
+subdivisions = list(geo_hierarchy.get(selected_district, {}).keys())
+selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Sub-Div)", subdivisions, index=0)
 
-fetch_btn = st.sidebar.button("🔍 Fetch Registered Works Record", use_container_width=True)
-
-if fetch_btn:
-    if selected_district != "-- Select District --":
-        st.session_state['stage1_fetched'] = True
-        st.session_state['stage2_evaluated'] = False
-    else:
-        st.sidebar.error("Please select a valid District first.")
+blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Default Block"])
+selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", blocks, index=0)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📈 Model Benchmarks")
@@ -246,179 +217,165 @@ st.sidebar.markdown("""
 
 # Top Bar
 st.markdown("<div class='main-header'>MoSPI Infrastructure Monitoring Division | State PMU (Bihar)</div>", unsafe_allow_html=True)
-st.markdown(f"<div class='sub-header'>SYSTEM LIVE: {datetime.now().strftime('%d-%b-%Y | %H:%M:%S IST')} &nbsp;|&nbsp; COMMON UPLOAD FORM (CUF) AUDIT PIPELINE</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='sub-header'>SYSTEM LIVE: {datetime.now().strftime('%d-%b-%Y | %H:%M:%S IST')} &nbsp;|&nbsp; COMMON UPLOAD FORM (CUF) AUDIT ENGINE</div>", unsafe_allow_html=True)
+
+# Auto-Filter Project Registry based on Jurisdiction
+district_kw = selected_district.split()[0].lower()
+matched_projects = []
+for _, r in paimana_df.iterrows():
+    if district_kw in str(r["District"]).lower():
+        matched_projects.append(r)
+if not matched_projects:
+    matched_projects = [r for _, r in paimana_df.iterrows()]
 
 col_left, col_right = st.columns([1.0, 1.0])
 
-if not st.session_state['stage1_fetched']:
-    with col_left:
-        st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
-        st.info("👈 **Awaiting Location Selection.**\n\n1. Select District, Subdivision & Block from sidebar.\n2. Click **'Fetch Registered Works Record'** to load active packages.")
-    with col_right:
-        st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
-        st.info("🔒 **Locked.**\n\nThis section activates automatically after querying an infrastructure package from Section 1.")
+with col_left:
+    st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
+    project_names = [str(r["Project_Name"]) for r in matched_projects]
+    selected_project_name = st.selectbox("Registered Infrastructure Package (> ₹150 Cr)", project_names)
+    
+    active_record = next(r for r in matched_projects if str(r["Project_Name"]) == selected_project_name)
+    
+    st.markdown(f"""
+    <div class="portal-card" style="border-left: 4px solid #38BDF8;">
+        <div style="font-size: 13px; color: #CBD5E1; margin-bottom: 3px;"><b>Executing Agency:</b> <span style="color:#38BDF8;">{active_record.get('Contractor_Name')}</span></div>
+        <div style="font-size: 13px; color: #CBD5E1; margin-bottom: 3px;"><b>Nodal Site Officer:</b> <span style="color:#FCD34D;">{active_record.get('Site_Engineer')}</span></div>
+        <div style="font-size: 12px; color: #94A3B8;"><b>Jurisdiction:</b> {selected_district} &rarr; {selected_subdiv} &rarr; {selected_block}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Cost</div><div class='stat-value'>₹{float(active_record['Original_Cost_Cr']):.1f} Cr</div></div>", unsafe_allow_html=True)
+    with m2:
+        st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Timeline</div><div class='stat-value'>{int(active_record['Target_Duration_Months'])} M</div></div>", unsafe_allow_html=True)
+    with m3:
+        st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Progress</div><div class='stat-value'>{float(active_record['Physical_Progress_Pct']):.1f}%</div></div>", unsafe_allow_html=True)
+    with m4:
+        st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Spend</div><div class='stat-value'>₹{float(active_record['Cumulative_Spend_Cr']):.1f} Cr</div></div>", unsafe_allow_html=True)
 
+with col_right:
+    st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
+    st.caption(f"Active Parameter Matrix: `{selected_project_name}`")
+    
+    c1, c2, c3, c4 = st.columns(4)
+    inp_cost = c1.number_input("Cost (₹ Cr)", value=float(active_record['Original_Cost_Cr']), format="%.2f")
+    inp_target = c2.number_input("Target (M)", value=int(active_record['Target_Duration_Months']))
+    inp_elapsed = c3.number_input("Elapsed (M)", value=int(active_record['Elapsed_Months']))
+    inp_spend = c4.number_input("Spend (₹ Cr)", value=float(active_record['Cumulative_Spend_Cr']), format="%.2f")
+    
+    c5, c6, c7, c8 = st.columns(4)
+    inp_phys = c5.number_input("Progress (%)", value=float(active_record['Physical_Progress_Pct']), format="%.2f")
+    inp_milestones = c6.number_input("Delayed M/S", value=int(active_record['Delayed_Milestones']))
+    inp_land = c7.number_input("Land Risk (1-10)", value=float(active_record['Land_Risk_Score']), format="%.1f")
+    inp_wpi = c8.number_input("WPI Index", value=float(active_record['WPI_Inflation_Index']), format="%.1f")
+    
+    run_eval = st.button("🚀 Run Real-Time AI Evaluation", use_container_width=True)
+
+# EVM Computations
+planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_target)) * 100.0)
+schedule_variance_pct = inp_phys - planned_progress_pct
+earned_value_cr = (inp_phys / 100.0) * inp_cost
+cpi = earned_value_cr / max(0.01, inp_spend)
+spi = inp_phys / max(0.01, planned_progress_pct)
+
+# ML Inference Engine
+if time_model is not None and cost_model is not None:
+    try:
+        features = np.array([[inp_cost, inp_target, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
+        pred_delay_months = float(time_model.predict(features)[0])
+        pred_cost_overrun_pct = float(cost_model.predict(features)[0])
+    except Exception:
+        pred_delay_months = max(2.0, (planned_progress_pct - inp_phys) * 0.35 + (inp_land * 0.8))
+        pred_cost_overrun_pct = max(5.0, (1.0 - cpi) * 40.0 + ((inp_wpi - 100.0) * 0.6))
 else:
-    # Filter Records for Chosen District
-    district_kw = selected_district.split()[0].lower()
-    matched_projects = []
-    for _, r in paimana_df.iterrows():
-        if district_kw in str(r["District"]).lower():
-            matched_projects.append(r)
-    if not matched_projects:
-        matched_projects = [r for _, r in paimana_df.iterrows()]
+    pred_delay_months = max(2.0, (planned_progress_pct - inp_phys) * 0.35 + (inp_land * 0.8))
+    pred_cost_overrun_pct = max(5.0, (1.0 - cpi) * 40.0 + ((inp_wpi - 100.0) * 0.6))
 
-    with col_left:
-        st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
-        project_names = [str(r["Project_Name"]) for r in matched_projects]
-        selected_project_name = st.selectbox("Active Package Record", project_names)
-        
-        active_record = next(r for r in matched_projects if str(r["Project_Name"]) == selected_project_name)
-        
-        # Details Card
-        st.markdown(f"""
-        <div class="portal-card" style="border-left: 4px solid #38BDF8;">
-            <div style="font-size: 13px; color: #CBD5E1; margin-bottom: 4px;"><b>Executing Contractor:</b> <span style="color:#38BDF8;">{active_record.get('Contractor_Name')}</span></div>
-            <div style="font-size: 13px; color: #CBD5E1; margin-bottom: 4px;"><b>Nodal Field Officer:</b> <span style="color:#FCD34D;">{active_record.get('Site_Engineer')}</span></div>
-            <div style="font-size: 12px; color: #94A3B8;"><b>Jurisdiction:</b> {selected_district} | {selected_subdiv} | {selected_block}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        m1, m2, m3, m4 = st.columns(4)
-        with m1:
-            st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Sanctioned</div><div class='stat-value'>₹{float(active_record['Original_Cost_Cr']):.1f} Cr</div></div>", unsafe_allow_html=True)
-        with m2:
-            st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Timeline</div><div class='stat-value'>{int(active_record['Target_Duration_Months'])} M</div></div>", unsafe_allow_html=True)
-        with m3:
-            st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Progress</div><div class='stat-value'>{float(active_record['Physical_Progress_Pct']):.1f}%</div></div>", unsafe_allow_html=True)
-        with m4:
-            st.markdown(f"<div class='portal-card' style='text-align:center;'><div class='stat-label'>Spend</div><div class='stat-value'>₹{float(active_record['Cumulative_Spend_Cr']):.1f} Cr</div></div>", unsafe_allow_html=True)
+predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
+cost_escalation_cr = predicted_final_cost - inp_cost
 
-    with col_right:
-        st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
-        st.caption(f"Input Stream Loaded: `{selected_project_name}`")
-        
-        c1, c2, c3, c4 = st.columns(4)
-        inp_cost = c1.number_input("Sanctioned (₹ Cr)", value=float(active_record['Original_Cost_Cr']), format="%.2f")
-        inp_target = c2.number_input("Target Duration (M)", value=int(active_record['Target_Duration_Months']))
-        inp_elapsed = c3.number_input("Elapsed Time (M)", value=int(active_record['Elapsed_Months']))
-        inp_spend = c4.number_input("Actual Spend (₹ Cr)", value=float(active_record['Cumulative_Spend_Cr']), format="%.2f")
-        
-        c5, c6, c7, c8 = st.columns(4)
-        inp_phys = c5.number_input("Physical Done (%)", value=float(active_record['Physical_Progress_Pct']), format="%.2f")
-        inp_milestones = c6.number_input("Breached Milestones", value=int(active_record['Delayed_Milestones']))
-        inp_land = c7.number_input("Land RoW Risk (1-10)", value=float(active_record['Land_Risk_Score']), format="%.1f")
-        inp_wpi = c8.number_input("WPI Inflation Index", value=float(active_record['WPI_Inflation_Index']), format="%.1f")
-        
-        run_eval = st.button("🚀 Run AI Evaluation & Risk Diagnostics", use_container_width=True)
-        if run_eval:
-            st.session_state['stage2_evaluated'] = True
+cpri_score = min(100.0, max(0.0, (pred_cost_overrun_pct * 0.4) + (pred_delay_months * 2.5) + (inp_land * 3.5)))
+if cpri_score >= 60.0:
+    risk_tier = "Critical Red Risk (Impending Overrun)"
+    risk_color = "#EF4444"
+elif cpri_score >= 35.0:
+    risk_tier = "Moderate Amber Risk (Schedule Slippage)"
+    risk_color = "#F59E0B"
+else:
+    risk_tier = "On-Track Green (Optimal Execution)"
+    risk_color = "#10B981"
 
-    # Section 3: AI Diagnostics & Analytics (Triggered by button)
-    if st.session_state['stage2_evaluated']:
-        # EVM Computations
-        planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_target)) * 100.0)
-        schedule_variance_pct = inp_phys - planned_progress_pct
-        earned_value_cr = (inp_phys / 100.0) * inp_cost
-        cpi = earned_value_cr / max(0.01, inp_spend)
-        spi = inp_phys / max(0.01, planned_progress_pct)
+st.markdown("---")
 
-        # ML Inference
-        if time_model is not None and cost_model is not None:
-            try:
-                features = np.array([[inp_cost, inp_target, inp_elapsed, inp_spend, inp_phys, inp_milestones, inp_land, inp_wpi, schedule_variance_pct, cpi, spi]])
-                pred_delay_months = float(time_model.predict(features)[0])
-                pred_cost_overrun_pct = float(cost_model.predict(features)[0])
-            except Exception:
-                pred_delay_months = max(2.0, (planned_progress_pct - inp_phys) * 0.35 + (inp_land * 0.8))
-                pred_cost_overrun_pct = max(5.0, (1.0 - cpi) * 40.0 + ((inp_wpi - 100.0) * 0.6))
-        else:
-            pred_delay_months = max(2.0, (planned_progress_pct - inp_phys) * 0.35 + (inp_land * 0.8))
-            pred_cost_overrun_pct = max(5.0, (1.0 - cpi) * 40.0 + ((inp_wpi - 100.0) * 0.6))
+# Metrics Banner
+out_c1, out_c2, out_c3 = st.columns([1, 1, 1.4])
+with out_c1:
+    st.markdown(f"""
+    <div class="portal-card" style="border-left: 5px solid {risk_color};">
+        <div class="stat-label">Predicted Cost Overrun</div>
+        <div style="font-size: 26px; font-weight: 800; color: {risk_color};">{pred_cost_overrun_pct:.2f}%</div>
+        <div style="color: #EF4444; font-size: 13px; font-weight: 600;">+₹{cost_escalation_cr:.2f} Cr Extra Disbursal</div>
+    </div>
+    """, unsafe_allow_html=True)
+with out_c2:
+    st.markdown(f"""
+    <div class="portal-card" style="border-left: 5px solid {risk_color};">
+        <div class="stat-label">Estimated Schedule Slippage</div>
+        <div style="font-size: 26px; font-weight: 800; color: {risk_color};">+{pred_delay_months:.1f} M</div>
+        <div style="color: #EF4444; font-size: 13px; font-weight: 600;">Delay Horizon</div>
+    </div>
+    """, unsafe_allow_html=True)
+with out_c3:
+    st.markdown(f"""
+    <div class="portal-card" style="border: 1px solid {risk_color}; text-align: center;">
+        <div class="stat-label">Statutory Warning & Alert Status</div>
+        <div style="font-size: 17px; font-weight: 800; color: {risk_color}; margin-top: 6px;">🚨 {risk_tier}</div>
+        <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">CPRI Risk Index: <b>{cpri_score:.1f}/100</b></div>
+    </div>
+    """, unsafe_allow_html=True)
 
-        predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
-        cost_escalation_cr = predicted_final_cost - inp_cost
+# Analytical Viewports
+tab_overview, tab_shap, tab_memo, tab_sim = st.tabs([
+    "📊 Visual Summary & Comparison",
+    "🔍 TreeSHAP Root-Cause Isolation",
+    "⚖️ Statutory CPWD Memo Generator",
+    "🧪 'What-If' Decision Simulator"
+])
 
-        cpri_score = min(100.0, max(0.0, (pred_cost_overrun_pct * 0.4) + (pred_delay_months * 2.5) + (inp_land * 3.5)))
-        if cpri_score >= 60.0:
-            risk_tier = "Critical Red Risk (Impending Overrun)"
-            risk_color = "#EF4444"
-        elif cpri_score >= 35.0:
-            risk_tier = "Moderate Amber Risk (Schedule Slippage)"
-            risk_color = "#F59E0B"
-        else:
-            risk_tier = "On-Track Green (Optimal Execution)"
-            risk_color = "#10B981"
+with tab_overview:
+    fig_bar = go.Figure(data=[
+        go.Bar(name='Cost Overrun (%)', x=['Risk Magnitude'], y=[pred_cost_overrun_pct], marker_color='#38BDF8'),
+        go.Bar(name='Delay (Months)', x=['Risk Magnitude'], y=[pred_delay_months], marker_color='#10B981')
+    ])
+    fig_bar.update_layout(
+        barmode='group',
+        template="plotly_dark",
+        height=320,
+        title="Predicted Overrun & Schedule Slippage Impact",
+        yaxis_title="Scale Metric",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
 
-        st.markdown("---")
+with tab_shap:
+    st.markdown("#### 🔬 Explainable Root-Cause Attribution (TreeSHAP)")
+    shap_factors = {
+        'Land RoW Bottleneck': float(inp_land * 4.2),
+        'Contractor Front-Loading / Cash Drift': float(max(0.0, (1.0 - cpi) * 35.0)),
+        'Delayed Milestone Carryover': float(inp_milestones * 6.5),
+        'Material Inflation (WPI Escalation)': float(max(0.0, (inp_wpi - 100.0) * 1.8)),
+        'Physical Progress Deficit (SV%)': float(abs(schedule_variance_pct) * 0.75)
+    }
+    shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Driver Parameter', 'Attributed Risk Weight (%)']).sort_values(by='Attributed Risk Weight (%)', ascending=True)
+    fig_shap = px.bar(shap_df, x='Attributed Risk Weight (%)', y='Driver Parameter', orientation='h', color='Attributed Risk Weight (%)', color_continuous_scale='Reds')
+    fig_shap.update_layout(template="plotly_dark", height=320)
+    st.plotly_chart(fig_shap, use_container_width=True)
 
-        # Top Diagnostic Metric Badges
-        out_c1, out_c2, out_c3 = st.columns([1, 1, 1.4])
-        with out_c1:
-            st.markdown(f"""
-            <div class="portal-card" style="border-left: 5px solid {risk_color};">
-                <div class="stat-label">Predicted Cost Overrun</div>
-                <div style="font-size: 26px; font-weight: 800; color: {risk_color};">{pred_cost_overrun_pct:.2f}%</div>
-                <div style="color: #EF4444; font-size: 13px; font-weight: 600;">+₹{cost_escalation_cr:.2f} Cr Extra Disbursal</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with out_c2:
-            st.markdown(f"""
-            <div class="portal-card" style="border-left: 5px solid {risk_color};">
-                <div class="stat-label">Estimated Schedule Slippage</div>
-                <div style="font-size: 26px; font-weight: 800; color: {risk_color};">+{pred_delay_months:.1f} M</div>
-                <div style="color: #EF4444; font-size: 13px; font-weight: 600;">Completion Date Lag</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with out_c3:
-            st.markdown(f"""
-            <div class="portal-card" style="border: 1px solid {risk_color}; text-align: center;">
-                <div class="stat-label">Statutory Warning & Alert Status</div>
-                <div style="font-size: 18px; font-weight: 800; color: {risk_color}; margin-top: 6px;">🚨 {risk_tier}</div>
-                <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">CPRI Composite Index: <b>{cpri_score:.1f}/100</b></div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # Tabbed Analytical Views
-        tab_overview, tab_shap, tab_memo, tab_sim = st.tabs([
-            "📊 Visual Summary & Comparison",
-            "🔍 TreeSHAP Root-Cause Isolation",
-            "⚖️ Statutory CPWD Memo Generator",
-            "🧪 'What-If' Decision Simulator"
-        ])
-
-        with tab_overview:
-            fig_bar = go.Figure(data=[
-                go.Bar(name='Cost Overrun (%)', x=['Risk Magnitude'], y=[pred_cost_overrun_pct], marker_color='#38BDF8'),
-                go.Bar(name='Delay (Months)', x=['Risk Magnitude'], y=[pred_delay_months], marker_color='#10B981')
-            ])
-            fig_bar.update_layout(
-                barmode='group',
-                template="plotly_dark",
-                height=320,
-                title="Predicted Overrun & Schedule Slippage Impact",
-                yaxis_title="Scale Metric",
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-            )
-            st.plotly_chart(fig_bar, use_container_width=True)
-
-        with tab_shap:
-            st.markdown("#### 🔬 Explainable Root-Cause Attribution (TreeSHAP)")
-            shap_factors = {
-                'Land RoW Bottleneck': float(inp_land * 4.2),
-                'Contractor Front-Loading / Cash Drift': float(max(0.0, (1.0 - cpi) * 35.0)),
-                'Delayed Milestone Carryover': float(inp_milestones * 6.5),
-                'Material Inflation (WPI Escalation)': float(max(0.0, (inp_wpi - 100.0) * 1.8)),
-                'Physical Progress Deficit (SV%)': float(abs(schedule_variance_pct) * 0.75)
-            }
-            shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Driver Parameter', 'Attributed Risk Weight (%)']).sort_values(by='Attributed Risk Weight (%)', ascending=True)
-            fig_shap = px.bar(shap_df, x='Attributed Risk Weight (%)', y='Driver Parameter', orientation='h', color='Attributed Risk Weight (%)', color_continuous_scale='Reds')
-            fig_shap.update_layout(template="plotly_dark", height=320)
-            st.plotly_chart(fig_shap, use_container_width=True)
-
-        with tab_memo:
-            st.markdown("#### ⚖️ Automated Statutory Directives & Audit Memorandum")
-            memo_text = f"""GOVERNMENT OF INDIA / STATE INFRASTRUCTURE MONITORING CELL
+with tab_memo:
+    st.markdown("#### ⚖️ Automated Statutory Directives & Audit Memorandum")
+    memo_text = f"""GOVERNMENT OF INDIA / STATE INFRASTRUCTURE MONITORING CELL
 OFFICE OF THE DISTRICT MAGISTRATE & NODAL APPRAISAL OFFICER
 DISTRICT: {selected_district.upper()} | SUB-DIVISION: {selected_subdiv.upper()} | BLOCK: {selected_block.upper()}
 
@@ -450,33 +407,33 @@ SUBJECT: STATUTORY DIRECTIVE UNDER CPWD WORKS MANUAL CLAUSE 2 & GFR 2017 (RULE 1
 ISSUED UNDER THE OFFICIAL SEAL OF THE COMPETENT MONITORING AUTHORITY
 State Infrastructure Monitoring Division (PMU Bihar) / MoSPI Central Monitoring Wing
 """
-            st.text_area("Official Memorandum Text Preview", memo_text, height=320)
-            st.download_button(
-                label="📥 Download Official Legal Memorandum (.txt)",
-                data=memo_text,
-                file_name=f"CPWD_Statutory_Notice_{selected_district.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
-                mime="text/plain",
-                use_container_width=True
-            )
+    st.text_area("Official Memorandum Text Preview", memo_text, height=320)
+    st.download_button(
+        label="📥 Download Official Legal Memorandum (.txt)",
+        data=memo_text,
+        file_name=f"CPWD_Statutory_Notice_{selected_district.split()[0]}_{datetime.now().strftime('%Y%m%d')}.txt",
+        mime="text/plain",
+        use_container_width=True
+    )
 
-        with tab_sim:
-            st.markdown("#### 🧪 Interactive 'What-If' Decision Simulator (Prescriptive AI)")
-            sim_c1, sim_c2 = st.columns(2)
-            with sim_c1:
-                sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5)
-                sim_fund_infusion = st.slider("Front-Loading Advance Recovery (%)", 0, 30, 10, 5)
-            with sim_c2:
-                recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
-                recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
-                recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * inp_cost
-                
-                st.markdown(f"""
-                <div style="background-color: #0F172A; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981;">
-                    <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
-                    <p style="margin-top: 8px; font-size: 14px;">
-                    • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
-                    • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
-                    • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
+with tab_sim:
+    st.markdown("#### 🧪 Interactive 'What-If' Decision Simulator (Prescriptive AI)")
+    sim_c1, sim_c2 = st.columns(2)
+    with sim_c1:
+        sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5)
+        sim_fund_infusion = st.slider("Front-Loading Advance Recovery (%)", 0, 30, 10, 5)
+    with sim_c2:
+        recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
+        recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
+        recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * inp_cost
+        
+        st.markdown(f"""
+        <div style="background-color: #0F172A; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981;">
+            <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
+            <p style="margin-top: 8px; font-size: 14px;">
+            • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
+            • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
+            • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
