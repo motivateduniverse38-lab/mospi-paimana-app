@@ -14,17 +14,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Dark Govt Theme CSS
+# Custom Styling
 st.markdown("""
 <style>
     .main-header { font-size: 22px; font-weight: 700; color: #E2E8F0; margin-bottom: 2px; }
-    .sub-header { font-size: 13px; color: #EF4444; margin-bottom: 20px; font-weight: 500; }
+    .sub-header { font-size: 13px; color: #38BDF8; margin-bottom: 20px; font-weight: 500; }
     .stAlert { border-radius: 8px; }
-    .metric-container { background-color: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 10px; }
+    .meta-box { background-color: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
 </style>
 """, unsafe_allow_html=True)
 
-# Comprehensive Bihar Hierarchy
+# Complete Geographic Hierarchy
 def get_bihar_geo_hierarchy():
     return {
         "East Champaran (Motihari)": {
@@ -57,13 +57,15 @@ def get_bihar_geo_hierarchy():
         }
     }
 
-# Expanded Real MoSPI Projects Master Data
+# Master MoSPI Infrastructure Registry Data
 @st.cache_data
 def load_data():
     return pd.DataFrame([
         {
             "Project_Name": "NH-727A 4-Laning Package-BR01 (Motihari Bypass)",
             "District": "East Champaran (Motihari)",
+            "Subdivision": "Motihari Sadar Sub-Div",
+            "Block": "Motihari Sadar",
             "Original_Cost_Cr": 245.50,
             "Target_Duration_Months": 36,
             "Elapsed_Months": 22,
@@ -72,12 +74,14 @@ def load_data():
             "Delayed_Milestones": 3,
             "Land_Risk_Score": 7.2,
             "WPI_Inflation_Index": 109.4,
-            "Contractor": "M/S Infra Buildwell India Ltd",
+            "Contractor_Name": "M/S Infra Buildwell India Ltd",
             "Site_Engineer": "Er. Rajesh Kumar, Executive Engineer"
         },
         {
-            "Project_Name": "Raxaul Integrated Check Post Connecting Expressway Pkg-02",
+            "Project_Name": "Raxaul Integrated ICP Connecting Expressway Pkg-02",
             "District": "East Champaran (Motihari)",
+            "Subdivision": "Raxaul Sub-Div",
+            "Block": "Raxaul",
             "Original_Cost_Cr": 185.00,
             "Target_Duration_Months": 28,
             "Elapsed_Months": 16,
@@ -86,12 +90,14 @@ def load_data():
             "Delayed_Milestones": 2,
             "Land_Risk_Score": 6.5,
             "WPI_Inflation_Index": 108.4,
-            "Contractor": "M/S North Bihar Roadways Consortium",
-            "Site_Engineer": "Er. Alok Sharma, AEE"
+            "Contractor_Name": "M/S North Bihar Roadways Consortium",
+            "Site_Engineer": "Er. Alok Sharma, Assistant Executive Engineer"
         },
         {
-            "Project_Name": "Patna Ring Road (Phase-1 Danapur-Bihta Elevated Corridor)",
+            "Project_Name": "Patna Ring Road (Danapur-Bihta Elevated Corridor Pkg-01)",
             "District": "Patna",
+            "Subdivision": "Danapur Sub-Div",
+            "Block": "Danapur",
             "Original_Cost_Cr": 450.00,
             "Target_Duration_Months": 48,
             "Elapsed_Months": 30,
@@ -100,12 +106,14 @@ def load_data():
             "Delayed_Milestones": 4,
             "Land_Risk_Score": 8.0,
             "WPI_Inflation_Index": 112.5,
-            "Contractor": "M/S Apex Infra Ventures",
-            "Site_Engineer": "Er. Sunil Verma, Chief Project Officer"
+            "Contractor_Name": "M/S Apex Mega Infra Ventures",
+            "Site_Engineer": "Er. Sunil Verma, Chief Project Engineer"
         },
         {
-            "Project_Name": "Gaya Mega Surface Water Treatment & Distribution Network",
+            "Project_Name": "Gaya Mega Surface Water Treatment Plant Pkg-02",
             "District": "Gaya",
+            "Subdivision": "Gaya Sadar Sub-Div",
+            "Block": "Bodh Gaya",
             "Original_Cost_Cr": 195.00,
             "Target_Duration_Months": 30,
             "Elapsed_Months": 14,
@@ -114,12 +122,14 @@ def load_data():
             "Delayed_Milestones": 1,
             "Land_Risk_Score": 3.8,
             "WPI_Inflation_Index": 106.0,
-            "Contractor": "M/S Jal Shakti Infrastructure Ltd",
-            "Site_Engineer": "Er. P. K. Sinha, EE"
+            "Contractor_Name": "M/S Jal Shakti Infrastructure Ltd",
+            "Site_Engineer": "Er. P. K. Sinha, Executive Engineer"
         },
         {
-            "Project_Name": "Muzaffarpur Smart City Sewerage Network Package-03",
+            "Project_Name": "Muzaffarpur Smart Sewerage Line Pkg-03",
             "District": "Muzaffarpur",
+            "Subdivision": "Muzaffarpur East Sub-Div",
+            "Block": "Mushahari",
             "Original_Cost_Cr": 165.00,
             "Target_Duration_Months": 36,
             "Elapsed_Months": 26,
@@ -128,12 +138,14 @@ def load_data():
             "Delayed_Milestones": 3,
             "Land_Risk_Score": 7.0,
             "WPI_Inflation_Index": 110.2,
-            "Contractor": "M/S Urban Lifeline Infra",
-            "Site_Engineer": "Er. Manoj Tiwary, EE"
+            "Contractor_Name": "M/S Urban Lifeline Infra",
+            "Site_Engineer": "Er. Manoj Tiwary, Executive Engineer"
         },
         {
-            "Project_Name": "Sultanganj-Aguwani Ghat High Level Bridge Approach Pkg-01",
+            "Project_Name": "Sultanganj-Aguwani Ghat Ganga High-Level Bridge Pkg-01",
             "District": "Bhagalpur",
+            "Subdivision": "Kahalgaon Sub-Div",
+            "Block": "Sultanganj",
             "Original_Cost_Cr": 320.00,
             "Target_Duration_Months": 40,
             "Elapsed_Months": 32,
@@ -142,8 +154,8 @@ def load_data():
             "Delayed_Milestones": 5,
             "Land_Risk_Score": 8.5,
             "WPI_Inflation_Index": 114.0,
-            "Contractor": "M/S SP Singla Constructions Pvt Ltd",
-            "Site_Engineer": "Er. Anand Kishor, SE"
+            "Contractor_Name": "M/S SP Singla Constructions Pvt Ltd",
+            "Site_Engineer": "Er. Anand Kishor, Superintending Engineer"
         }
     ])
 
@@ -173,27 +185,28 @@ geo_hierarchy = get_bihar_geo_hierarchy()
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# Sidebar: Jurisdiction Selector
+# Sidebar: Unselected Default Hierarchy Flow
 st.sidebar.markdown("### 🏛️ Administrative Jurisdiction")
-selected_state = st.sidebar.selectbox("1. State", ["Bihar"])
+state_options = ["-- Select State --", "Bihar"]
+selected_state = st.sidebar.selectbox("1. State", state_options, index=0)
 
-districts = list(geo_hierarchy.keys())
-selected_district = st.sidebar.selectbox("2. District (38 Districts)", districts)
+selected_district = "-- Select District --"
+selected_subdiv = "-- Select Subdivision --"
+selected_block = "-- Select Block --"
 
-subdivisions = list(geo_hierarchy.get(selected_district, {}).keys())
-selected_subdiv = st.sidebar.selectbox("3. Subdivision (101 Sub-Div)", subdivisions)
-
-blocks = geo_hierarchy.get(selected_district, {}).get(selected_subdiv, ["Default Block"])
-selected_block = st.sidebar.selectbox("4. Block (534 Blocks)", blocks)
+if selected_state != "-- Select State --":
+    district_options = ["-- Select District --"] + list(geo_hierarchy.keys())
+    selected_district = st.sidebar.selectbox("2. District", district_options, index=0)
+    
+    if selected_district != "-- Select District --":
+        subdiv_options = ["-- Select Subdivision --"] + list(geo_hierarchy[selected_district].keys())
+        selected_subdiv = st.sidebar.selectbox("3. Subdivision", subdiv_options, index=0)
+        
+        if selected_subdiv != "-- Select Subdivision --":
+            block_options = ["-- Select Block --"] + geo_hierarchy[selected_district][selected_subdiv]
+            selected_block = st.sidebar.selectbox("4. Block", block_options, index=0)
 
 fetch_btn = st.sidebar.button("Fetch Registered Works Record", use_container_width=True)
-
-# Session State for User Action
-if 'data_fetched' not in st.session_state:
-    st.session_state['data_fetched'] = False
-
-if fetch_btn:
-    st.session_state['data_fetched'] = True
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📈 Model Benchmarks")
@@ -203,21 +216,27 @@ st.sidebar.markdown("""
 - **Inference Latency:** < 80ms (CPU)
 """)
 
-# Top Header
+# Main Viewport
 st.markdown("<div class='main-header'>MoSPI Infrastructure Monitoring Division | State PMU (Bihar)</div>", unsafe_allow_html=True)
-st.markdown(f"<div class='sub-header'>Live System Timestamp: {datetime.now().strftime('%d-%b-%Y | %H:%M:%S IST')}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='sub-header'>System Live Timestamp: {datetime.now().strftime('%d-%b-%Y | %H:%M:%S IST')} | Common Upload Form (CUF) Compliance Engine</div>", unsafe_allow_html=True)
 
 col_left, col_right = st.columns([1.0, 1.0])
 
-if not st.session_state['data_fetched']:
+# Check if user has selected a valid jurisdiction
+is_jurisdiction_selected = (
+    selected_state != "-- Select State --" and 
+    selected_district != "-- Select District --"
+)
+
+if not is_jurisdiction_selected:
     with col_left:
         st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
-        st.info("👈 **No Active Jurisdiction Queried.**\n\nSelect State, District, Sub-division, and Block from sidebar, then click **'Fetch Registered Works Record'**.")
+        st.info("👈 **Awaiting Administrative Jurisdiction Input.**\n\nPlease select **State** and **District** from the left sidebar to query registered government packages.")
     with col_right:
         st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
-        st.info("👈 Complete Section 1 selection to unlock real-time predictive risk appraisal engine.")
+        st.info("👈 Registry data will unlock here once a jurisdiction is selected.")
 else:
-    # Filter Matching Projects
+    # Filter projects matching district
     district_query = selected_district.split()[0].lower()
     matched_projects = []
     for _, r in paimana_df.iterrows():
@@ -229,21 +248,28 @@ else:
     with col_left:
         st.markdown("#### 📁 Section 1: Official Infrastructure Registry")
         project_names = [str(r["Project_Name"]) for r in matched_projects]
-        selected_project_name = st.selectbox("Select Registered Infrastructure Package", project_names)
+        selected_project_name = st.selectbox("Select Active Infrastructure Package", project_names)
         
         active_record = next(r for r in matched_projects if str(r["Project_Name"]) == selected_project_name)
         
-        st.markdown(f"**Executing Agency:** `{active_record.get('Contractor', 'M/S Standard Constr. Ltd')}` | **Nodal Officer:** `{active_record.get('Site_Engineer', 'Executive Engineer')}`")
+        # Display Official Registry Metadata
+        st.markdown(f"""
+        <div class="meta-box">
+            <b>🏗️ Registered Contractor:</b> <span style="color: #38BDF8;">{active_record.get('Contractor_Name', 'Registered Contractor')}</span><br>
+            <b>👨‍💼 Nodal Field Officer:</b> <span style="color: #FCD34D;">{active_record.get('Site_Engineer', 'Executive Engineer')}</span><br>
+            <b>📍 Location:</b> {selected_district} | {selected_subdiv} | {selected_block}
+        </div>
+        """, unsafe_allow_html=True)
         
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Cost (₹ Cr)", f"₹{float(active_record['Original_Cost_Cr']):.1f}")
-        m2.metric("Target (M)", f"{int(active_record['Target_Duration_Months'])} M")
-        m3.metric("Progress (%)", f"{float(active_record['Physical_Progress_Pct']):.1f}%")
-        m4.metric("Spend (₹ Cr)", f"₹{float(active_record['Cumulative_Spend_Cr']):.1f}")
+        m1.metric("Sanctioned Cost", f"₹{float(active_record['Original_Cost_Cr']):.1f} Cr")
+        m2.metric("Target Timeline", f"{int(active_record['Target_Duration_Months'])} M")
+        m3.metric("Physical Progress", f"{float(active_record['Physical_Progress_Pct']):.1f}%")
+        m4.metric("Disbursed Spend", f"₹{float(active_record['Cumulative_Spend_Cr']):.1f} Cr")
 
     with col_right:
         st.markdown("#### ⚡ Section 2: Predictive Risk Appraisal Engine")
-        st.caption("Target: `Active Evaluation Scope`")
+        st.caption(f"Evaluating: `{selected_project_name}`")
         
         c1, c2, c3, c4 = st.columns(4)
         inp_cost = c1.number_input("Cost (₹ Cr)", value=float(active_record['Original_Cost_Cr']))
@@ -259,7 +285,7 @@ else:
         
         run_eval = st.button("⚡ Run AI Evaluation (Single Viewport)", use_container_width=True)
 
-    # Core Calculations
+    # Core EVM Calculations
     planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_target)) * 100.0)
     schedule_variance_pct = inp_phys - planned_progress_pct
     earned_value_cr = (inp_phys / 100.0) * inp_cost
@@ -295,7 +321,7 @@ else:
 
     st.markdown("---")
 
-    # Metrics Row
+    # Key Indicator Badges
     out_c1, out_c2, out_c3 = st.columns([1, 1, 1.5])
     with out_c1:
         st.markdown(f"""
@@ -321,7 +347,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # Visualization Tabs
+    # Detailed Analytical Tabs
     tab_overview, tab_shap, tab_memo, tab_sim = st.tabs([
         "📊 Visual Summary & Comparison",
         "🔍 TreeSHAP Root-Cause Isolation",
@@ -330,7 +356,6 @@ else:
     ])
 
     with tab_overview:
-        # Original Bar Chart Visual
         fig_bar = go.Figure(data=[
             go.Bar(name='Cost Overrun (%)', x=['Risk Metrics'], y=[pred_cost_overrun_pct], marker_color='#38BDF8'),
             go.Bar(name='Delay (Months)', x=['Risk Metrics'], y=[pred_delay_months], marker_color='#10B981')
@@ -339,7 +364,7 @@ else:
             barmode='group',
             template="plotly_dark",
             height=320,
-            title="Predicted Overrun & Schedule Impact Magnitude",
+            title="Predicted Overrun & Schedule Slippage Impact",
             yaxis_title="Magnitude",
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
@@ -370,7 +395,7 @@ DATE: {datetime.now().strftime('%d-%B-%Y')}
 
 TO:
 1. THE EXECUTIVE ENGINEER / SITE OFFICER: {active_record.get('Site_Engineer', 'Executive Engineer')}
-2. PRIMARY EXECUTING AGENCY (CONTRACTOR): {active_record.get('Contractor', 'Registered Contractor')}
+2. PRIMARY EXECUTING AGENCY (CONTRACTOR): {active_record.get('Contractor_Name', 'Registered Contractor')}
 
 SUBJECT: STATUTORY DIRECTIVE UNDER CPWD WORKS MANUAL CLAUSE 2 & GFR 2017 (RULE 130) FOR UNLAWFUL SCHEDULE SLIPPAGE AND FRONT-LOADING RECTIFICATION
 
