@@ -62,7 +62,7 @@ notice_border = "#38BDF8" if is_dark else "#0284C7"
 
 font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
-# 2. 4-Second Loading Followed by Cinematic Zoom-Out Text Outro (Only on Initial Cold Start)
+# 2. 4-Second Loading Followed by Screen Fly-Through Zoom Out (Towards Laptop Screen)
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
@@ -81,7 +81,8 @@ if "splash_done" not in st.session_state:
                 height: 80vh;
                 text-align: center;
                 font-family: 'Inter', sans-serif;
-                animation: fadeInSplash 0.6s ease-in-out forwards;
+                animation: fadeInSplash 0.5s ease-in-out forwards;
+                perspective: 1000px;
             }}
             .splash-logo {{
                 font-size: 56px;
@@ -90,8 +91,9 @@ if "splash_done" not in st.session_state:
                 color: {active_accent};
                 text-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
                 margin-bottom: 8px;
-                /* 4s steady loading + 0.8s smooth cinematic zoom-out */
-                animation: cinematicZoomOut 4.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+                /* 4s steady loading + smooth explosion/zoom towards laptop screen */
+                animation: flyTowardsScreen 4.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+                transform-origin: center center;
             }}
             .splash-sub {{
                 font-size: 14px;
@@ -121,17 +123,17 @@ if "splash_done" not in st.session_state:
                 0% {{ transform: translateX(-100%); }}
                 100% {{ transform: translateX(0%); }}
             }}
-            @keyframes cinematicZoomOut {{
+            @keyframes flyTowardsScreen {{
                 0% {{ transform: scale(0.95); opacity: 0; }}
                 12% {{ transform: scale(1); opacity: 1; }}
                 83.33% {{ transform: scale(1); opacity: 1; filter: blur(0px); }} /* Holds steady until 4.0s */
-                100% {{ transform: scale(0.05); opacity: 0; filter: blur(10px); }} /* Zooms out smoothly */
+                100% {{ transform: scale(3.5); opacity: 0; filter: blur(12px); }} /* Zooms out expanding towards the screen */
             }}
             @keyframes fadeOutElements {{
                 0% {{ opacity: 0; }}
                 12% {{ opacity: 1; }}
                 83.33% {{ opacity: 1; transform: translateY(0px); }}
-                100% {{ opacity: 0; transform: translateY(20px); }}
+                100% {{ opacity: 0; transform: translateY(25px); }}
             }}
             @keyframes fadeInSplash {{
                 from {{ opacity: 0; }}
@@ -328,6 +330,7 @@ st.markdown(f"""
         color: {active_accent} !important;
     }}
 
+    /* English RCA Table Custom Styling */
     .rca-table-container {{
         background-color: {active_card_bg};
         border: 1.5px solid {active_border};
