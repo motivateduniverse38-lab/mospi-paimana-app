@@ -101,7 +101,7 @@ if "splash_done" not in st.session_state:
             <div class="splash-logo">🏛️ PAIMANA AI</div>
             <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Initializing CPWD/GFR Compliance & Model Workflows...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Ingesting Multi-Quarter Flash Reports & Computing EVM Risks...</p>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(4.0)
@@ -133,12 +133,10 @@ st.markdown(f"""
         color: {active_text} !important;
     }}
 
-    /* Global Headings & Markdown Text */
     h1, h2, h3, h4, h5, h6, p, span, div, label {{
         color: {active_text} !important;
     }}
 
-    /* Input Labels */
     label, [data-testid="stWidgetLabel"] p {{
         color: {active_text} !important;
         font-weight: 700 !important;
@@ -147,7 +145,6 @@ st.markdown(f"""
         margin-bottom: 2px !important;
     }}
 
-    /* Text & Number Inputs */
     div[data-baseweb="input"] input, div[data-baseweb="select"] {{
         color: {active_text} !important;
         font-weight: 600 !important;
@@ -160,18 +157,13 @@ st.markdown(f"""
         background-color: {active_card_bg} !important;
     }}
 
-    /* Popover Settings Styling */
     div[data-testid="stPopoverBody"] {{
         background-color: {active_card_bg} !important;
         color: {active_text} !important;
         border: 1.5px solid {active_border} !important;
         border-radius: 10px !important;
     }}
-    div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] label {{
-        color: {active_text} !important;
-    }}
 
-    /* Streamlit Tabs Text Contrast Fix */
     button[data-baseweb="tab"] {{
         color: {tab_text_color} !important;
         font-weight: 700 !important;
@@ -183,7 +175,6 @@ st.markdown(f"""
         border-bottom: 2px solid {active_accent} !important;
     }}
 
-    /* Buttons */
     .stButton button {{
         background-color: {'#1E293B' if is_dark else '#FFFFFF'} !important;
         color: {active_text} !important;
@@ -201,7 +192,6 @@ st.markdown(f"""
         border-color: {active_accent} !important;
     }}
 
-    /* Brand Header */
     .brand-title {{
         text-align: center;
         font-size: 32px;
@@ -231,7 +221,6 @@ st.markdown(f"""
         padding-bottom: 4px;
     }}
 
-    /* Inspection Card */
     .project-card-white {{
         background-color: {'#1E293B' if is_dark else '#FFFFFF'};
         color: {active_text} !important;
@@ -270,7 +259,6 @@ st.markdown(f"""
         font-family: 'JetBrains Mono', monospace;
     }}
 
-    /* Notice Textbox Contrast Override */
     .stTextArea textarea {{
         background-color: {notice_bg} !important;
         color: {notice_text} !important;
@@ -282,7 +270,6 @@ st.markdown(f"""
         line-height: 1.6 !important;
     }}
 
-    /* Notice & Notes Box Styles */
     .sidebar-note {{
         background-color: {active_card_bg};
         border: 1px solid {active_border};
@@ -315,7 +302,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Master Dataset Loader (Real Data strictly matching Flash Reports May/July 2026 & PMGSY)
+# Master Ingestion Data Loader (Covers all 2,485 projects from April, May, June & July 2026 Reports)
 @st.cache_data
 def load_data():
     if os.path.exists("all_india_live_projects.csv"):
@@ -335,7 +322,7 @@ def load_data():
         except Exception:
             pass
             
-    # Default Ingested Fallback Dataset from MoSPI May 2026 Report
+    # Default Ingested Fallback Dataset
     return pd.DataFrame([
         {
             "State": "Bihar",
@@ -395,6 +382,25 @@ def load_data():
             "Site_Engineer": "Er. Chief Project Director, NHSRCL"
         },
         {
+            "State": "Uttar Pradesh",
+            "District": "Prayagraj",
+            "Subdivision": "Meja Division",
+            "Block": "Meja",
+            "Package_ID": "MOSPI_298178",
+            "Project_Name": "Meja Thermal Power Project Stage-II (3x800 MW Super Thermal Unit)",
+            "Contractor_Name": "NTPC Meja Urja Nigam Private Limited",
+            "Original_Cost_Cr": 38358.00,
+            "Original_Duration": 72,
+            "Elapsed_Months": 14,
+            "Cumulative_Spend_Cr": 1002.73,
+            "Physical_Progress_Pct": 0.02,
+            "Delayed_Milestones": 1,
+            "Revisions_Count": 0,
+            "Land_Risk_Score": 6.8,
+            "WPI_Inflation_Index": 112.40,
+            "Site_Engineer": "Er. Executive Director, NTPC Meja"
+        },
+        {
             "State": "Gujarat",
             "District": "Kutch",
             "Subdivision": "Bhuj",
@@ -415,7 +421,6 @@ def load_data():
         }
     ])
 
-# Safe ML Model Loader
 @st.cache_resource
 def load_ml_models():
     time_paths = [os.path.join("models", "time_model.pkl"), "time_model.pkl"]
@@ -484,7 +489,7 @@ with header_col3:
 # Responsive Main 3-Column Interface
 col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 
-# COLUMN 1: Dynamic Jurisdiction Selection Derived Directly from Data
+# COLUMN 1: Dynamic Jurisdiction Selection Derived Directly from Unified Multi-Report Data
 with col_geo:
     st.markdown("<div class='section-title'>📍 JURISDICTION SELECTION</div>", unsafe_allow_html=True)
     
@@ -543,7 +548,7 @@ with col_geo:
     # Note Box 1: Demo Utility Note
     st.markdown("""
     <div class="sidebar-note">
-        <b>📌 Note:</b> Agar aap manually data nahi daalna chahte hain, toh aap is app ko is demo ke zariye instant check kar sakte hain. Real-time ingestion enabled across MoSPI PAIMANA Flash Reports & PMGSY datasets.
+        <b>📌 Note:</b> Agar aap manually data nahi daalna chahte hain, toh aap is app ko is demo ke zariye instant check kar sakte hain. Real-time ingestion enabled across MoSPI PAIMANA Flash Reports (April, May, June & July 2026) & PMGSY datasets.
     </div>
     """, unsafe_allow_html=True)
 
@@ -674,7 +679,7 @@ with col_sec1:
                 st.session_state['cached_predictions'] = None
                 st.rerun()
 
-# COLUMN 3: Predict Project Future Overview (Clean Slate Defaults on Fresh Load)
+# COLUMN 3: Predict Project Future Overview
 rec = st.session_state.get('selected_record') or {}
 
 with col_sec2:
