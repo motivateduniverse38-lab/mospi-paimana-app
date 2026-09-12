@@ -62,7 +62,7 @@ notice_border = "#38BDF8" if is_dark else "#0284C7"
 
 font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
-# 2. 4-Second Splash Animation Engine with Seamless Logo Zoom-Out Transition
+# 2. 4-Second Loading Followed by Cinematic Zoom-Out Text Outro (Only on Initial Cold Start)
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
@@ -81,7 +81,7 @@ if "splash_done" not in st.session_state:
                 height: 80vh;
                 text-align: center;
                 font-family: 'Inter', sans-serif;
-                animation: zoomOutBurst 4.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                animation: fadeInSplash 0.6s ease-in-out forwards;
             }}
             .splash-logo {{
                 font-size: 56px;
@@ -90,7 +90,8 @@ if "splash_done" not in st.session_state:
                 color: {active_accent};
                 text-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
                 margin-bottom: 8px;
-                animation: logoScale 4.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                /* 4s steady loading + 0.8s smooth cinematic zoom-out */
+                animation: cinematicZoomOut 4.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
             }}
             .splash-sub {{
                 font-size: 14px;
@@ -99,7 +100,7 @@ if "splash_done" not in st.session_state:
                 color: #94A3B8;
                 text-transform: uppercase;
                 margin-bottom: 25px;
-                animation: fadeSub 4.8s ease-in-out forwards;
+                animation: fadeOutElements 4.8s ease-in-out forwards;
             }}
             .splash-loader {{
                 width: 220px;
@@ -108,44 +109,43 @@ if "splash_done" not in st.session_state:
                 border-radius: 4px;
                 overflow: hidden;
                 position: relative;
-                animation: fadeSub 4.8s ease-in-out forwards;
+                animation: fadeOutElements 4.8s ease-in-out forwards;
             }}
             .splash-bar {{
                 width: 100%;
                 height: 100%;
                 background: linear-gradient(90deg, {active_accent}, #10B981);
-                animation: progress 4s ease-in-out forwards;
+                animation: progress 4.0s linear forwards;
             }}
             @keyframes progress {{
                 0% {{ transform: translateX(-100%); }}
                 100% {{ transform: translateX(0%); }}
             }}
-            @keyframes logoScale {{
-                0% {{ transform: scale(0.9); opacity: 0; }}
-                20% {{ transform: scale(1); opacity: 1; }}
-                80% {{ transform: scale(1); opacity: 1; }}
-                100% {{ transform: scale(2.4); opacity: 0; filter: blur(8px); }}
+            @keyframes cinematicZoomOut {{
+                0% {{ transform: scale(0.95); opacity: 0; }}
+                12% {{ transform: scale(1); opacity: 1; }}
+                83.33% {{ transform: scale(1); opacity: 1; filter: blur(0px); }} /* Holds steady until 4.0s */
+                100% {{ transform: scale(0.05); opacity: 0; filter: blur(10px); }} /* Zooms out smoothly */
             }}
-            @keyframes fadeSub {{
+            @keyframes fadeOutElements {{
                 0% {{ opacity: 0; }}
-                20% {{ opacity: 1; }}
-                80% {{ opacity: 1; }}
-                100% {{ opacity: 0; transform: translateY(15px); }}
+                12% {{ opacity: 1; }}
+                83.33% {{ opacity: 1; transform: translateY(0px); }}
+                100% {{ opacity: 0; transform: translateY(20px); }}
             }}
-            @keyframes zoomOutBurst {{
-                0% {{ opacity: 1; }}
-                80% {{ opacity: 1; }}
-                100% {{ opacity: 0; }}
+            @keyframes fadeInSplash {{
+                from {{ opacity: 0; }}
+                to {{ opacity: 1; }}
             }}
         </style>
         <div class="splash-wrapper">
             <div class="splash-logo">🏛️ PAIMANA AI</div>
             <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px; animation: fadeSub 4.8s ease-in-out forwards;">Ingesting Multi-Quarter Flash Reports & Computing EVM Risks...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px; animation: fadeOutElements 4.8s ease-in-out forwards;">Ingesting Multi-Quarter Flash Reports & Computing EVM Risks...</p>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(4.6)
+        time.sleep(4.8)
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
@@ -328,7 +328,6 @@ st.markdown(f"""
         color: {active_accent} !important;
     }}
 
-    /* English RCA Table Custom Styling */
     .rca-table-container {{
         background-color: {active_card_bg};
         border: 1.5px solid {active_border};
