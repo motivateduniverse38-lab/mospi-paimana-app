@@ -660,7 +660,7 @@ with col_sec1:
             st.session_state['ai_evaluated'] = False
             st.rerun()
 
-# COLUMN 3: Predict Project Future Overview (Box Inputs + 2 Sliders)
+# COLUMN 3: Predict Project Future Overview (User-Editable Custom Input Boxes + 2 Sliders)
 rec = st.session_state.get('selected_record') or (active_row.to_dict() if active_row is not None else {})
 
 with col_sec2:
@@ -684,7 +684,7 @@ with col_sec2:
     if run_ai:
         st.session_state['ai_evaluated'] = True
 
-# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK
+# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK (HANDLES LOADED OR CUSTOM USER INPUTS)
 if st.session_state['ai_evaluated'] and inp_cost > 0:
     planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
     schedule_variance_pct = inp_phys - planned_progress_pct
