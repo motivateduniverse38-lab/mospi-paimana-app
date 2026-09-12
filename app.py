@@ -93,7 +93,7 @@ if "splash_done" not in st.session_state:
                 100% {{ transform: translateX(0%); }}
             }}
             @keyframes fadeIn {{
-                from {{ opacity: 0; transform: scale(0.95); }}
+                from {{ opacity: 1; transform: scale(0.95); }}
                 to {{ opacity: 1; transform: scale(1); }}
             }}
         </style>
@@ -299,10 +299,41 @@ st.markdown(f"""
     .provenance-card b {{
         color: {active_accent} !important;
     }}
+
+    /* RCA Table Custom Styling */
+    .rca-table-container {{
+        background-color: {active_card_bg};
+        border: 1.5px solid {active_border};
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 14px;
+        overflow-x: auto;
+    }}
+    .rca-table {{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+        color: {active_text};
+    }}
+    .rca-table th {{
+        background-color: {'#1E293B' if is_dark else '#F1F5F9'};
+        color: {active_accent};
+        padding: 10px;
+        font-weight: 800;
+        text-align: left;
+        border-bottom: 2px solid {active_border};
+        letter-spacing: 0.3px;
+    }}
+    .rca-table td {{
+        padding: 10px;
+        border-bottom: 1px solid {active_border};
+        vertical-align: top;
+        line-height: 1.5;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# Master Ingestion Data Loader (Covers all 2,485 projects from April, May, June & July 2026 Reports)
+# Master Ingestion Data Loader (Covers all projects across April, May, June & July 2026 Reports)
 @st.cache_data
 def load_data():
     if os.path.exists("all_india_live_projects.csv"):
@@ -489,7 +520,7 @@ with header_col3:
 # Responsive Main 3-Column Interface
 col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 
-# COLUMN 1: Dynamic Jurisdiction Selection Derived Directly from Unified Multi-Report Data
+# COLUMN 1: Dynamic Jurisdiction Selection Derived Directly from Data
 with col_geo:
     st.markdown("<div class='section-title'>📍 JURISDICTION SELECTION</div>", unsafe_allow_html=True)
     
@@ -845,10 +876,45 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
             font=dict(color=plot_text_color, family="Inter"),
             xaxis=dict(tickfont=dict(color=plot_text_color, size=12), title_font=dict(color=plot_text_color, size=13), gridcolor=plot_grid_color),
             yaxis=dict(tickfont=dict(color=plot_text_color, size=12, family="Inter"), title_font=dict(color=plot_text_color, size=13)),
-            height=320,
+            height=300,
             margin=dict(l=20, r=20, t=20, b=20)
         )
         st.plotly_chart(fig_bar, use_container_width=True)
+
+        # Clean 3-Column Root Cause Analysis Table
+        st.markdown(f"""
+        <div class="rca-table-container">
+            <div style="font-weight: 800; font-size: 13.5px; color: {active_accent}; margin-bottom: 8px;">
+                🔍 Root Cause Analysis (RCA) Summary Table
+            </div>
+            <table class="rca-table">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">1. वर्तमान समस्या (Symptom/Problem)</th>
+                        <th style="width: 36%;">2. असली जड़ (Root Cause via 5-Whys)</th>
+                        <th style="width: 36%;">3. सुधार के उपाय (Action Plan)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>प्रोजेक्ट डिलीवरी में देरी (Schedule Slippage)</b><br><span style="font-size: 11.5px; color: {active_subtext};">SV%: {res['schedule_variance_pct']:.1f}%, Delay: +{res['pred_delay_months']:.1f}M</span></td>
+                        <td><b>जमीन अधिग्रहण और RoW बाधाएं:</b> अप्रूवल और एनवायरनमेंटल क्लीयरेंस में देरी से वर्क-फ्रंट समय पर हैंडओवर नहीं हो पाया, जिससे क्रिटिकल पाथ बाधित हुआ।</td>
+                        <td><b>तुरंत:</b> क्रिटिकल स्ट्रेच को प्राथमिकता देकर तुरंत RoW क्लियर कराएं।<br><b>स्थायी:</b> जिला प्रशासन और नोडल टास्क-फोर्स के साथ 15-दिवसीय मॉनिटरिंग रीव्यू शुरू करें।</td>
+                    </tr>
+                    <tr>
+                        <td><b>बजट ओवररन और कैश फ्लो ड्रिफ्ट (Cost Escalation)</b><br><span style="font-size: 11.5px; color: {active_subtext};">CPI: {res['cpi']:.2f}, Est. Escalation: +₹{res['cost_escalation_cr']:.1f} Cr</span></td>
+                        <td><b>फ्रंट-लोडिंग और सामग्री मुद्रास्फीति (WPI):</b> भौतिक माइलस्टोन प्राप्त किए बिना फंड रिलीज होना और स्टील/सीमेंट लागत में अनुमान से अधिक वृद्धि होना।</td>
+                        <td><b>तुरंत:</b> माइलस्टोन-लिंक्ड डिस्बर्समेंट पर सख्त नियंत्रण लगाएं।<br><b>स्थायी:</b> GFR Rule 130 के तहत मासिक EVM ऑडिट और प्रेडिक्टिव प्राइस एस्केलेशन ट्रैकिंग लागू करें।</td>
+                    </tr>
+                    <tr>
+                        <td><b>माइलस्टोन कैरीओवर और संसाधन कमी</b><br><span style="font-size: 11.5px; color: {active_subtext};">Delayed Milestones: {int(res['inp_milestones'])}, SPI: {res['spi']:.2f}</span></td>
+                        <td><b>मशीनरी और लेबर मोबिलाइजेशन में कमी:</b> वेंडर द्वारा स्वीकृत PERT/CPM शिड्यूल के अनुरूप डबल-शिफ्ट संसाधन ग्राउंड पर तैनात न करना।</td>
+                        <td><b>तुरंत:</b> 14 दिन के अंदर डबल-शिफ्ट रिकवरी शिड्यूल मांगें।<br><b>स्थायी:</b> CPWD Clause 2 के तहत समय पर काम न होने पर वैधानिक लिक्विडेटेड डैमेज (LD) पेनल्टी प्रक्रिया शुरू करें।</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
 
     with t_notice:
         active_st_name = st.session_state.get('active_state', selected_state)
