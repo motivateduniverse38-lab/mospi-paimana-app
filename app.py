@@ -24,10 +24,15 @@ if "app_font_scale" not in st.session_state:
 is_dark = st.session_state["app_theme_mode"] == "Dark Slate"
 active_bg = "#0B0F19" if is_dark else "#F8FAFC"
 active_card_bg = "#111827" if is_dark else "#FFFFFF"
-active_text = "#F8FAFC" if is_dark else "#0F172A"
+active_text = "#FFFFFF" if is_dark else "#0F172A"
 active_subtext = "#94A3B8" if is_dark else "#475569"
-active_border = "#1E293B" if is_dark else "#E2E8F0"
+active_border = "#334155" if is_dark else "#CBD5E1"
 active_accent = "#38BDF8" if is_dark else "#0284C7"
+
+# Notice Specific Colors (Optimized for High Legibility across Devices)
+notice_bg = "#030712" if is_dark else "#FFFFFF"
+notice_text = "#F8FAFC" if is_dark else "#0F172A"
+notice_border = "#38BDF8" if is_dark else "#0284C7"
 
 font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
@@ -89,21 +94,20 @@ if "splash_done" not in st.session_state:
         </style>
         <div class="splash-wrapper">
             <div class="splash-logo">🏛️ PAIMANA AI</div>
-            <div class="splash-sub">Infrastructure Predictive Risk Engine</div>
+            <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Initializing CPWD/GFR Compliance & Model Workflows...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Ingesting MoSPI PAIMANA Flash Reports & CPWD/GFR Framework...</p>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(4.0)
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom Modern Typography & Ergonomic CSS
+# Dynamic Theme-Adaptive CSS
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
-    /* Hide Default Headers & Badges */
     #MainMenu {{visibility: hidden !important; display: none !important;}}
     header {{visibility: hidden !important; display: none !important;}}
     footer {{visibility: hidden !important; display: none !important;}}
@@ -117,7 +121,6 @@ st.markdown(f"""
     div[class*="manage-app"] {{display: none !important; visibility: hidden !important;}}
     section[data-testid="stSidebar"] {{display: none !important;}}
 
-    /* Global Typography */
     html, body, [class*="css"], .stApp {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: {font_base_size};
@@ -142,11 +145,12 @@ st.markdown(f"""
         font-family: 'JetBrains Mono', monospace !important;
     }}
     div[data-baseweb="input"] {{
-        border: 1px solid {active_border} !important;
+        border: 1.5px solid {active_border} !important;
         border-radius: 8px !important;
+        background-color: {active_card_bg} !important;
     }}
 
-    /* Custom Buttons */
+    /* Buttons */
     .stButton button {{
         background-color: {'#1E293B' if is_dark else '#FFFFFF'} !important;
         color: {active_text} !important;
@@ -164,7 +168,7 @@ st.markdown(f"""
         border-color: {active_accent} !important;
     }}
 
-    /* Brand Header */
+    /* Typography */
     .brand-title {{
         text-align: center;
         font-size: 32px;
@@ -183,8 +187,6 @@ st.markdown(f"""
         text-transform: uppercase;
         margin-bottom: 18px;
     }}
-
-    /* Section Headings */
     .section-title {{
         font-size: 13px;
         font-weight: 800;
@@ -198,27 +200,27 @@ st.markdown(f"""
 
     /* Inspection Card */
     .project-card-white {{
-        background-color: {'#FFFFFF' if is_dark else '#FFFFFF'};
-        color: #0F172A;
-        border: 1px solid {'#E2E8F0' if not is_dark else '#FFFFFF'};
+        background-color: {'#1E293B' if is_dark else '#FFFFFF'};
+        color: {active_text};
+        border: 1px solid {active_border};
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }}
     .project-code-badge {{
-        background-color: #064E3B;
-        color: #34D399;
+        background-color: {'#064E3B' if is_dark else '#D1FAE5'};
+        color: {'#34D399' if is_dark else '#065F46'};
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
         font-weight: 700;
-        padding: 2px 7px;
+        padding: 3px 8px;
         border-radius: 4px;
         display: inline-block;
         margin: 4px 0;
     }}
     .contractor-text {{
-        color: #059669;
+        color: {'#34D399' if is_dark else '#059669'};
         font-weight: 800;
         font-size: 13px;
         margin-bottom: 6px;
@@ -230,24 +232,21 @@ st.markdown(f"""
         margin-bottom: 5px;
     }}
     .metric-dot-green {{
-        color: #10B981;
+        color: {'#34D399' if is_dark else '#059669'};
         font-weight: 700;
         font-family: 'JetBrains Mono', monospace;
     }}
 
-    /* Slider Styling */
-    div[data-testid="stThumbValue"] {{
-        color: {active_text} !important;
-        font-weight: 700 !important;
-        font-size: 12px !important;
-        background-color: {active_card_bg} !important;
-        border: 1px solid {active_accent} !important;
-        padding: 2px 6px !important;
-        border-radius: 6px !important;
-    }}
-    div[role="slider"] {{
-        background-color: #EF4444 !important;
-        border: 2px solid #FFFFFF !important;
+    /* Notice Textbox Contrast Override */
+    .stTextArea textarea {{
+        background-color: {notice_bg} !important;
+        color: {notice_text} !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border: 1.5px solid {notice_border} !important;
+        border-radius: 8px !important;
+        line-height: 1.6 !important;
     }}
 
     .sidebar-note {{
@@ -264,7 +263,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Master Dataset Loader (Real Data strictly matching Flash Report & PMGSY repositories)
+# Master Dataset Loader
 @st.cache_data
 def load_data():
     if os.path.exists("all_india_live_projects.csv"):
@@ -284,7 +283,6 @@ def load_data():
         except Exception:
             pass
             
-    # Default Fallback Dataset
     return pd.DataFrame([
         {
             "State": "Bihar",
@@ -380,7 +378,7 @@ if 'projects_fetched' not in st.session_state:
 if 'cached_predictions' not in st.session_state:
     st.session_state['cached_predictions'] = None
 
-# Top Header Layout with Simplified Clean Settings Popover
+# Top Header Layout with Settings Popover
 header_col1, header_col2, header_col3 = st.columns([1, 8, 1.2])
 
 with header_col2:
@@ -522,7 +520,7 @@ with col_sec1:
 
         st.markdown(f"""
         <div class="project-card-white">
-            <div style="font-size: 14.5px; font-weight: 800; color: #0284C7; line-height: 1.3;">
+            <div style="font-size: 14.5px; font-weight: 800; color: {active_accent}; line-height: 1.3;">
                 📌 {active_row['Project_Name']}
             </div>
             <div><span class="project-code-badge">{active_row.get('Package_ID', 'MOSPI_PAIMANA_2026')}</span></div>
@@ -561,7 +559,7 @@ with col_sec1:
             st.session_state['cached_predictions'] = None
             st.rerun()
 
-# COLUMN 3: Predict Project Future Overview (Allows ANY user custom input or loaded data)
+# COLUMN 3: Predict Project Future Overview
 rec = st.session_state.get('selected_record') or (active_row.to_dict() if active_row is not None else {})
 
 with col_sec2:
@@ -586,7 +584,6 @@ with col_sec2:
         with st.spinner("⏳ Executing EVM Equations & Machine Learning Predictions... (2s)"):
             time.sleep(2.0)
         
-        # Calculate & Cache the exact frozen outputs
         planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
         schedule_variance_pct = inp_phys - planned_progress_pct
         earned_value_cr = (inp_phys / 100.0) * inp_cost
@@ -646,17 +643,16 @@ with col_sec2:
         }
         st.session_state['ai_evaluated'] = True
 
-# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK (FROZEN UNTIL RE-RUN)
+# OUTPUT VISUALIZATION (FROZEN STATE)
 if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] is not None:
     res = st.session_state['cached_predictions']
     
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Risk Output Cards
     rc1, rc2, rc3 = st.columns([1, 1, 1.2])
     with rc1:
         st.markdown(f"""
-        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px;">
+        <div style="background-color: {active_card_bg}; border: 1.5px solid {active_border}; padding: 14px; border-radius: 8px;">
             <span style="font-size: 11px; color: {active_subtext}; text-transform: uppercase; font-weight: 700;">Predicted Cost Overrun</span>
             <div style="font-size: 26px; font-weight: 800; color: {active_text}; margin: 4px 0; font-family: 'JetBrains Mono', monospace;">{res['pred_cost_overrun_pct']:.1f}%</div>
             <span style="color: {'#EF4444' if res['pred_cost_overrun_pct'] > 15 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +₹{res['cost_escalation_cr']:.1f} Cr</span>
@@ -664,7 +660,7 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
         """, unsafe_allow_html=True)
     with rc2:
         st.markdown(f"""
-        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px;">
+        <div style="background-color: {active_card_bg}; border: 1.5px solid {active_border}; padding: 14px; border-radius: 8px;">
             <span style="font-size: 11px; color: {active_subtext}; text-transform: uppercase; font-weight: 700;">Predicted Schedule Delay</span>
             <div style="font-size: 26px; font-weight: 800; color: {active_text}; margin: 4px 0; font-family: 'JetBrains Mono', monospace;">{res['pred_delay_months']:.1f} Months</div>
             <span style="color: {'#EF4444' if res['pred_delay_months'] > 6 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +{res['pred_delay_months']:.1f} M Delay</span>
@@ -672,7 +668,7 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
         """, unsafe_allow_html=True)
     with rc3:
         st.markdown(f"""
-        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px; text-align: center;">
+        <div style="background-color: {active_card_bg}; border: 1.5px solid {active_border}; padding: 14px; border-radius: 8px; text-align: center;">
             <div style="background-color: {res['alert_bg']}22; border: 1.5px solid {res['alert_bg']}; padding: 10px; border-radius: 6px; margin-top: 2px;">
                 <span style="color: {res['alert_bg']}; font-weight: 800; font-size: 17px;">{res['alert_badge']}</span><br>
                 <span style="color: {active_text}; font-size: 12.5px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">({int(res['cpri_score'])}/100)</span>
@@ -682,7 +678,6 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 4 Analytical Tabs
     t_scurve, t_shap, t_notice, t_whatif = st.tabs([
         "📊 S-Curve EVM", 
         "🔍 SHAP Root-Cause", 
@@ -769,7 +764,7 @@ Date: {current_date_str}
             recovered_saving_cr = (res['pred_cost_overrun_pct'] - recovered_cost) / 100.0 * max(0.0, res['inp_cost'])
             
             st.markdown(f"""
-            <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid {active_border};">
+            <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1.5px solid {active_border};">
                 <h5 style="color: #10B981; margin:0; font-weight: 700;">🎯 Interventional Recovery Projection:</h5>
                 <p style="margin-top: 8px; font-size: 13.5px; line-height: 1.6;">
                 • Recoverable Timeline: <b>{res['pred_delay_months'] - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
