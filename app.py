@@ -62,14 +62,13 @@ notice_border = "#38BDF8" if is_dark else "#0284C7"
 
 font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
-# 2. 4-Second Splash Animation Engine (Only on Initial Cold Start)
+# 2. 4-Second Splash Animation Engine with Seamless Logo Zoom-Out Transition
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
         st.markdown(f"""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-            /* Secure splash overlay ensuring top-right toolbar is completely hidden */
             header, [data-testid="stHeader"], [data-testid="stToolbar"], button[title="View source on GitHub"], a[href*="github.com"] {{
                 display: none !important;
                 visibility: hidden !important;
@@ -82,7 +81,7 @@ if "splash_done" not in st.session_state:
                 height: 80vh;
                 text-align: center;
                 font-family: 'Inter', sans-serif;
-                animation: fadeIn 1s ease-in-out;
+                animation: zoomOutBurst 4.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }}
             .splash-logo {{
                 font-size: 56px;
@@ -91,6 +90,7 @@ if "splash_done" not in st.session_state:
                 color: {active_accent};
                 text-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
                 margin-bottom: 8px;
+                animation: logoScale 4.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }}
             .splash-sub {{
                 font-size: 14px;
@@ -99,6 +99,7 @@ if "splash_done" not in st.session_state:
                 color: #94A3B8;
                 text-transform: uppercase;
                 margin-bottom: 25px;
+                animation: fadeSub 4.8s ease-in-out forwards;
             }}
             .splash-loader {{
                 width: 220px;
@@ -107,6 +108,7 @@ if "splash_done" not in st.session_state:
                 border-radius: 4px;
                 overflow: hidden;
                 position: relative;
+                animation: fadeSub 4.8s ease-in-out forwards;
             }}
             .splash-bar {{
                 width: 100%;
@@ -118,19 +120,32 @@ if "splash_done" not in st.session_state:
                 0% {{ transform: translateX(-100%); }}
                 100% {{ transform: translateX(0%); }}
             }}
-            @keyframes fadeIn {{
-                from {{ opacity: 0; transform: scale(0.95); }}
-                to {{ opacity: 1; transform: scale(1); }}
+            @keyframes logoScale {{
+                0% {{ transform: scale(0.9); opacity: 0; }}
+                20% {{ transform: scale(1); opacity: 1; }}
+                80% {{ transform: scale(1); opacity: 1; }}
+                100% {{ transform: scale(2.4); opacity: 0; filter: blur(8px); }}
+            }}
+            @keyframes fadeSub {{
+                0% {{ opacity: 0; }}
+                20% {{ opacity: 1; }}
+                80% {{ opacity: 1; }}
+                100% {{ opacity: 0; transform: translateY(15px); }}
+            }}
+            @keyframes zoomOutBurst {{
+                0% {{ opacity: 1; }}
+                80% {{ opacity: 1; }}
+                100% {{ opacity: 0; }}
             }}
         </style>
         <div class="splash-wrapper">
             <div class="splash-logo">🏛️ PAIMANA AI</div>
             <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Ingesting Multi-Quarter Flash Reports & Computing EVM Risks...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px; animation: fadeSub 4.8s ease-in-out forwards;">Ingesting Multi-Quarter Flash Reports & Computing EVM Risks...</p>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(4.0)
+        time.sleep(4.6)
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
