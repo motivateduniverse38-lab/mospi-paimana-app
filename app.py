@@ -15,32 +15,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# User Preference Settings State
-if "app_bg_theme" not in st.session_state:
-    st.session_state["app_bg_theme"] = "Dark Slate"
-if "app_accent_color" not in st.session_state:
-    st.session_state["app_accent_color"] = "Cyan Blue"
+# 1. User Preference Settings State
+if "app_theme_mode" not in st.session_state:
+    st.session_state["app_theme_mode"] = "Dark Slate"
+if "app_font_scale" not in st.session_state:
+    st.session_state["app_font_scale"] = "Standard (Default)"
 
-bg_map = {
-    "Dark Slate": "#0B0F19",
-    "Deep Midnight": "#050814",
-    "Pitch Black": "#000000"
-}
-accent_map = {
-    "Cyan Blue": "#38BDF8",
-    "Emerald Green": "#10B981",
-    "Amber Gold": "#F59E0B"
-}
+is_dark = st.session_state["app_theme_mode"] == "Dark Slate"
+active_bg = "#0B0F19" if is_dark else "#F8FAFC"
+active_card_bg = "#111827" if is_dark else "#FFFFFF"
+active_text = "#F8FAFC" if is_dark else "#0F172A"
+active_subtext = "#94A3B8" if is_dark else "#475569"
+active_border = "#1E293B" if is_dark else "#E2E8F0"
+active_accent = "#38BDF8" if is_dark else "#0284C7"
 
-active_bg = bg_map.get(st.session_state["app_bg_theme"], "#0B0F19")
-active_accent = accent_map.get(st.session_state["app_accent_color"], "#38BDF8")
+font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
-# 1. 4-Second Splash Animation Engine
+# 2. 4-Second Splash Animation Engine
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
         st.markdown(f"""
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
             .splash-wrapper {{
                 display: flex;
                 flex-direction: column;
@@ -48,20 +45,21 @@ if "splash_done" not in st.session_state:
                 align-items: center;
                 height: 80vh;
                 text-align: center;
+                font-family: 'Inter', sans-serif;
                 animation: fadeIn 1s ease-in-out;
             }}
             .splash-logo {{
-                font-size: 58px;
+                font-size: 56px;
                 font-weight: 900;
-                letter-spacing: 3px;
+                letter-spacing: 2px;
                 color: {active_accent};
-                text-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
+                text-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
                 margin-bottom: 8px;
             }}
             .splash-sub {{
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 700;
-                letter-spacing: 4px;
+                letter-spacing: 3px;
                 color: #94A3B8;
                 text-transform: uppercase;
                 margin-bottom: 25px;
@@ -91,19 +89,21 @@ if "splash_done" not in st.session_state:
         </style>
         <div class="splash-wrapper">
             <div class="splash-logo">🏛️ PAIMANA AI</div>
-            <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
+            <div class="splash-sub">Infrastructure Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Ingesting MoSPI PAIMANA Flash Reports & CPWD/GFR Framework...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Initializing CPWD/GFR Compliance & Model Workflows...</p>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(4.0)
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Custom High-Visibility & Cross-Platform Typography CSS
+# Custom Modern Typography & Ergonomic CSS
 st.markdown(f"""
 <style>
-    /* Complete Cloud Watermark & Code Access Suppression */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+    /* Hide Default Headers & Badges */
     #MainMenu {{visibility: hidden !important; display: none !important;}}
     header {{visibility: hidden !important; display: none !important;}}
     footer {{visibility: hidden !important; display: none !important;}}
@@ -115,154 +115,149 @@ st.markdown(f"""
     [data-testid="manage-app-button"] {{display: none !important; visibility: hidden !important;}}
     div[class*="viewerBadge"] {{display: none !important; visibility: hidden !important;}}
     div[class*="manage-app"] {{display: none !important; visibility: hidden !important;}}
-    .viewerBadge_container__1QSob {{display: none !important; visibility: hidden !important;}}
-    .styles_viewerBadge__CvC9N {{display: none !important; visibility: hidden !important;}}
-    [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
-    [data-testid="stDecoration"] {{display: none !important; visibility: hidden !important;}}
     section[data-testid="stSidebar"] {{display: none !important;}}
 
-    /* Global Dark Slate & High-Contrast Typography */
-    .stApp {{
+    /* Global Typography */
+    html, body, [class*="css"], .stApp {{
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: {font_base_size};
         background-color: {active_bg} !important;
-        color: #F8FAFC !important;
-    }}
-    
-    /* Input Labels: Make Pure White & Bold */
-    label, [data-testid="stWidgetLabel"] p {{
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
-        font-size: 13.5px !important;
-        letter-spacing: 0.3px !important;
+        color: {active_text} !important;
     }}
 
-    /* Text Inputs, Number Boxes & Selectboxes */
-    div[data-baseweb="input"] input, div[data-baseweb="select"] {{
-        color: #FFFFFF !important;
+    /* Input Labels */
+    label, [data-testid="stWidgetLabel"] p {{
+        color: {active_text} !important;
         font-weight: 700 !important;
-        background-color: #111827 !important;
+        font-size: 13px !important;
+        letter-spacing: 0.2px !important;
+        margin-bottom: 2px !important;
+    }}
+
+    /* Text & Number Inputs */
+    div[data-baseweb="input"] input, div[data-baseweb="select"] {{
+        color: {active_text} !important;
+        font-weight: 600 !important;
+        background-color: {active_card_bg} !important;
+        font-family: 'JetBrains Mono', monospace !important;
     }}
     div[data-baseweb="input"] {{
-        border: 1.5px solid #334155 !important;
-        border-radius: 6px !important;
+        border: 1px solid {active_border} !important;
+        border-radius: 8px !important;
     }}
 
-    /* High Visibility Solid Contrast Buttons */
+    /* Custom Buttons */
     .stButton button {{
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        font-weight: 800 !important;
+        background-color: {'#1E293B' if is_dark else '#FFFFFF'} !important;
+        color: {active_text} !important;
+        font-weight: 700 !important;
         font-size: 13px !important;
         border: 1.5px solid {active_accent} !important;
         border-radius: 8px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
         padding: 8px 14px !important;
-        transition: all 0.2s ease-in-out !important;
+        transition: all 0.2s ease !important;
     }}
     .stButton button:hover {{
         background-color: {active_accent} !important;
-        color: #0F172A !important;
-        border-color: #FFFFFF !important;
+        color: {'#0B0F19' if is_dark else '#FFFFFF'} !important;
+        border-color: {active_accent} !important;
     }}
 
     /* Brand Header */
     .brand-title {{
         text-align: center;
-        font-size: 34px;
+        font-size: 32px;
         font-weight: 900;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
         color: {active_accent};
-        text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-        margin-top: -10px;
+        margin-top: -12px;
         margin-bottom: 0px;
     }}
     .brand-subtitle {{
         text-align: center;
-        font-size: 12.5px;
+        font-size: 12px;
         font-weight: 700;
-        letter-spacing: 2.5px;
-        color: #94A3B8;
+        letter-spacing: 2px;
+        color: {active_subtext};
         text-transform: uppercase;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }}
 
     /* Section Headings */
     .section-title {{
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         color: {active_accent};
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 10px;
-        border-bottom: 2px solid #1E293B;
-        padding-bottom: 5px;
+        border-bottom: 2px solid {active_border};
+        padding-bottom: 4px;
     }}
 
-    /* Project Cards */
+    /* Inspection Card */
     .project-card-white {{
-        background-color: #FFFFFF;
+        background-color: {'#FFFFFF' if is_dark else '#FFFFFF'};
         color: #0F172A;
+        border: 1px solid {'#E2E8F0' if not is_dark else '#FFFFFF'};
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 12px;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }}
     .project-code-badge {{
         background-color: #064E3B;
         color: #34D399;
-        font-family: monospace;
+        font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 7px;
         border-radius: 4px;
         display: inline-block;
-        margin: 6px 0;
+        margin: 4px 0;
     }}
     .contractor-text {{
         color: #059669;
         font-weight: 800;
-        font-size: 13.5px;
-        margin-bottom: 8px;
-    }}
-    .metric-dot-row {{
-        color: #F8FAFC;
         font-size: 13px;
-        font-weight: 600;
         margin-bottom: 6px;
     }}
+    .metric-dot-row {{
+        color: {active_text};
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }}
     .metric-dot-green {{
-        color: #34D399;
+        color: #10B981;
         font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
     }}
 
-    /* Sliders styling */
-    .stSlider [data-baseweb="slider"] {{ color: #FFFFFF !important; }}
+    /* Slider Styling */
     div[data-testid="stThumbValue"] {{
-        color: #FFFFFF !important;
-        font-weight: 800 !important;
-        font-size: 13px !important;
-        background-color: #0F172A !important;
-        border: 1.5px solid {active_accent} !important;
-        padding: 2px 8px !important;
+        color: {active_text} !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        background-color: {active_card_bg} !important;
+        border: 1px solid {active_accent} !important;
+        padding: 2px 6px !important;
         border-radius: 6px !important;
     }}
     div[role="slider"] {{
         background-color: #EF4444 !important;
         border: 2px solid #FFFFFF !important;
     }}
-    div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {{
-        color: #94A3B8 !important;
-        font-weight: 700 !important;
-        font-size: 12px !important;
-    }}
 
     .sidebar-note {{
-        background-color: #0F172A;
-        border: 1px solid #1E293B;
+        background-color: {active_card_bg};
+        border: 1px solid {active_border};
         border-left: 3px solid {active_accent};
         padding: 8px 10px;
         border-radius: 6px;
         font-size: 11.5px;
-        color: #CBD5E1;
+        color: {active_subtext};
         margin-top: 8px;
         line-height: 1.4;
     }}
@@ -289,7 +284,7 @@ def load_data():
         except Exception:
             pass
             
-    # Default High-Precision Fallback Dataset
+    # Default Fallback Dataset
     return pd.DataFrame([
         {
             "State": "Bihar",
@@ -347,44 +342,6 @@ def load_data():
             "Land_Risk_Score": 8.5,
             "WPI_Inflation_Index": 118.20,
             "Site_Engineer": "Er. Chief Project Director, NHSRCL"
-        },
-        {
-            "State": "Delhi",
-            "District": "Delhi Central",
-            "Subdivision": "Civil Lines",
-            "Block": "Civil Lines",
-            "Package_ID": "MOSPI_702632",
-            "Project_Name": "Delhi Metro Rail Project Phase-IV (3 Priority Corridors)",
-            "Contractor_Name": "Delhi Metro Rail Corporation (DMRC)",
-            "Original_Cost_Cr": 24948.65,
-            "Original_Duration": 60,
-            "Elapsed_Months": 48,
-            "Cumulative_Spend_Cr": 21420.76,
-            "Physical_Progress_Pct": 83.46,
-            "Delayed_Milestones": 1,
-            "Revisions_Count": 0,
-            "Land_Risk_Score": 6.1,
-            "WPI_Inflation_Index": 112.40,
-            "Site_Engineer": "Er. Executive Director (Civil), DMRC"
-        },
-        {
-            "State": "Gujarat",
-            "District": "Kutch",
-            "Subdivision": "Bhuj",
-            "Block": "Khavda",
-            "Package_ID": "MOSPI_615347",
-            "Project_Name": "Transmission System Evacuation Potential RE Zone Khavda (8 GW Part A)",
-            "Contractor_Name": "POWERGRID West Central Transmission Ltd.",
-            "Original_Cost_Cr": 24819.00,
-            "Original_Duration": 48,
-            "Elapsed_Months": 18,
-            "Cumulative_Spend_Cr": 2978.28,
-            "Physical_Progress_Pct": 18.56,
-            "Delayed_Milestones": 2,
-            "Revisions_Count": 0,
-            "Land_Risk_Score": 5.4,
-            "WPI_Inflation_Index": 111.80,
-            "Site_Engineer": "Er. General Manager, PowerGrid Khavda"
         }
     ])
 
@@ -413,15 +370,17 @@ def load_ml_models():
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# State Management
+# State Initializations
 if 'selected_record' not in st.session_state:
     st.session_state['selected_record'] = None
 if 'ai_evaluated' not in st.session_state:
     st.session_state['ai_evaluated'] = False
 if 'projects_fetched' not in st.session_state:
     st.session_state['projects_fetched'] = False
+if 'cached_predictions' not in st.session_state:
+    st.session_state['cached_predictions'] = None
 
-# Top Header Layout with Styled Settings Popover
+# Top Header Layout with Simplified Clean Settings Popover
 header_col1, header_col2, header_col3 = st.columns([1, 8, 1.2])
 
 with header_col2:
@@ -429,23 +388,29 @@ with header_col2:
     st.markdown("<div class='brand-subtitle'>INFRASTRUCTURE ANALYSIS & PREDICTIVE COMPLIANCE ENGINE</div>", unsafe_allow_html=True)
 
 with header_col3:
-    with st.popover("⚙️ Settings (⋮)", use_container_width=True):
-        st.markdown("#### 🎨 Theme Customizer")
-        new_theme = st.selectbox("Background Style", list(bg_map.keys()), index=list(bg_map.keys()).index(st.session_state["app_bg_theme"]))
-        new_accent = st.selectbox("Accent Highlight", list(accent_map.keys()), index=list(accent_map.keys()).index(st.session_state["app_accent_color"]))
-        if new_theme != st.session_state["app_bg_theme"] or new_accent != st.session_state["app_accent_color"]:
-            st.session_state["app_bg_theme"] = new_theme
-            st.session_state["app_accent_color"] = new_accent
+    with st.popover("⚙️ Settings", use_container_width=True):
+        st.markdown("#### 🎨 Display Mode")
+        theme_options = ["Dark Slate", "Clean Light"]
+        curr_theme_idx = 0 if st.session_state["app_theme_mode"] == "Dark Slate" else 1
+        new_theme = st.radio("Interface Theme", theme_options, index=curr_theme_idx)
+        
+        st.markdown("#### 🔤 Font Sizing")
+        font_options = ["Standard (Default)", "Large (High-Legibility)"]
+        curr_font_idx = 0 if st.session_state["app_font_scale"] == "Standard (Default)" else 1
+        new_font = st.radio("Typography Scale", font_options, index=curr_font_idx)
+        
+        if new_theme != st.session_state["app_theme_mode"] or new_font != st.session_state["app_font_scale"]:
+            st.session_state["app_theme_mode"] = new_theme
+            st.session_state["app_font_scale"] = new_font
             st.rerun()
 
-# Responsive Main 3-Column Interface (Always Visible on Mobile & Desktop)
+# Responsive Main 3-Column Interface
 col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 
 # COLUMN 1: Dynamic Jurisdiction Selection Derived Directly from Data
 with col_geo:
     st.markdown("<div class='section-title'>📍 JURISDICTION SELECTION</div>", unsafe_allow_html=True)
     
-    # 1. State list strictly from data
     if "State" in paimana_df.columns:
         available_states = ["Select State"] + sorted([str(s) for s in paimana_df["State"].dropna().unique()])
     else:
@@ -454,7 +419,6 @@ with col_geo:
     default_state_idx = available_states.index("Bihar") if "Bihar" in available_states else 0
     selected_state = st.selectbox("1. State / UT", available_states, index=default_state_idx)
     
-    # 2. Districts strictly matching selected State
     if selected_state != "Select State" and "State" in paimana_df.columns:
         matched_state_df = paimana_df[paimana_df["State"].astype(str).str.lower() == selected_state.lower()]
         district_list = ["All Districts"] + sorted([str(d) for d in matched_state_df["District"].dropna().unique()])
@@ -463,7 +427,6 @@ with col_geo:
         
     selected_district = st.selectbox("2. District / Sector", district_list, index=0)
 
-    # 3. Blocks strictly matching selected District & State
     if selected_state != "Select State" and selected_district != "All Districts" and "State" in paimana_df.columns:
         matched_dist_df = paimana_df[
             (paimana_df["State"].astype(str).str.lower() == selected_state.lower()) &
@@ -527,7 +490,9 @@ with col_geo:
         st.session_state['box_rev'] = int(preset_rec['Revisions_Count'])
         st.session_state['sl_land'] = float(preset_rec['Land_Risk_Score'])
         st.session_state['sl_wpi'] = float(preset_rec['WPI_Inflation_Index'])
-        st.session_state['ai_evaluated'] = True
+        st.session_state['ai_evaluated'] = False
+        st.session_state['cached_predictions'] = None
+        st.rerun()
 
 # COLUMN 2: Details About Ongoing Projects
 with col_sec1:
@@ -537,7 +502,6 @@ with col_sec1:
     active_dist = st.session_state.get('active_district', selected_district)
     active_blk = st.session_state.get('active_block', selected_block)
     
-    # Filter dataset strictly matching active location
     temp_df = paimana_df.copy()
     if active_st != "Select State" and "State" in temp_df.columns:
         temp_df = temp_df[temp_df["State"].astype(str).str.lower() == active_st.lower()]
@@ -558,7 +522,7 @@ with col_sec1:
 
         st.markdown(f"""
         <div class="project-card-white">
-            <div style="font-size: 15px; font-weight: 800; color: #0284C7; line-height: 1.3;">
+            <div style="font-size: 14.5px; font-weight: 800; color: #0284C7; line-height: 1.3;">
                 📌 {active_row['Project_Name']}
             </div>
             <div><span class="project-code-badge">{active_row.get('Package_ID', 'MOSPI_PAIMANA_2026')}</span></div>
@@ -594,6 +558,7 @@ with col_sec1:
             st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
             st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
             st.session_state['ai_evaluated'] = False
+            st.session_state['cached_predictions'] = None
             st.rerun()
 
 # COLUMN 3: Predict Project Future Overview (Allows ANY user custom input or loaded data)
@@ -620,75 +585,97 @@ with col_sec2:
     if run_ai:
         with st.spinner("⏳ Executing EVM Equations & Machine Learning Predictions... (2s)"):
             time.sleep(2.0)
+        
+        # Calculate & Cache the exact frozen outputs
+        planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
+        schedule_variance_pct = inp_phys - planned_progress_pct
+        earned_value_cr = (inp_phys / 100.0) * inp_cost
+        cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
+        spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
+
+        if planned_progress_pct > inp_phys:
+            slippage_gap = (planned_progress_pct - inp_phys) / 100.0
+            pred_delay_months = max(0.0, slippage_gap * inp_duration + (inp_land - 5.0) * 0.4 + (inp_milestones * 0.8))
+        else:
+            pred_delay_months = max(0.0, (inp_land - 5.0) * 0.15)
+            
+        if cpi < 1.0:
+            pred_cost_overrun_pct = max(0.0, (1.0 - cpi) * 32.0 + max(0.0, (inp_wpi - 100.0) * 0.3) + (inp_revisions * 2.0))
+        else:
+            pred_cost_overrun_pct = max(0.0, (inp_wpi - 100.0) * 0.2)
+
+        predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
+        cost_escalation_cr = predicted_final_cost - inp_cost
+
+        cpri_score = min(100.0, max(0.0, 
+            (pred_delay_months / max(1, inp_duration)) * 40.0 + 
+            (pred_cost_overrun_pct * 0.35) + 
+            (inp_land * 2.2) + 
+            (inp_milestones * 2.5)
+        ))
+        
+        if cpri_score >= 60.0:
+            alert_badge = "🔴 Red Alert"
+            alert_bg = "#EF4444"
+        elif cpri_score >= 30.0:
+            alert_badge = "🟡 Amber Alert"
+            alert_bg = "#F59E0B"
+        else:
+            alert_badge = "🟢 Green On-Track"
+            alert_bg = "#10B981"
+
+        st.session_state['cached_predictions'] = {
+            "planned_progress_pct": planned_progress_pct,
+            "schedule_variance_pct": schedule_variance_pct,
+            "earned_value_cr": earned_value_cr,
+            "cpi": cpi,
+            "spi": spi,
+            "pred_delay_months": pred_delay_months,
+            "pred_cost_overrun_pct": pred_cost_overrun_pct,
+            "predicted_final_cost": predicted_final_cost,
+            "cost_escalation_cr": cost_escalation_cr,
+            "cpri_score": cpri_score,
+            "alert_badge": alert_badge,
+            "alert_bg": alert_bg,
+            "inp_cost": inp_cost,
+            "inp_phys": inp_phys,
+            "inp_spend": inp_spend,
+            "inp_land": inp_land,
+            "inp_wpi": inp_wpi,
+            "inp_milestones": inp_milestones
+        }
         st.session_state['ai_evaluated'] = True
 
-# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK (HANDLES LOADED OR USER CUSTOM DATA ACCURATELY)
-if st.session_state['ai_evaluated'] and inp_cost > 0:
-    planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
-    schedule_variance_pct = inp_phys - planned_progress_pct
-    earned_value_cr = (inp_phys / 100.0) * inp_cost
-    cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
-    spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
-
-    # Dynamic & Accurate Forecast Calculations based on user/project inputs
-    if planned_progress_pct > inp_phys:
-        slippage_gap = (planned_progress_pct - inp_phys) / 100.0
-        pred_delay_months = max(0.0, slippage_gap * inp_duration + (inp_land - 5.0) * 0.4 + (inp_milestones * 0.8))
-    else:
-        pred_delay_months = max(0.0, (inp_land - 5.0) * 0.15)
-        
-    if cpi < 1.0:
-        pred_cost_overrun_pct = max(0.0, (1.0 - cpi) * 32.0 + max(0.0, (inp_wpi - 100.0) * 0.3) + (inp_revisions * 2.0))
-    else:
-        pred_cost_overrun_pct = max(0.0, (inp_wpi - 100.0) * 0.2)
-
-    predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
-    cost_escalation_cr = predicted_final_cost - inp_cost
-
-    # Balanced CPRI Risk Index (Realistic Distribution: Green < 30, Amber 30-60, Red >= 60)
-    cpri_score = min(100.0, max(0.0, 
-        (pred_delay_months / max(1, inp_duration)) * 40.0 + 
-        (pred_cost_overrun_pct * 0.35) + 
-        (inp_land * 2.2) + 
-        (inp_milestones * 2.5)
-    ))
+# SHOW PREDICTION ONLY AFTER AI EVALUATION BUTTON CLICK (FROZEN UNTIL RE-RUN)
+if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] is not None:
+    res = st.session_state['cached_predictions']
     
-    if cpri_score >= 60.0:
-        alert_badge = "🔴 Red Alert"
-        alert_bg = "#EF4444"
-    elif cpri_score >= 30.0:
-        alert_badge = "🟡 Amber Alert"
-        alert_bg = "#F59E0B"
-    else:
-        alert_badge = "🟢 Green On-Track"
-        alert_bg = "#10B981"
-
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Risk Output Cards
     rc1, rc2, rc3 = st.columns([1, 1, 1.2])
     with rc1:
         st.markdown(f"""
-        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
-            <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Cost Overrun</span>
-            <div style="font-size: 26px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_cost_overrun_pct:.1f}%</div>
-            <span style="color: {'#EF4444' if pred_cost_overrun_pct > 15 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +₹{cost_escalation_cr:.1f} Cr</span>
+        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px;">
+            <span style="font-size: 11px; color: {active_subtext}; text-transform: uppercase; font-weight: 700;">Predicted Cost Overrun</span>
+            <div style="font-size: 26px; font-weight: 800; color: {active_text}; margin: 4px 0; font-family: 'JetBrains Mono', monospace;">{res['pred_cost_overrun_pct']:.1f}%</div>
+            <span style="color: {'#EF4444' if res['pred_cost_overrun_pct'] > 15 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +₹{res['cost_escalation_cr']:.1f} Cr</span>
         </div>
         """, unsafe_allow_html=True)
     with rc2:
         st.markdown(f"""
-        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px;">
-            <span style="font-size: 11px; color: #9CA3AF; text-transform: uppercase;">Predicted Schedule Delay</span>
-            <div style="font-size: 26px; font-weight: 800; color: #FFFFFF; margin: 4px 0;">{pred_delay_months:.1f} Months</div>
-            <span style="color: {'#EF4444' if pred_delay_months > 6 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +{pred_delay_months:.1f} M Delay</span>
+        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px;">
+            <span style="font-size: 11px; color: {active_subtext}; text-transform: uppercase; font-weight: 700;">Predicted Schedule Delay</span>
+            <div style="font-size: 26px; font-weight: 800; color: {active_text}; margin: 4px 0; font-family: 'JetBrains Mono', monospace;">{res['pred_delay_months']:.1f} Months</div>
+            <span style="color: {'#EF4444' if res['pred_delay_months'] > 6 else '#10B981'}; font-size: 13px; font-weight: 600;">↑ +{res['pred_delay_months']:.1f} M Delay</span>
         </div>
         """, unsafe_allow_html=True)
     with rc3:
         st.markdown(f"""
-        <div style="background-color: #111827; border: 1px solid #1F2937; padding: 14px; border-radius: 8px; text-align: center;">
-            <div style="background-color: {alert_bg}22; border: 1px solid {alert_bg}; padding: 10px; border-radius: 6px; margin-top: 2px;">
-                <span style="color: {alert_bg}; font-weight: 800; font-size: 17px;">{alert_badge}</span><br>
-                <span style="color: #E2E8F0; font-size: 12.5px; font-weight: 600;">({int(cpri_score)}/100)</span>
+        <div style="background-color: {active_card_bg}; border: 1px solid {active_border}; padding: 14px; border-radius: 8px; text-align: center;">
+            <div style="background-color: {res['alert_bg']}22; border: 1.5px solid {res['alert_bg']}; padding: 10px; border-radius: 6px; margin-top: 2px;">
+                <span style="color: {res['alert_bg']}; font-weight: 800; font-size: 17px;">{res['alert_badge']}</span><br>
+                <span style="color: {active_text}; font-size: 12.5px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">({int(res['cpri_score'])}/100)</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -705,22 +692,22 @@ if st.session_state['ai_evaluated'] and inp_cost > 0:
 
     with t_scurve:
         fig_s = go.Figure()
-        fig_s.add_trace(go.Bar(name='Planned Target (%)', x=['Schedule Horizon'], y=[planned_progress_pct], marker=dict(color=active_accent, line=dict(color='#0284C7', width=1.5)), width=0.35))
-        fig_s.add_trace(go.Bar(name='Actual Ground Progress (%)', x=['Schedule Horizon'], y=[inp_phys], marker=dict(color='#10B981', line=dict(color='#059669', width=1.5)), width=0.35))
-        fig_s.update_layout(barmode='group', template="plotly_dark", height=340, title="EVM Square Block Progress Benchmark (Planned vs On-Site Physical)", yaxis_title="Physical Completion (%)", yaxis=dict(range=[0, 100]), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(l=20, r=20, t=35, b=20))
+        fig_s.add_trace(go.Bar(name='Planned Target (%)', x=['Schedule Horizon'], y=[res['planned_progress_pct']], marker=dict(color=active_accent, line=dict(color='#0284C7', width=1.5)), width=0.35))
+        fig_s.add_trace(go.Bar(name='Actual Ground Progress (%)', x=['Schedule Horizon'], y=[res['inp_phys']], marker=dict(color='#10B981', line=dict(color='#059669', width=1.5)), width=0.35))
+        fig_s.update_layout(barmode='group', template="plotly_dark" if is_dark else "plotly_white", height=340, title="EVM Square Block Progress Benchmark (Planned vs On-Site Physical)", yaxis_title="Physical Completion (%)", yaxis=dict(range=[0, 100]), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(l=20, r=20, t=35, b=20))
         st.plotly_chart(fig_s, use_container_width=True)
 
     with t_shap:
         shap_factors = {
-            'Local Land Risk (RoW)': float(inp_land * 4.2),
-            'Front-Loading Cash Drift': float(max(0.0, (1.0 - cpi) * 35.0)),
-            'Delayed Milestones Carryover': float(inp_milestones * 6.5),
-            'WPI Material Inflation': float(max(0.0, (inp_wpi - 100.0) * 1.8)),
-            'Schedule Variance Lag (SV%)': float(abs(schedule_variance_pct) * 0.75)
+            'Local Land Risk (RoW)': float(res['inp_land'] * 4.2),
+            'Front-Loading Cash Drift': float(max(0.0, (1.0 - res['cpi']) * 35.0)),
+            'Delayed Milestones Carryover': float(res['inp_milestones'] * 6.5),
+            'WPI Material Inflation': float(max(0.0, (res['inp_wpi'] - 100.0) * 1.8)),
+            'Schedule Variance Lag (SV%)': float(abs(res['schedule_variance_pct']) * 0.75)
         }
         shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Parameter', 'Weight (%)']).sort_values(by='Weight (%)', ascending=True)
         fig_bar = px.bar(shap_df, x='Weight (%)', y='Parameter', orientation='h', color='Weight (%)', color_continuous_scale='Reds')
-        fig_bar.update_layout(template="plotly_dark", height=320, margin=dict(l=20, r=20, t=20, b=20))
+        fig_bar.update_layout(template="plotly_dark" if is_dark else "plotly_white", height=320, margin=dict(l=20, r=20, t=20, b=20))
         st.plotly_chart(fig_bar, use_container_width=True)
 
     with t_notice:
@@ -743,9 +730,9 @@ Subject: Notice related to critical schedule slippage and breach of baseline mil
 
 Dear Sir/Madam,
 
-I hope this letter finds you well. I am writing this to formally notify you about serious concerns regarding the ongoing construction activities occurring at your work site for "{proj_title}" located within {selected_block}, {active_dist_name}, {active_st_name}, India. Based on our departmental inspection and verified data appraisal conducted via the MoSPI InfraDrishti-AI Framework, it is established that the actual on-site progress ({inp_phys:.2f}%) has substantially deviated from the approved baseline target ({planned_progress_pct:.2f}%), resulting in an unacceptable negative Schedule Variance of {schedule_variance_pct:.2f}% and an estimated slippage of +{pred_delay_months:.1f} Months.
+I hope this letter finds you well. I am writing this to formally notify you about serious concerns regarding the ongoing construction activities occurring at your work site for "{proj_title}" located within {selected_block}, {active_dist_name}, {active_st_name}, India. Based on our departmental inspection and verified data appraisal conducted via the MoSPI InfraDrishti-AI Framework, it is established that the actual on-site progress ({res['inp_phys']:.2f}%) has substantially deviated from the approved baseline target ({res['planned_progress_pct']:.2f}%), resulting in an unacceptable negative Schedule Variance of {res['schedule_variance_pct']:.2f}% and an estimated slippage of +{res['pred_delay_months']:.1f} Months.
 
-This execution failure directly violates Clause 2 (Compensation for Delay) and Clause 3 of the Standard CPWD Works Manual Contract Agreement, read in conjunction with Rule 130 of General Financial Rules (GFR 2017) regarding the timely utilization of public funds and physical milestone adherence. Furthermore, the recorded Cost Performance Index (CPI) of {cpi:.2f} indicates front-loading of disbursed funds (₹{inp_spend:.2f} Cr spend out of ₹{inp_cost:.2f} Cr sanctioned) without corresponding physical delivery, creating potential fiscal distress and substantial delay to the public interest.
+This execution failure directly violates Clause 2 (Compensation for Delay) and Clause 3 of the Standard CPWD Works Manual Contract Agreement, read in conjunction with Rule 130 of General Financial Rules (GFR 2017) regarding the timely utilization of public funds and physical milestone adherence. Furthermore, the recorded Cost Performance Index (CPI) of {res['cpi']:.2f} indicates front-loading of disbursed funds (₹{res['inp_spend']:.2f} Cr spend out of ₹{res['inp_cost']:.2f} Cr sanctioned) without corresponding physical delivery, creating potential fiscal distress and substantial delay to the public interest.
 
 Further, the slow mobilization of machinery and recurring milestone carryovers have directly contradicted the approved PERT/CPM schedule set forth by this monitoring authority. This continued disregard for statutory delivery timelines is unacceptable and warrants immediate corrective intervention. Taking into consideration the aforementioned pointers, you are hereby directed to submit an escalated catch-up recovery schedule and deploy augmented double-shift resources immediately. Further, if this matter is not resolved and adequate cause is not shown in writing within 14 days from the date of issuance of this notice, we will be left with no choice but to levy statutory Liquidated Damages @ 1.0% per month under CPWD Clause 2 and escalate the matter for penal determination of the contract.
 
@@ -777,15 +764,15 @@ Date: {current_date_str}
             sim_land_reduction = st.slider("Expedite Land RoW Clearance (Risk Score Reduction)", 0.0, 5.0, 2.5, 0.5, key="sim_land")
             sim_fund_infusion = st.slider("Mobilization Advance Recovery (%)", 0, 30, 10, 5, key="sim_fund")
         with sim_c2:
-            recovered_delay = max(0.5, pred_delay_months - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
-            recovered_cost = max(1.0, pred_cost_overrun_pct - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
-            recovered_saving_cr = (pred_cost_overrun_pct - recovered_cost) / 100.0 * max(0.0, inp_cost)
+            recovered_delay = max(0.5, res['pred_delay_months'] - (sim_land_reduction * 1.1) - (sim_fund_infusion * 0.08))
+            recovered_cost = max(1.0, res['pred_cost_overrun_pct'] - (sim_land_reduction * 1.8) - (sim_fund_infusion * 0.35))
+            recovered_saving_cr = (res['pred_cost_overrun_pct'] - recovered_cost) / 100.0 * max(0.0, res['inp_cost'])
             
             st.markdown(f"""
-            <div style="background-color: #111827; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid #1F2937;">
-                <h5 style="color: #10B981; margin:0;">🎯 Interventional Recovery Projection:</h5>
-                <p style="margin-top: 8px; font-size: 14px;">
-                • Recoverable Timeline: <b>{pred_delay_months - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
+            <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid {active_border};">
+                <h5 style="color: #10B981; margin:0; font-weight: 700;">🎯 Interventional Recovery Projection:</h5>
+                <p style="margin-top: 8px; font-size: 13.5px; line-height: 1.6;">
+                • Recoverable Timeline: <b>{res['pred_delay_months'] - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
                 • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
                 • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
                 </p>
