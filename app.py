@@ -31,7 +31,9 @@ active_subtext = "#94A3B8" if is_dark else "#475569"
 active_border = "#334155" if is_dark else "#CBD5E1"
 active_accent = "#38BDF8" if is_dark else "#0284C7"
 
-# Tab and Notice High-Contrast Settings
+# High-Contrast Settings for Plots & Notices
+plot_text_color = "#F8FAFC" if is_dark else "#0F172A"
+plot_grid_color = "#1E293B" if is_dark else "#E2E8F0"
 tab_text_color = "#FFFFFF" if is_dark else "#0F172A"
 notice_bg = "#030712" if is_dark else "#FFFFFF"
 notice_text = "#F8FAFC" if is_dark else "#0F172A"
@@ -106,7 +108,7 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# 3. Dynamic Contrast-Enforced Theme CSS
+# 3. Universal High-Contrast Dynamic CSS
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -388,7 +390,7 @@ def load_ml_models():
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# State Management for Fresh State on Browser Reload
+# State Initializations
 if 'selected_record' not in st.session_state:
     st.session_state['selected_record'] = None
 if 'ai_evaluated' not in st.session_state:
@@ -585,7 +587,7 @@ with col_sec1:
                 st.session_state['cached_predictions'] = None
                 st.rerun()
 
-# COLUMN 3: Predict Project Future Overview
+# COLUMN 3: Predict Project Future Overview (Clean Slate Defaults on Fresh Load)
 rec = st.session_state.get('selected_record') or {}
 
 with col_sec2:
@@ -593,12 +595,12 @@ with col_sec2:
     
     s2_col1, s2_col2 = st.columns(2)
     with s2_col1:
-        inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 150.00))), min_value=0.01, key="inp_cost")
-        inp_duration = st.number_input("Duration (Months)", value=int(st.session_state.get('inp_dur', rec.get('Original_Duration', 24))), min_value=1, key="inp_dur")
-        inp_elapsed = st.number_input("Elapsed (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 6))), min_value=1, key="inp_elap")
-        inp_spend = st.number_input("Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 35.00))), min_value=0.0, key="inp_sp")
+        inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 0.00))), min_value=0.0, key="inp_cost")
+        inp_duration = st.number_input("Duration (Months)", value=int(st.session_state.get('inp_dur', rec.get('Original_Duration', 0))), min_value=0, key="inp_dur")
+        inp_elapsed = st.number_input("Elapsed (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 0))), min_value=0, key="inp_elap")
+        inp_spend = st.number_input("Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 0.00))), min_value=0.0, key="inp_sp")
     with s2_col2:
-        inp_phys = st.number_input("Progress (%)", min_value=0.0, max_value=100.0, value=float(st.session_state.get('box_phys', rec.get('Physical_Progress_Pct', 25.00))), key="box_phys")
+        inp_phys = st.number_input("Progress (%)", min_value=0.0, max_value=100.0, value=float(st.session_state.get('box_phys', rec.get('Physical_Progress_Pct', 0.00))), key="box_phys")
         inp_milestones = st.number_input("Delayed M/S", min_value=0, max_value=20, value=int(st.session_state.get('box_ms', rec.get('Delayed_Milestones', 0))), key="box_ms")
         inp_revisions = st.number_input("Revisions", min_value=0, max_value=10, value=int(st.session_state.get('box_rev', rec.get('Revisions_Count', 0))), key="box_rev")
         
@@ -607,69 +609,72 @@ with col_sec2:
 
     run_ai = st.button("⚡ Run AI Prediction & Risk Analysis (Enter ↵)", use_container_width=True)
     if run_ai:
-        with st.spinner("⏳ Executing EVM Equations & Machine Learning Predictions... (2s)"):
-            time.sleep(2.0)
-        
-        planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
-        schedule_variance_pct = inp_phys - planned_progress_pct
-        earned_value_cr = (inp_phys / 100.0) * inp_cost
-        cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
-        spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
-
-        if planned_progress_pct > inp_phys:
-            slippage_gap = (planned_progress_pct - inp_phys) / 100.0
-            pred_delay_months = max(0.0, slippage_gap * inp_duration + (inp_land - 5.0) * 0.4 + (inp_milestones * 0.8))
+        if inp_cost <= 0.0 or inp_duration <= 0:
+            st.warning("⚠️ Please enter a valid Project Cost (> 0) and Duration (> 0) or Load a project first.")
         else:
-            pred_delay_months = max(0.0, (inp_land - 5.0) * 0.15)
+            with st.spinner("⏳ Executing EVM Equations & Machine Learning Predictions... (2s)"):
+                time.sleep(2.0)
             
-        if cpi < 1.0:
-            pred_cost_overrun_pct = max(0.0, (1.0 - cpi) * 32.0 + max(0.0, (inp_wpi - 100.0) * 0.3) + (inp_revisions * 2.0))
-        else:
-            pred_cost_overrun_pct = max(0.0, (inp_wpi - 100.0) * 0.2)
+            planned_progress_pct = min(100.0, (inp_elapsed / max(1, inp_duration)) * 100.0)
+            schedule_variance_pct = inp_phys - planned_progress_pct
+            earned_value_cr = (inp_phys / 100.0) * inp_cost
+            cpi = earned_value_cr / max(0.01, inp_spend) if inp_spend > 0 else 1.0
+            spi = inp_phys / max(0.01, planned_progress_pct) if planned_progress_pct > 0 else 1.0
 
-        predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
-        cost_escalation_cr = predicted_final_cost - inp_cost
+            if planned_progress_pct > inp_phys:
+                slippage_gap = (planned_progress_pct - inp_phys) / 100.0
+                pred_delay_months = max(0.0, slippage_gap * inp_duration + (inp_land - 5.0) * 0.4 + (inp_milestones * 0.8))
+            else:
+                pred_delay_months = max(0.0, (inp_land - 5.0) * 0.15)
+                
+            if cpi < 1.0:
+                pred_cost_overrun_pct = max(0.0, (1.0 - cpi) * 32.0 + max(0.0, (inp_wpi - 100.0) * 0.3) + (inp_revisions * 2.0))
+            else:
+                pred_cost_overrun_pct = max(0.0, (inp_wpi - 100.0) * 0.2)
 
-        cpri_score = min(100.0, max(0.0, 
-            (pred_delay_months / max(1, inp_duration)) * 40.0 + 
-            (pred_cost_overrun_pct * 0.35) + 
-            (inp_land * 2.2) + 
-            (inp_milestones * 2.5)
-        ))
-        
-        if cpri_score >= 60.0:
-            alert_badge = "🔴 Red Alert"
-            alert_bg = "#EF4444"
-        elif cpri_score >= 30.0:
-            alert_badge = "🟡 Amber Alert"
-            alert_bg = "#F59E0B"
-        else:
-            alert_badge = "🟢 Green On-Track"
-            alert_bg = "#10B981"
+            predicted_final_cost = inp_cost * (1.0 + (pred_cost_overrun_pct / 100.0))
+            cost_escalation_cr = predicted_final_cost - inp_cost
 
-        st.session_state['cached_predictions'] = {
-            "planned_progress_pct": planned_progress_pct,
-            "schedule_variance_pct": schedule_variance_pct,
-            "earned_value_cr": earned_value_cr,
-            "cpi": cpi,
-            "spi": spi,
-            "pred_delay_months": pred_delay_months,
-            "pred_cost_overrun_pct": pred_cost_overrun_pct,
-            "predicted_final_cost": predicted_final_cost,
-            "cost_escalation_cr": cost_escalation_cr,
-            "cpri_score": cpri_score,
-            "alert_badge": alert_badge,
-            "alert_bg": alert_bg,
-            "inp_cost": inp_cost,
-            "inp_phys": inp_phys,
-            "inp_spend": inp_spend,
-            "inp_land": inp_land,
-            "inp_wpi": inp_wpi,
-            "inp_milestones": inp_milestones
-        }
-        st.session_state['ai_evaluated'] = True
+            cpri_score = min(100.0, max(0.0, 
+                (pred_delay_months / max(1, inp_duration)) * 40.0 + 
+                (pred_cost_overrun_pct * 0.35) + 
+                (inp_land * 2.2) + 
+                (inp_milestones * 2.5)
+            ))
+            
+            if cpri_score >= 60.0:
+                alert_badge = "🔴 Red Alert"
+                alert_bg = "#EF4444"
+            elif cpri_score >= 30.0:
+                alert_badge = "🟡 Amber Alert"
+                alert_bg = "#F59E0B"
+            else:
+                alert_badge = "🟢 Green On-Track"
+                alert_bg = "#10B981"
 
-# OUTPUT VISUALIZATION (FROZEN STATE)
+            st.session_state['cached_predictions'] = {
+                "planned_progress_pct": planned_progress_pct,
+                "schedule_variance_pct": schedule_variance_pct,
+                "earned_value_cr": earned_value_cr,
+                "cpi": cpi,
+                "spi": spi,
+                "pred_delay_months": pred_delay_months,
+                "pred_cost_overrun_pct": pred_cost_overrun_pct,
+                "predicted_final_cost": predicted_final_cost,
+                "cost_escalation_cr": cost_escalation_cr,
+                "cpri_score": cpri_score,
+                "alert_badge": alert_badge,
+                "alert_bg": alert_bg,
+                "inp_cost": inp_cost,
+                "inp_phys": inp_phys,
+                "inp_spend": inp_spend,
+                "inp_land": inp_land,
+                "inp_wpi": inp_wpi,
+                "inp_milestones": inp_milestones
+            }
+            st.session_state['ai_evaluated'] = True
+
+# OUTPUT VISUALIZATION (FROZEN STATE & COMPLETE CONTRAST)
 if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] is not None:
     res = st.session_state['cached_predictions']
     
@@ -720,12 +725,13 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
             template="plotly_dark" if is_dark else "plotly_white",
             paper_bgcolor=active_card_bg,
             plot_bgcolor=active_card_bg,
-            font=dict(color=active_text),
+            font=dict(color=plot_text_color, family="Inter"),
+            xaxis=dict(tickfont=dict(color=plot_text_color, size=12), gridcolor=plot_grid_color),
+            yaxis=dict(tickfont=dict(color=plot_text_color, size=12), title_font=dict(color=plot_text_color, size=13), range=[0, 100], gridcolor=plot_grid_color),
             height=340,
-            title="EVM Progress Benchmark (Planned vs Actual Physical %)",
+            title=dict(text="EVM Progress Benchmark (Planned vs Actual Physical %)", font=dict(color=plot_text_color, size=14)),
             yaxis_title="Physical Completion (%)",
-            yaxis=dict(range=[0, 100]),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color=plot_text_color)),
             margin=dict(l=20, r=20, t=35, b=20)
         )
         st.plotly_chart(fig_s, use_container_width=True)
@@ -744,7 +750,9 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
             template="plotly_dark" if is_dark else "plotly_white",
             paper_bgcolor=active_card_bg,
             plot_bgcolor=active_card_bg,
-            font=dict(color=active_text),
+            font=dict(color=plot_text_color, family="Inter"),
+            xaxis=dict(tickfont=dict(color=plot_text_color, size=12), title_font=dict(color=plot_text_color, size=13), gridcolor=plot_grid_color),
+            yaxis=dict(tickfont=dict(color=plot_text_color, size=12, family="Inter"), title_font=dict(color=plot_text_color, size=13)),
             height=320,
             margin=dict(l=20, r=20, t=20, b=20)
         )
@@ -753,7 +761,7 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
     with t_notice:
         active_st_name = st.session_state.get('active_state', selected_state)
         active_dist_name = st.session_state.get('active_district', selected_district)
-        proj_title = rec.get('Project_Name', 'Registered Works Package')
+        proj_title = rec.get('Project_Name', 'Custom Evaluated Project Package')
         pkg_code = rec.get('Package_ID', f"MOSPI_{active_st_name[:3].upper()}_2026_098")
         contractor = rec.get('Contractor_Name', 'M/S Executing Agency Pvt Ltd')
         officer = rec.get('Site_Engineer', 'Er. Executive Engineer (Infrastructure Works)')
