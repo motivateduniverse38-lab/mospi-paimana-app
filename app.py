@@ -282,16 +282,31 @@ st.markdown(f"""
         line-height: 1.6 !important;
     }}
 
-    /* Provenance Box */
-    .provenance-card {{
+    /* Notice & Notes Box Styles */
+    .sidebar-note {{
         background-color: {active_card_bg};
         border: 1px solid {active_border};
         border-left: 3.5px solid {active_accent};
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        color: {active_subtext} !important;
+        margin-top: 8px;
+        line-height: 1.4;
+    }}
+    .sidebar-note b {{
+        color: {active_accent} !important;
+    }}
+
+    .provenance-card {{
+        background-color: {active_card_bg};
+        border: 1px solid {active_border};
+        border-left: 3.5px solid #10B981;
         padding: 10px 12px;
         border-radius: 8px;
         font-size: 11.5px;
         color: {active_text} !important;
-        margin-top: 10px;
+        margin-top: 8px;
         line-height: 1.45;
     }}
     .provenance-card b {{
@@ -415,12 +430,12 @@ if 'projects_fetched' not in st.session_state:
 if 'cached_predictions' not in st.session_state:
     st.session_state['cached_predictions'] = None
 
-if "sel_state_val" not in st.session_state:
-    st.session_state["sel_state_val"] = "Select State"
-if "sel_dist_val" not in st.session_state:
-    st.session_state["sel_dist_val"] = "All Districts"
-if "sel_block_val" not in st.session_state:
-    st.session_state["sel_block_val"] = "All Blocks / Divisions"
+if "loc_state" not in st.session_state:
+    st.session_state["loc_state"] = "Select State"
+if "loc_dist" not in st.session_state:
+    st.session_state["loc_dist"] = "All Districts"
+if "loc_block" not in st.session_state:
+    st.session_state["loc_block"] = "All Blocks / Divisions"
 
 # Top Header Layout with Settings Popover
 header_col1, header_col2, header_col3 = st.columns([1, 8, 1.2])
@@ -453,27 +468,30 @@ col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 with col_geo:
     st.markdown("<div class='section-title'>📍 JURISDICTION SELECTION</div>", unsafe_allow_html=True)
     
+    # 1. State selectbox synced to session_state['loc_state']
     if "State" in paimana_df.columns:
         available_states = ["Select State"] + sorted([str(s) for s in paimana_df["State"].dropna().unique()])
     else:
         available_states = ["Select State", "Bihar"]
         
-    state_curr = st.session_state.get("sel_state_val", "Select State")
-    state_idx = available_states.index(state_curr) if state_curr in available_states else 0
-    selected_state = st.selectbox("1. State / UT", available_states, index=state_idx, key="sel_state_box")
-    st.session_state["sel_state_val"] = selected_state
+    curr_state_target = st.session_state.get("loc_state", "Select State")
+    state_idx = available_states.index(curr_state_target) if curr_state_target in available_states else 0
+    selected_state = st.selectbox("1. State / UT", available_states, index=state_idx)
+    st.session_state["loc_state"] = selected_state
     
+    # 2. District selectbox synced to session_state['loc_dist']
     if selected_state != "Select State" and "State" in paimana_df.columns:
         matched_state_df = paimana_df[paimana_df["State"].astype(str).str.lower() == selected_state.lower()]
         district_list = ["All Districts"] + sorted([str(d) for d in matched_state_df["District"].dropna().unique()])
     else:
         district_list = ["All Districts"]
         
-    dist_curr = st.session_state.get("sel_dist_val", "All Districts")
-    dist_idx = district_list.index(dist_curr) if dist_curr in district_list else 0
-    selected_district = st.selectbox("2. District / Sector", district_list, index=dist_idx, key="sel_dist_box")
-    st.session_state["sel_dist_val"] = selected_district
+    curr_dist_target = st.session_state.get("loc_dist", "All Districts")
+    dist_idx = district_list.index(curr_dist_target) if curr_dist_target in district_list else 0
+    selected_district = st.selectbox("2. District / Sector", district_list, index=dist_idx)
+    st.session_state["loc_dist"] = selected_district
 
+    # 3. Block selectbox synced to session_state['loc_block']
     if selected_state != "Select State" and selected_district != "All Districts" and "State" in paimana_df.columns:
         matched_dist_df = paimana_df[
             (paimana_df["State"].astype(str).str.lower() == selected_state.lower()) &
@@ -483,10 +501,10 @@ with col_geo:
     else:
         block_list = ["All Blocks / Divisions"]
         
-    block_curr = st.session_state.get("sel_block_val", "All Blocks / Divisions")
-    block_idx = block_list.index(block_curr) if block_curr in block_list else 0
-    selected_block = st.selectbox("3. Block / Sub-Division", block_list, index=block_idx, key="sel_block_box")
-    st.session_state["sel_block_val"] = selected_block
+    curr_block_target = st.session_state.get("loc_block", "All Blocks / Divisions")
+    block_idx = block_list.index(curr_block_target) if curr_block_target in block_list else 0
+    selected_block = st.selectbox("3. Block / Sub-Division", block_list, index=block_idx)
+    st.session_state["loc_block"] = selected_block
 
     fetch_btn = st.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
     if fetch_btn:
@@ -502,7 +520,14 @@ with col_geo:
 
     demo_btn = st.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
     
-    # 3. Bottom-Left Audit Provenance Note Box
+    # Note Box 1: Demo Utility Note
+    st.markdown("""
+    <div class="sidebar-note">
+        <b>📌 Note:</b> Agar aap manually data nahi daalna chahte hain, toh aap is app ko is demo ke zariye instant check kar sakte hain. Real-time ingestion enabled across MoSPI PAIMANA Flash Reports & PMGSY datasets.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Note Box 2: Data Provenance & Calculation Transparency
     st.markdown(f"""
     <div class="provenance-card">
         <b>🏛️ Data Provenance & Calculation Transparency:</b><br>
@@ -535,12 +560,16 @@ with col_geo:
         }
         st.session_state['selected_record'] = preset_rec
         st.session_state['projects_fetched'] = True
-        st.session_state['sel_state_val'] = "Bihar"
-        st.session_state['sel_dist_val'] = "East Champaran"
-        st.session_state['sel_block_val'] = "Motihari Sadar"
+        
+        # Synchronize Location Dropdowns
+        st.session_state['loc_state'] = "Bihar"
+        st.session_state['loc_dist'] = "East Champaran"
+        st.session_state['loc_block'] = "Motihari Sadar"
         st.session_state['active_state'] = "Bihar"
         st.session_state['active_district'] = "East Champaran"
         st.session_state['active_block'] = "Motihari Sadar"
+        
+        # Load Section 2 Inputs
         st.session_state['inp_cost'] = float(preset_rec['Original_Cost_Cr'])
         st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
         st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
