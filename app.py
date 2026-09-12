@@ -15,6 +15,27 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# 0. Global Security CSS Injection to completely remove Streamlit GitHub toolbar & Menus
+st.markdown("""
+<style>
+    /* Completely hide Streamlit Header, Toolbar, GitHub Badges & Manage App */
+    #MainMenu {visibility: hidden !important; display: none !important;}
+    header {visibility: hidden !important; display: none !important;}
+    footer {visibility: hidden !important; display: none !important;}
+    [data-testid="stHeader"] {display: none !important; visibility: hidden !important;}
+    [data-testid="stToolbar"] {display: none !important; visibility: hidden !important;}
+    .stAppDeployButton {display: none !important; visibility: hidden !important;}
+    button[title="View source on GitHub"] {display: none !important; visibility: hidden !important;}
+    a[href*="github.com"] {display: none !important; visibility: hidden !important;}
+    [data-testid="manage-app-button"] {display: none !important; visibility: hidden !important;}
+    div[class*="viewerBadge"] {display: none !important; visibility: hidden !important;}
+    div[class*="manage-app"] {display: none !important; visibility: hidden !important;}
+    div[class*="stDecoration"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important;}
+    section[data-testid="stSidebar"] {display: none !important;}
+</style>
+""", unsafe_allow_html=True)
+
 # 1. User Preference Settings State
 if "app_theme_mode" not in st.session_state:
     st.session_state["app_theme_mode"] = "Dark Slate"
@@ -48,6 +69,11 @@ if "splash_done" not in st.session_state:
         st.markdown(f"""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+            /* Secure splash overlay ensuring top-right toolbar is completely hidden */
+            header, [data-testid="stHeader"], [data-testid="stToolbar"], button[title="View source on GitHub"], a[href*="github.com"] {{
+                display: none !important;
+                visibility: hidden !important;
+            }}
             .splash-wrapper {{
                 display: flex;
                 flex-direction: column;
@@ -93,7 +119,7 @@ if "splash_done" not in st.session_state:
                 100% {{ transform: translateX(0%); }}
             }}
             @keyframes fadeIn {{
-                from {{ opacity: 1; transform: scale(0.95); }}
+                from {{ opacity: 0; transform: scale(0.95); }}
                 to {{ opacity: 1; transform: scale(1); }}
             }}
         </style>
@@ -112,19 +138,6 @@ if "splash_done" not in st.session_state:
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
-
-    #MainMenu {{visibility: hidden !important; display: none !important;}}
-    header {{visibility: hidden !important; display: none !important;}}
-    footer {{visibility: hidden !important; display: none !important;}}
-    [data-testid="stHeader"] {{display: none !important;}}
-    [data-testid="stToolbar"] {{display: none !important;}}
-    .stAppDeployButton {{display: none !important;}}
-    button[title="View source on GitHub"] {{display: none !important;}}
-    a[href*="github.com"] {{display: none !important;}}
-    [data-testid="manage-app-button"] {{display: none !important; visibility: hidden !important;}}
-    div[class*="viewerBadge"] {{display: none !important; visibility: hidden !important;}}
-    div[class*="manage-app"] {{display: none !important; visibility: hidden !important;}}
-    section[data-testid="stSidebar"] {{display: none !important;}}
 
     html, body, [class*="css"], .stApp {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -300,7 +313,7 @@ st.markdown(f"""
         color: {active_accent} !important;
     }}
 
-    /* RCA Table Custom Styling */
+    /* English RCA Table Custom Styling */
     .rca-table-container {{
         background-color: {active_card_bg};
         border: 1.5px solid {active_border};
@@ -524,7 +537,6 @@ col_geo, col_sec1, col_sec2 = st.columns([0.85, 1.1, 1.05], gap="medium")
 with col_geo:
     st.markdown("<div class='section-title'>📍 JURISDICTION SELECTION</div>", unsafe_allow_html=True)
     
-    # 1. State selectbox synced to session_state['loc_state']
     if "State" in paimana_df.columns:
         available_states = ["Select State"] + sorted([str(s) for s in paimana_df["State"].dropna().unique()])
     else:
@@ -535,7 +547,6 @@ with col_geo:
     selected_state = st.selectbox("1. State / UT", available_states, index=state_idx)
     st.session_state["loc_state"] = selected_state
     
-    # 2. District selectbox synced to session_state['loc_dist']
     if selected_state != "Select State" and "State" in paimana_df.columns:
         matched_state_df = paimana_df[paimana_df["State"].astype(str).str.lower() == selected_state.lower()]
         district_list = ["All Districts"] + sorted([str(d) for d in matched_state_df["District"].dropna().unique()])
@@ -547,7 +558,6 @@ with col_geo:
     selected_district = st.selectbox("2. District / Sector", district_list, index=dist_idx)
     st.session_state["loc_dist"] = selected_district
 
-    # 3. Block selectbox synced to session_state['loc_block']
     if selected_state != "Select State" and selected_district != "All Districts" and "State" in paimana_df.columns:
         matched_dist_df = paimana_df[
             (paimana_df["State"].astype(str).str.lower() == selected_state.lower()) &
@@ -576,14 +586,12 @@ with col_geo:
 
     demo_btn = st.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
     
-    # Note Box 1: Demo Utility Note
     st.markdown("""
     <div class="sidebar-note">
         <b>📌 Note:</b> Agar aap manually data nahi daalna chahte hain, toh aap is app ko is demo ke zariye instant check kar sakte hain. Real-time ingestion enabled across MoSPI PAIMANA Flash Reports (April, May, June & July 2026) & PMGSY datasets.
     </div>
     """, unsafe_allow_html=True)
 
-    # Note Box 2: Data Provenance & Calculation Transparency
     st.markdown(f"""
     <div class="provenance-card">
         <b>🏛️ Data Provenance & Calculation Transparency:</b><br>
@@ -617,7 +625,6 @@ with col_geo:
         st.session_state['selected_record'] = preset_rec
         st.session_state['projects_fetched'] = True
         
-        # Synchronize Location Dropdowns
         st.session_state['loc_state'] = "Bihar"
         st.session_state['loc_dist'] = "East Champaran"
         st.session_state['loc_block'] = "Motihari Sadar"
@@ -625,7 +632,6 @@ with col_geo:
         st.session_state['active_district'] = "East Champaran"
         st.session_state['active_block'] = "Motihari Sadar"
         
-        # Load Section 2 Inputs
         st.session_state['inp_cost'] = float(preset_rec['Original_Cost_Cr'])
         st.session_state['inp_dur'] = int(preset_rec['Original_Duration'])
         st.session_state['inp_elap'] = int(preset_rec['Elapsed_Months'])
@@ -881,35 +887,35 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
         )
         st.plotly_chart(fig_bar, use_container_width=True)
 
-        # Clean 3-Column Root Cause Analysis Table
+        # Clean 3-Column Root Cause Analysis Table (in English)
         st.markdown(f"""
         <div class="rca-table-container">
             <div style="font-weight: 800; font-size: 13.5px; color: {active_accent}; margin-bottom: 8px;">
-                🔍 Root Cause Analysis (RCA) Summary Table
+                🔍 Root Cause Analysis (RCA) Diagnostic Summary
             </div>
             <table class="rca-table">
                 <thead>
                     <tr>
-                        <th style="width: 28%;">1. वर्तमान समस्या (Symptom/Problem)</th>
-                        <th style="width: 36%;">2. असली जड़ (Root Cause via 5-Whys)</th>
-                        <th style="width: 36%;">3. सुधार के उपाय (Action Plan)</th>
+                        <th style="width: 28%;">1. Symptom / Problem Observed</th>
+                        <th style="width: 36%;">2. Root Cause (5-Whys Diagnostic)</th>
+                        <th style="width: 36%;">3. Targeted Corrective Action Plan</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><b>प्रोजेक्ट डिलीवरी में देरी (Schedule Slippage)</b><br><span style="font-size: 11.5px; color: {active_subtext};">SV%: {res['schedule_variance_pct']:.1f}%, Delay: +{res['pred_delay_months']:.1f}M</span></td>
-                        <td><b>जमीन अधिग्रहण और RoW बाधाएं:</b> अप्रूवल और एनवायरनमेंटल क्लीयरेंस में देरी से वर्क-फ्रंट समय पर हैंडओवर नहीं हो पाया, जिससे क्रिटिकल पाथ बाधित हुआ।</td>
-                        <td><b>तुरंत:</b> क्रिटिकल स्ट्रेच को प्राथमिकता देकर तुरंत RoW क्लियर कराएं।<br><b>स्थायी:</b> जिला प्रशासन और नोडल टास्क-फोर्स के साथ 15-दिवसीय मॉनिटरिंग रीव्यू शुरू करें।</td>
+                        <td><b>Schedule Slippage & Delayed Delivery</b><br><span style="font-size: 11.5px; color: {active_subtext};">SV%: {res['schedule_variance_pct']:.1f}%, Delay: +{res['pred_delay_months']:.1f}M</span></td>
+                        <td><b>Right-of-Way (RoW) & Clearance Impediments:</b> Delayed statutory forest/environmental approvals and encumbrance-free site handover disrupted the critical PERT path.</td>
+                        <td><b>Immediate:</b> Fast-track critical patch clearances.<br><b>Permanent:</b> Establish 15-day joint coordination meetings with district administration.</td>
                     </tr>
                     <tr>
-                        <td><b>बजट ओवररन और कैश फ्लो ड्रिफ्ट (Cost Escalation)</b><br><span style="font-size: 11.5px; color: {active_subtext};">CPI: {res['cpi']:.2f}, Est. Escalation: +₹{res['cost_escalation_cr']:.1f} Cr</span></td>
-                        <td><b>फ्रंट-लोडिंग और सामग्री मुद्रास्फीति (WPI):</b> भौतिक माइलस्टोन प्राप्त किए बिना फंड रिलीज होना और स्टील/सीमेंट लागत में अनुमान से अधिक वृद्धि होना।</td>
-                        <td><b>तुरंत:</b> माइलस्टोन-लिंक्ड डिस्बर्समेंट पर सख्त नियंत्रण लगाएं।<br><b>स्थायी:</b> GFR Rule 130 के तहत मासिक EVM ऑडिट और प्रेडिक्टिव प्राइस एस्केलेशन ट्रैकिंग लागू करें।</td>
+                        <td><b>Cost Escalation & Cash Flow Drift</b><br><span style="font-size: 11.5px; color: {active_subtext};">CPI: {res['cpi']:.2f}, Est. Escalation: +₹{res['cost_escalation_cr']:.1f} Cr</span></td>
+                        <td><b>Front-Loading & Material Inflation (WPI):</b> Premature fund disbursement ahead of physical milestone completion, compounded by price escalation in core commodities.</td>
+                        <td><b>Immediate:</b> Freeze non-essential outlays and link payments directly to verifiable physical output.<br><b>Permanent:</b> Implement monthly EVM audits per GFR Rule 130.</td>
                     </tr>
                     <tr>
-                        <td><b>माइलस्टोन कैरीओवर और संसाधन कमी</b><br><span style="font-size: 11.5px; color: {active_subtext};">Delayed Milestones: {int(res['inp_milestones'])}, SPI: {res['spi']:.2f}</span></td>
-                        <td><b>मशीनरी और लेबर मोबिलाइजेशन में कमी:</b> वेंडर द्वारा स्वीकृत PERT/CPM शिड्यूल के अनुरूप डबल-शिफ्ट संसाधन ग्राउंड पर तैनात न करना।</td>
-                        <td><b>तुरंत:</b> 14 दिन के अंदर डबल-शिफ्ट रिकवरी शिड्यूल मांगें।<br><b>स्थायी:</b> CPWD Clause 2 के तहत समय पर काम न होने पर वैधानिक लिक्विडेटेड डैमेज (LD) पेनल्टी प्रक्रिया शुरू करें।</td>
+                        <td><b>Milestone Carryover & Resource Deficit</b><br><span style="font-size: 11.5px; color: {active_subtext};">Delayed Milestones: {int(res['inp_milestones'])}, SPI: {res['spi']:.2f}</span></td>
+                        <td><b>Inadequate Machinery & Labor Mobilization:</b> Executing contractor failed to deploy required double-shift manpower and specialized heavy machinery on site.</td>
+                        <td><b>Immediate:</b> Mandate a 14-day catch-up recovery schedule with double shifts.<br><b>Permanent:</b> Issue statutory CPWD Clause 2 Liquidated Damages penalty warnings.</td>
                     </tr>
                 </tbody>
             </table>
