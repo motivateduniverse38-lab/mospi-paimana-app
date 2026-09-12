@@ -23,7 +23,7 @@ if "app_font_scale" not in st.session_state:
 
 is_dark = st.session_state["app_theme_mode"] == "Dark Slate"
 
-# Robust Color Matrix for Strict Contrast Compliance
+# Robust Contrast Palette
 active_bg = "#0B0F19" if is_dark else "#F8FAFC"
 active_card_bg = "#111827" if is_dark else "#FFFFFF"
 active_text = "#FFFFFF" if is_dark else "#0F172A"
@@ -31,7 +31,7 @@ active_subtext = "#94A3B8" if is_dark else "#475569"
 active_border = "#334155" if is_dark else "#CBD5E1"
 active_accent = "#38BDF8" if is_dark else "#0284C7"
 
-# High-Contrast Settings for Plots & Notices
+# Plot & Notice Contrast
 plot_text_color = "#F8FAFC" if is_dark else "#0F172A"
 plot_grid_color = "#1E293B" if is_dark else "#E2E8F0"
 tab_text_color = "#FFFFFF" if is_dark else "#0F172A"
@@ -108,7 +108,7 @@ if "splash_done" not in st.session_state:
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# 3. Universal High-Contrast Dynamic CSS
+# 3. Dynamic Contrast-Enforced Theme CSS
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -134,7 +134,7 @@ st.markdown(f"""
     }}
 
     /* Global Headings & Markdown Text */
-    h1, h2, h3, h4, h5, h6, p, span, div {{
+    h1, h2, h3, h4, h5, h6, p, span, div, label {{
         color: {active_text} !important;
     }}
 
@@ -158,6 +158,17 @@ st.markdown(f"""
         border: 1.5px solid {active_border} !important;
         border-radius: 8px !important;
         background-color: {active_card_bg} !important;
+    }}
+
+    /* Popover Settings Styling */
+    div[data-testid="stPopoverBody"] {{
+        background-color: {active_card_bg} !important;
+        color: {active_text} !important;
+        border: 1.5px solid {active_border} !important;
+        border-radius: 10px !important;
+    }}
+    div[data-testid="stPopoverBody"] p, div[data-testid="stPopoverBody"] span, div[data-testid="stPopoverBody"] label {{
+        color: {active_text} !important;
     }}
 
     /* Streamlit Tabs Text Contrast Fix */
@@ -271,16 +282,20 @@ st.markdown(f"""
         line-height: 1.6 !important;
     }}
 
-    .sidebar-note {{
+    /* Provenance Box */
+    .provenance-card {{
         background-color: {active_card_bg};
         border: 1px solid {active_border};
-        border-left: 3px solid {active_accent};
-        padding: 8px 10px;
-        border-radius: 6px;
+        border-left: 3.5px solid {active_accent};
+        padding: 10px 12px;
+        border-radius: 8px;
         font-size: 11.5px;
-        color: {active_subtext} !important;
-        margin-top: 8px;
-        line-height: 1.4;
+        color: {active_text} !important;
+        margin-top: 10px;
+        line-height: 1.45;
+    }}
+    .provenance-card b {{
+        color: {active_accent} !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -400,6 +415,13 @@ if 'projects_fetched' not in st.session_state:
 if 'cached_predictions' not in st.session_state:
     st.session_state['cached_predictions'] = None
 
+if "sel_state_val" not in st.session_state:
+    st.session_state["sel_state_val"] = "Select State"
+if "sel_dist_val" not in st.session_state:
+    st.session_state["sel_dist_val"] = "All Districts"
+if "sel_block_val" not in st.session_state:
+    st.session_state["sel_block_val"] = "All Blocks / Divisions"
+
 # Top Header Layout with Settings Popover
 header_col1, header_col2, header_col3 = st.columns([1, 8, 1.2])
 
@@ -436,7 +458,10 @@ with col_geo:
     else:
         available_states = ["Select State", "Bihar"]
         
-    selected_state = st.selectbox("1. State / UT", available_states, index=0)
+    state_curr = st.session_state.get("sel_state_val", "Select State")
+    state_idx = available_states.index(state_curr) if state_curr in available_states else 0
+    selected_state = st.selectbox("1. State / UT", available_states, index=state_idx, key="sel_state_box")
+    st.session_state["sel_state_val"] = selected_state
     
     if selected_state != "Select State" and "State" in paimana_df.columns:
         matched_state_df = paimana_df[paimana_df["State"].astype(str).str.lower() == selected_state.lower()]
@@ -444,7 +469,10 @@ with col_geo:
     else:
         district_list = ["All Districts"]
         
-    selected_district = st.selectbox("2. District / Sector", district_list, index=0)
+    dist_curr = st.session_state.get("sel_dist_val", "All Districts")
+    dist_idx = district_list.index(dist_curr) if dist_curr in district_list else 0
+    selected_district = st.selectbox("2. District / Sector", district_list, index=dist_idx, key="sel_dist_box")
+    st.session_state["sel_dist_val"] = selected_district
 
     if selected_state != "Select State" and selected_district != "All Districts" and "State" in paimana_df.columns:
         matched_dist_df = paimana_df[
@@ -455,7 +483,10 @@ with col_geo:
     else:
         block_list = ["All Blocks / Divisions"]
         
-    selected_block = st.selectbox("3. Block / Sub-Division", block_list, index=0)
+    block_curr = st.session_state.get("sel_block_val", "All Blocks / Divisions")
+    block_idx = block_list.index(block_curr) if block_curr in block_list else 0
+    selected_block = st.selectbox("3. Block / Sub-Division", block_list, index=block_idx, key="sel_block_box")
+    st.session_state["sel_block_val"] = selected_block
 
     fetch_btn = st.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
     if fetch_btn:
@@ -470,9 +501,13 @@ with col_geo:
             st.error("Please select a State / UT first.")
 
     demo_btn = st.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
-    st.markdown("""
-    <div class="sidebar-note">
-        <b>📌 Note:</b> Real-time ingestion enabled across MoSPI PAIMANA Flash Reports & PMGSY datasets.
+    
+    # 3. Bottom-Left Audit Provenance Note Box
+    st.markdown(f"""
+    <div class="provenance-card">
+        <b>🏛️ Data Provenance & Calculation Transparency:</b><br>
+        • <b>MoSPI Verified Data:</b> Project Title, Package Code, Executing Agency, Sanctioned Cost, Spend to date, Physical Progress %.<br>
+        • <b>System Derived Math:</b> Planned % = $(T_{{elap}} / T_{{orig}}) \\times 100$, Schedule Variance ($SV\\%$), $CPI = EV / Spend$, $SPI = Progress / Planned$, CPRI Risk Index (0–100).
     </div>
     """, unsafe_allow_html=True)
 
@@ -500,6 +535,9 @@ with col_geo:
         }
         st.session_state['selected_record'] = preset_rec
         st.session_state['projects_fetched'] = True
+        st.session_state['sel_state_val'] = "Bihar"
+        st.session_state['sel_dist_val'] = "East Champaran"
+        st.session_state['sel_block_val'] = "Motihari Sadar"
         st.session_state['active_state'] = "Bihar"
         st.session_state['active_district'] = "East Champaran"
         st.session_state['active_block'] = "Motihari Sadar"
@@ -817,7 +855,7 @@ Date: {current_date_str}
             recovered_saving_cr = (res['pred_cost_overrun_pct'] - recovered_cost) / 100.0 * max(0.0, res['inp_cost'])
             
             st.markdown(f"""
-            <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1.5px solid {active_border};">
+            <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1px solid {active_border};">
                 <h5 style="color: #10B981 !important; margin:0; font-weight: 700;">🎯 Interventional Recovery Projection:</h5>
                 <p style="margin-top: 8px; font-size: 13.5px; line-height: 1.6; color: {active_text} !important;">
                 • Recoverable Timeline: <b>{res['pred_delay_months'] - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
