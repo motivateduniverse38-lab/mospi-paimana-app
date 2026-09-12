@@ -22,6 +22,8 @@ if "app_font_scale" not in st.session_state:
     st.session_state["app_font_scale"] = "Standard (Default)"
 
 is_dark = st.session_state["app_theme_mode"] == "Dark Slate"
+
+# Robust Color Matrix for Strict Contrast Compliance
 active_bg = "#0B0F19" if is_dark else "#F8FAFC"
 active_card_bg = "#111827" if is_dark else "#FFFFFF"
 active_text = "#FFFFFF" if is_dark else "#0F172A"
@@ -29,14 +31,15 @@ active_subtext = "#94A3B8" if is_dark else "#475569"
 active_border = "#334155" if is_dark else "#CBD5E1"
 active_accent = "#38BDF8" if is_dark else "#0284C7"
 
-# Notice Specific Colors (Optimized for High Legibility across Devices)
+# Tab and Notice High-Contrast Settings
+tab_text_color = "#FFFFFF" if is_dark else "#0F172A"
 notice_bg = "#030712" if is_dark else "#FFFFFF"
 notice_text = "#F8FAFC" if is_dark else "#0F172A"
 notice_border = "#38BDF8" if is_dark else "#0284C7"
 
 font_base_size = "14px" if st.session_state["app_font_scale"] == "Standard (Default)" else "15.5px"
 
-# 2. 4-Second Splash Animation Engine
+# 2. 4-Second Splash Animation Engine (Only on Initial Cold Start)
 if "splash_done" not in st.session_state:
     splash_placeholder = st.empty()
     with splash_placeholder.container():
@@ -96,14 +99,14 @@ if "splash_done" not in st.session_state:
             <div class="splash-logo">🏛️ PAIMANA AI</div>
             <div class="splash-sub">MoSPI Infrastructure Monitoring & Predictive Risk Engine</div>
             <div class="splash-loader"><div class="splash-bar"></div></div>
-            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Ingesting MoSPI PAIMANA Flash Reports & CPWD/GFR Framework...</p>
+            <p style="color: #64748B; font-size: 13px; margin-top: 14px;">Initializing CPWD/GFR Compliance & Model Workflows...</p>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(4.0)
     st.session_state["splash_done"] = True
     splash_placeholder.empty()
 
-# Dynamic Theme-Adaptive CSS
+# 3. Dynamic Contrast-Enforced Theme CSS
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -125,6 +128,11 @@ st.markdown(f"""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: {font_base_size};
         background-color: {active_bg} !important;
+        color: {active_text} !important;
+    }}
+
+    /* Global Headings & Markdown Text */
+    h1, h2, h3, h4, h5, h6, p, span, div {{
         color: {active_text} !important;
     }}
 
@@ -150,6 +158,18 @@ st.markdown(f"""
         background-color: {active_card_bg} !important;
     }}
 
+    /* Streamlit Tabs Text Contrast Fix */
+    button[data-baseweb="tab"] {{
+        color: {tab_text_color} !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        border-bottom: 2px solid transparent !important;
+    }}
+    button[data-baseweb="tab"][aria-selected="true"] {{
+        color: {active_accent} !important;
+        border-bottom: 2px solid {active_accent} !important;
+    }}
+
     /* Buttons */
     .stButton button {{
         background-color: {'#1E293B' if is_dark else '#FFFFFF'} !important;
@@ -168,13 +188,13 @@ st.markdown(f"""
         border-color: {active_accent} !important;
     }}
 
-    /* Typography */
+    /* Brand Header */
     .brand-title {{
         text-align: center;
         font-size: 32px;
         font-weight: 900;
         letter-spacing: 1.5px;
-        color: {active_accent};
+        color: {active_accent} !important;
         margin-top: -12px;
         margin-bottom: 0px;
     }}
@@ -183,14 +203,14 @@ st.markdown(f"""
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 2px;
-        color: {active_subtext};
+        color: {active_subtext} !important;
         text-transform: uppercase;
         margin-bottom: 18px;
     }}
     .section-title {{
         font-size: 13px;
         font-weight: 800;
-        color: {active_accent};
+        color: {active_accent} !important;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 10px;
@@ -201,16 +221,16 @@ st.markdown(f"""
     /* Inspection Card */
     .project-card-white {{
         background-color: {'#1E293B' if is_dark else '#FFFFFF'};
-        color: {active_text};
-        border: 1px solid {active_border};
+        color: {active_text} !important;
+        border: 1.5px solid {active_border};
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }}
     .project-code-badge {{
         background-color: {'#064E3B' if is_dark else '#D1FAE5'};
-        color: {'#34D399' if is_dark else '#065F46'};
+        color: {'#34D399' if is_dark else '#065F46'} !important;
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
         font-weight: 700;
@@ -220,19 +240,19 @@ st.markdown(f"""
         margin: 4px 0;
     }}
     .contractor-text {{
-        color: {'#34D399' if is_dark else '#059669'};
+        color: {'#34D399' if is_dark else '#059669'} !important;
         font-weight: 800;
         font-size: 13px;
         margin-bottom: 6px;
     }}
     .metric-dot-row {{
-        color: {active_text};
+        color: {active_text} !important;
         font-size: 12.5px;
         font-weight: 600;
         margin-bottom: 5px;
     }}
     .metric-dot-green {{
-        color: {'#34D399' if is_dark else '#059669'};
+        color: {'#34D399' if is_dark else '#059669'} !important;
         font-weight: 700;
         font-family: 'JetBrains Mono', monospace;
     }}
@@ -256,7 +276,7 @@ st.markdown(f"""
         padding: 8px 10px;
         border-radius: 6px;
         font-size: 11.5px;
-        color: {active_subtext};
+        color: {active_subtext} !important;
         margin-top: 8px;
         line-height: 1.4;
     }}
@@ -368,7 +388,7 @@ def load_ml_models():
 paimana_df = load_data()
 time_model, cost_model = load_ml_models()
 
-# State Initializations
+# State Management for Fresh State on Browser Reload
 if 'selected_record' not in st.session_state:
     st.session_state['selected_record'] = None
 if 'ai_evaluated' not in st.session_state:
@@ -414,8 +434,7 @@ with col_geo:
     else:
         available_states = ["Select State", "Bihar"]
         
-    default_state_idx = available_states.index("Bihar") if "Bihar" in available_states else 0
-    selected_state = st.selectbox("1. State / UT", available_states, index=default_state_idx)
+    selected_state = st.selectbox("1. State / UT", available_states, index=0)
     
     if selected_state != "Select State" and "State" in paimana_df.columns:
         matched_state_df = paimana_df[paimana_df["State"].astype(str).str.lower() == selected_state.lower()]
@@ -438,12 +457,15 @@ with col_geo:
 
     fetch_btn = st.button("🗣️ Fetch Ongoing Projects (Enter ↵)", use_container_width=True)
     if fetch_btn:
-        with st.spinner("⏳ Fetching certified government records... (2s)"):
-            time.sleep(2.0)
-        st.session_state['projects_fetched'] = True
-        st.session_state['active_state'] = selected_state
-        st.session_state['active_district'] = selected_district
-        st.session_state['active_block'] = selected_block
+        if selected_state != "Select State":
+            with st.spinner("⏳ Fetching certified government records... (2s)"):
+                time.sleep(2.0)
+            st.session_state['projects_fetched'] = True
+            st.session_state['active_state'] = selected_state
+            st.session_state['active_district'] = selected_district
+            st.session_state['active_block'] = selected_block
+        else:
+            st.error("Please select a State / UT first.")
 
     demo_btn = st.button("🚨 Load Motihari Chhatauni Demo Preset", use_container_width=True)
     st.markdown("""
@@ -496,88 +518,92 @@ with col_geo:
 with col_sec1:
     st.markdown("<div class='section-title'>📁 SECTION 1: DETAILS ABOUT ONGOING PROJECTS</div>", unsafe_allow_html=True)
     
-    active_st = st.session_state.get('active_state', selected_state)
-    active_dist = st.session_state.get('active_district', selected_district)
-    active_blk = st.session_state.get('active_block', selected_block)
-    
-    temp_df = paimana_df.copy()
-    if active_st != "Select State" and "State" in temp_df.columns:
-        temp_df = temp_df[temp_df["State"].astype(str).str.lower() == active_st.lower()]
-    if active_dist != "All Districts" and "District" in temp_df.columns:
-        temp_df = temp_df[temp_df["District"].astype(str).str.lower() == active_dist.lower()]
-    if active_blk != "All Blocks / Divisions" and "Block" in temp_df.columns:
-        temp_df = temp_df[temp_df["Block"].astype(str).str.lower() == active_blk.lower()]
-
-    matched_projects = [r for _, r in temp_df.iterrows()]
-        
-    if not matched_projects:
-        st.info("ℹ️ Currently, no active government construction work is underway at this location.")
+    if not st.session_state.get('projects_fetched', False):
+        st.info("👈 Please select a State and click **'Fetch Ongoing Projects'** to inspect active government packages.")
         active_row = None
     else:
-        project_options = [str(r["Project_Name"]) for r in matched_projects]
-        selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
-        active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), matched_projects[0])
-
-        st.markdown(f"""
-        <div class="project-card-white">
-            <div style="font-size: 14.5px; font-weight: 800; color: {active_accent}; line-height: 1.3;">
-                📌 {active_row['Project_Name']}
-            </div>
-            <div><span class="project-code-badge">{active_row.get('Package_ID', 'MOSPI_PAIMANA_2026')}</span></div>
-            <div class="contractor-text">🏗️ {active_row.get('Contractor_Name', 'Empanelled Central/State Agency')}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        active_st = st.session_state.get('active_state', selected_state)
+        active_dist = st.session_state.get('active_district', selected_district)
+        active_blk = st.session_state.get('active_block', selected_block)
         
-        b1, b2 = st.columns(2)
-        with b1:
-            st.markdown(f"<div class='metric-dot-row'>• <b>Original Cost:</b> <span class='metric-dot-green'>₹{float(active_row['Original_Cost_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Duration:</b> <span class='metric-dot-green'>{int(active_row['Original_Duration'])} M</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Elapsed:</b> <span class='metric-dot-green'>{int(active_row['Elapsed_Months'])} M</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Spend:</b> <span class='metric-dot-green'>₹{float(active_row['Cumulative_Spend_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
-        with b2:
-            st.markdown(f"<div class='metric-dot-row'>• <b>Progress:</b> <span class='metric-dot-green'>{float(active_row['Physical_Progress_Pct']):.1f}%</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Delayed M/S:</b> <span class='metric-dot-green'>{int(active_row['Delayed_Milestones'])}</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Revisions:</b> <span class='metric-dot-green'>{int(active_row.get('Revisions_Count', 0))}</span></div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='metric-dot-row'>• <b>Land Risk:</b> <span class='metric-dot-green'>{float(active_row['Land_Risk_Score']):.1f}</span></div>", unsafe_allow_html=True)
+        temp_df = paimana_df.copy()
+        if active_st != "Select State" and "State" in temp_df.columns:
+            temp_df = temp_df[temp_df["State"].astype(str).str.lower() == active_st.lower()]
+        if active_dist != "All Districts" and "District" in temp_df.columns:
+            temp_df = temp_df[temp_df["District"].astype(str).str.lower() == active_dist.lower()]
+        if active_blk != "All Blocks / Divisions" and "Block" in temp_df.columns:
+            temp_df = temp_df[temp_df["Block"].astype(str).str.lower() == active_blk.lower()]
 
-        load_sec2_btn = st.button("📥 Load This Project Data into Section 2", use_container_width=True)
-        if load_sec2_btn:
-            with st.spinner("⏳ Loading Project into Prediction Engine... (2s)"):
-                time.sleep(2.0)
-            row_dict = active_row.to_dict()
-            st.session_state['selected_record'] = row_dict
-            st.session_state['inp_cost'] = float(row_dict['Original_Cost_Cr'])
-            st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
-            st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
-            st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
-            st.session_state['box_phys'] = float(row_dict['Physical_Progress_Pct'])
-            st.session_state['box_ms'] = int(row_dict['Delayed_Milestones'])
-            st.session_state['box_rev'] = int(row_dict.get('Revisions_Count', 0))
-            st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
-            st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
-            st.session_state['ai_evaluated'] = False
-            st.session_state['cached_predictions'] = None
-            st.rerun()
+        matched_projects = [r for _, r in temp_df.iterrows()]
+            
+        if not matched_projects:
+            st.info("ℹ️ Currently, no active government construction work is underway at this location.")
+            active_row = None
+        else:
+            project_options = [str(r["Project_Name"]) for r in matched_projects]
+            selected_inspect = st.selectbox("Select Construction Work to Inspect:", project_options, index=0)
+            active_row = next((r for r in matched_projects if str(r["Project_Name"]) == selected_inspect), matched_projects[0])
+
+            st.markdown(f"""
+            <div class="project-card-white">
+                <div style="font-size: 14.5px; font-weight: 800; color: {active_accent}; line-height: 1.3;">
+                    📌 {active_row['Project_Name']}
+                </div>
+                <div><span class="project-code-badge">{active_row.get('Package_ID', 'MOSPI_PAIMANA_2026')}</span></div>
+                <div class="contractor-text">🏗️ {active_row.get('Contractor_Name', 'Empanelled Central/State Agency')}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            b1, b2 = st.columns(2)
+            with b1:
+                st.markdown(f"<div class='metric-dot-row'>• <b>Original Cost:</b> <span class='metric-dot-green'>₹{float(active_row['Original_Cost_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Duration:</b> <span class='metric-dot-green'>{int(active_row['Original_Duration'])} M</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Elapsed:</b> <span class='metric-dot-green'>{int(active_row['Elapsed_Months'])} M</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Spend:</b> <span class='metric-dot-green'>₹{float(active_row['Cumulative_Spend_Cr']):.2f} Cr</span></div>", unsafe_allow_html=True)
+            with b2:
+                st.markdown(f"<div class='metric-dot-row'>• <b>Progress:</b> <span class='metric-dot-green'>{float(active_row['Physical_Progress_Pct']):.1f}%</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Delayed M/S:</b> <span class='metric-dot-green'>{int(active_row['Delayed_Milestones'])}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Revisions:</b> <span class='metric-dot-green'>{int(active_row.get('Revisions_Count', 0))}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='metric-dot-row'>• <b>Land Risk:</b> <span class='metric-dot-green'>{float(active_row['Land_Risk_Score']):.1f}</span></div>", unsafe_allow_html=True)
+
+            load_sec2_btn = st.button("📥 Load This Project Data into Section 2", use_container_width=True)
+            if load_sec2_btn:
+                with st.spinner("⏳ Loading Project into Prediction Engine... (2s)"):
+                    time.sleep(2.0)
+                row_dict = active_row.to_dict()
+                st.session_state['selected_record'] = row_dict
+                st.session_state['inp_cost'] = float(row_dict['Original_Cost_Cr'])
+                st.session_state['inp_dur'] = int(row_dict['Original_Duration'])
+                st.session_state['inp_elap'] = int(row_dict['Elapsed_Months'])
+                st.session_state['inp_sp'] = float(row_dict['Cumulative_Spend_Cr'])
+                st.session_state['box_phys'] = float(row_dict['Physical_Progress_Pct'])
+                st.session_state['box_ms'] = int(row_dict['Delayed_Milestones'])
+                st.session_state['box_rev'] = int(row_dict.get('Revisions_Count', 0))
+                st.session_state['sl_land'] = float(row_dict['Land_Risk_Score'])
+                st.session_state['sl_wpi'] = float(row_dict['WPI_Inflation_Index'])
+                st.session_state['ai_evaluated'] = False
+                st.session_state['cached_predictions'] = None
+                st.rerun()
 
 # COLUMN 3: Predict Project Future Overview
-rec = st.session_state.get('selected_record') or (active_row.to_dict() if active_row is not None else {})
+rec = st.session_state.get('selected_record') or {}
 
 with col_sec2:
     st.markdown("<div class='section-title'>⚡ SECTION 2: PREDICT PROJECT FUTURE OVERVIEW</div>", unsafe_allow_html=True)
     
     s2_col1, s2_col2 = st.columns(2)
     with s2_col1:
-        inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 341.56))), key="inp_cost")
-        inp_duration = st.number_input("Duration (Months)", value=int(st.session_state.get('inp_dur', rec.get('Original_Duration', 27))), key="inp_dur")
-        inp_elapsed = st.number_input("Elapsed (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 13))), key="inp_elap")
-        inp_spend = st.number_input("Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 200.56))), key="inp_sp")
+        inp_cost = st.number_input("Cost (₹ Cr)", value=float(st.session_state.get('inp_cost', rec.get('Original_Cost_Cr', 150.00))), min_value=0.01, key="inp_cost")
+        inp_duration = st.number_input("Duration (Months)", value=int(st.session_state.get('inp_dur', rec.get('Original_Duration', 24))), min_value=1, key="inp_dur")
+        inp_elapsed = st.number_input("Elapsed (Months)", value=int(st.session_state.get('inp_elap', rec.get('Elapsed_Months', 6))), min_value=1, key="inp_elap")
+        inp_spend = st.number_input("Spend (₹ Cr)", value=float(st.session_state.get('inp_sp', rec.get('Cumulative_Spend_Cr', 35.00))), min_value=0.0, key="inp_sp")
     with s2_col2:
-        inp_phys = st.number_input("Progress (%)", min_value=0.0, max_value=100.0, value=float(st.session_state.get('box_phys', rec.get('Physical_Progress_Pct', 40.80))), key="box_phys")
+        inp_phys = st.number_input("Progress (%)", min_value=0.0, max_value=100.0, value=float(st.session_state.get('box_phys', rec.get('Physical_Progress_Pct', 25.00))), key="box_phys")
         inp_milestones = st.number_input("Delayed M/S", min_value=0, max_value=20, value=int(st.session_state.get('box_ms', rec.get('Delayed_Milestones', 0))), key="box_ms")
         inp_revisions = st.number_input("Revisions", min_value=0, max_value=10, value=int(st.session_state.get('box_rev', rec.get('Revisions_Count', 0))), key="box_rev")
         
-    inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(st.session_state.get('sl_land', rec.get('Land_Risk_Score', 7.70))), key="sl_land")
-    inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 116.50))), key="sl_wpi")
+    inp_land = st.slider("Local Land Risk (1-10)", 1.0, 10.0, float(st.session_state.get('sl_land', rec.get('Land_Risk_Score', 5.00))), key="sl_land")
+    inp_wpi = st.slider("WPI Material Inflation Index", 90.0, 140.0, float(st.session_state.get('sl_wpi', rec.get('WPI_Inflation_Index', 112.40))), key="sl_wpi")
 
     run_ai = st.button("⚡ Run AI Prediction & Risk Analysis (Enter ↵)", use_container_width=True)
     if run_ai:
@@ -689,7 +715,19 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
         fig_s = go.Figure()
         fig_s.add_trace(go.Bar(name='Planned Target (%)', x=['Schedule Horizon'], y=[res['planned_progress_pct']], marker=dict(color=active_accent, line=dict(color='#0284C7', width=1.5)), width=0.35))
         fig_s.add_trace(go.Bar(name='Actual Ground Progress (%)', x=['Schedule Horizon'], y=[res['inp_phys']], marker=dict(color='#10B981', line=dict(color='#059669', width=1.5)), width=0.35))
-        fig_s.update_layout(barmode='group', template="plotly_dark" if is_dark else "plotly_white", height=340, title="EVM Square Block Progress Benchmark (Planned vs On-Site Physical)", yaxis_title="Physical Completion (%)", yaxis=dict(range=[0, 100]), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(l=20, r=20, t=35, b=20))
+        fig_s.update_layout(
+            barmode='group',
+            template="plotly_dark" if is_dark else "plotly_white",
+            paper_bgcolor=active_card_bg,
+            plot_bgcolor=active_card_bg,
+            font=dict(color=active_text),
+            height=340,
+            title="EVM Progress Benchmark (Planned vs Actual Physical %)",
+            yaxis_title="Physical Completion (%)",
+            yaxis=dict(range=[0, 100]),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            margin=dict(l=20, r=20, t=35, b=20)
+        )
         st.plotly_chart(fig_s, use_container_width=True)
 
     with t_shap:
@@ -702,7 +740,14 @@ if st.session_state['ai_evaluated'] and st.session_state['cached_predictions'] i
         }
         shap_df = pd.DataFrame(list(shap_factors.items()), columns=['Parameter', 'Weight (%)']).sort_values(by='Weight (%)', ascending=True)
         fig_bar = px.bar(shap_df, x='Weight (%)', y='Parameter', orientation='h', color='Weight (%)', color_continuous_scale='Reds')
-        fig_bar.update_layout(template="plotly_dark" if is_dark else "plotly_white", height=320, margin=dict(l=20, r=20, t=20, b=20))
+        fig_bar.update_layout(
+            template="plotly_dark" if is_dark else "plotly_white",
+            paper_bgcolor=active_card_bg,
+            plot_bgcolor=active_card_bg,
+            font=dict(color=active_text),
+            height=320,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
         st.plotly_chart(fig_bar, use_container_width=True)
 
     with t_notice:
@@ -765,11 +810,11 @@ Date: {current_date_str}
             
             st.markdown(f"""
             <div style="background-color: {active_card_bg}; padding: 15px; border-radius: 8px; border-left: 4px solid #10B981; border: 1.5px solid {active_border};">
-                <h5 style="color: #10B981; margin:0; font-weight: 700;">🎯 Interventional Recovery Projection:</h5>
-                <p style="margin-top: 8px; font-size: 13.5px; line-height: 1.6;">
+                <h5 style="color: #10B981 !important; margin:0; font-weight: 700;">🎯 Interventional Recovery Projection:</h5>
+                <p style="margin-top: 8px; font-size: 13.5px; line-height: 1.6; color: {active_text} !important;">
                 • Recoverable Timeline: <b>{res['pred_delay_months'] - recovered_delay:.1f} Months Saved</b> (Revised Delay: +{recovered_delay:.1f} M)<br>
                 • Projected Fiscal Savings: <b>₹{recovered_saving_cr:.2f} Crores</b> (Revised Cost Overrun: +{recovered_cost:.1f}%)<br>
-                • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'};">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
+                • Revised Status: <b style="color: {'#10B981' if recovered_delay < 3 else '#F59E0B'} !important;">{'GREEN (RECOVERED)' if recovered_delay < 3 else 'AMBER (MANAGEABLE)'}</b>
                 </p>
             </div>
             """, unsafe_allow_html=True)
